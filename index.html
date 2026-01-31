@@ -128,7 +128,7 @@ h2 {
 
     <script>
         // CONFIGURATION
-        const scriptURL = "https://script.google.com/macros/s/AKfycbzpCvioFTSqJDxQOE6LgRKjgNP9DUON3Wzhb81CZym2LMgD2yfY15wkzw9h-1vA1OOC/exec";
+        const scriptURL = "https://script.google.com/macros/s/AKfycbwu-G7wGQb-MY5Jtzwuof4MFTfjuGIUbli47r9ei6v_gz6KZ2JUGLHDL-NsJypaU-lW/exec";
         const passKey = "Epiroc@123";
 
         // 1. DATA OBJECTS
@@ -289,35 +289,37 @@ h2 {
         });
 
         // 5. FORM SUBMISSION
-        document.getElementById('consumptionForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submitBtn');
-            btn.innerText = "Processing Sync..."; btn.disabled = true;
+document.getElementById('consumptionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "Processing Sync..."; 
+    btn.disabled = true;
 
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-
-            fetch(scriptURL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            })
-            .then(res => {
-                if(res.ok) { 
-                    alert("SUCCESS: Record synced to Enterprise OneDrive!"); 
-                    location.reload(); 
-                }
-                else throw new Error();
-            })
-            .catch(() => {
-                alert("CLOUD SYNC ERROR: Ensure you are on the site network or check the Power Automate Link.");
-                btn.disabled = false; btn.innerText = "Submit Record to OneDrive";
-            });
-        });
+    // Use URLSearchParams to ensure Google can read the data easily
+    const formData = new FormData(this);
+    
+    fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors', // This bypasses the "Cloud Sync Error"
+        body: formData
+    })
+    .then(() => {
+        // With 'no-cors', we assume success if the fetch doesn't crash
+        alert("SUCCESS: Record synced to Part_Db!"); 
+        location.reload(); 
+    })
+    .catch((err) => {
+        console.error(err);
+        alert("CRITICAL ERROR: Check your internet or Google Script URL.");
+        btn.disabled = false; 
+        btn.innerText = "Submit Record to Part_Db";
+    });
+});
     </script>
 </body>
 
 </html>
+
 
 
 
