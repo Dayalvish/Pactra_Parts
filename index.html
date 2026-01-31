@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EPIROC PACTRA360 PARTS CONSUMPTION ENTRY FORM</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; }
+        .header-section { max-width: 700px; margin: 0 auto 10px auto; display: flex; flex-direction: column; align-items: flex-start; }
+        .brand-logo { max-width: 160px; height: auto; margin-bottom: 10px; }
+        h2 { margin: 0; font-size: 22px; color: #333; width: 100%; text-align: center; padding-bottom: 15px; }
+        
+        .sheet-container { background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 700px; margin: 0 auto; border-radius: 8px; overflow: hidden; }
+        table { border-collapse: collapse; width: 100%; }
+        td { border: 1px solid #dfe3e8; padding: 12px; font-size: 14px; }
+
+        /* Alternating Label Colors (Excel Style) */
+        tr:nth-child(odd) .label-cell { background-color: #FFD700 !important; color: #000 !important; font-weight: bold; width: 40%; }
+        tr:nth-child(even) .label-cell { background-color: #555555 !important; color: #ffffff !important; font-weight: bold; width: 40%; }
+
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
+        .hidden { display: none; }
+        .button-group { padding: 20px; text-align: center; background: #f8f9fa; border-top: 1px solid #ddd; }
+        
+        button { padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 16px; }
+        .btn-submit { background-color: #28a745; color: white; width: 100%; }
+        .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.6; }
+        
+        .status-tag { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .locked { background: #f8d7da; color: #721c24; }
+        .unlocked { background: #d4edda; color: #155724; }
+        .required-star { color: #dc3545; }
+    </style>
+</head>
+<body>
+
+    <div class="header-section">
+        <img src="Picture1.png" alt="Epiroc Logo" class="brand-logo" onerror="this.style.display='none'">
+        <h2>EPIROC PACTRA360 PARTS CONSUMPTION ENTRY FORM</h2>
+    </div>
+
+    <form id="consumptionForm">
+        <div class="sheet-container">
+            <table>
+                <tr>
+                    <td class="label-cell">Customer Name <span class="required-star">*</span></td>
+                    <td>
+                        <select id="customerSelect" name="Customer_Name" onchange="updateSites(); checkValidation();" required>
+                            <option value="">-- Select Customer --</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr><td class="label-cell">Date <span class="required-star">*</span></td><td><input type="date" name="Entry_Date" id="valDate" oninput="checkValidation()" required></td></tr>
+                <tr><td class="label-cell">Technician Name <span class="required-star">*</span></td><td><input type="text" name="Technician_Name" id="valTech" placeholder="Enter Full Name" oninput="checkValidation()" required></td></tr>
+                <tr>
+                    <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Unlock Password</td>
+                    <td><input type="password" id="passInput" placeholder="Enter password to enable fields"></td>
+                </tr>
+                <tr><td class="label-cell">Form Status</td><td><span id="statusLabel" class="status-tag locked">Locked</span></td></tr>
+
+                <tbody id="protectedContent" class="hidden">
+                    <tr><td class="label-cell">Work Site <span class="required-star">*</span></td><td><select id="workSiteSelect" name="Work_Site" onchange="updateFleet(); checkValidation();"><option value="">-- Select Site --</option></select></td></tr>
+                    <tr><td class="label-cell">Fleet ID <span class="required-star">*</span></td><td><select id="fleetSelect" name="Fleet_ID" onchange="checkValidation()"><option value="">-- Select Fleet --</option></select></td></tr>
+                    
+                    <tr>
+                        <td class="label-cell">Part Group <span class="required-star">*</span></td>
+                        <td>
+                            <select name="Part_Group" id="valGroup" onchange="updatePartTypes(); updateReasons(); checkValidation();">
+                                <option value="">-- Select Group --</option>
+                                <option value="Lubricant">Lubricant</option>
+                                <option value="Parts">Parts</option>
+                                <option value="RockTool">RockTool</option>
+                                <option value="Hoses">Hoses</option>
+                            </select>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="label-cell">Part Type <span class="required-star">*</span></td>
+                        <td><select id="typeSelect" name="Part_Type" onchange="updatePartDescriptions(); checkValidation();"><option value="">-- Select Type --</option></select></td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="label-cell">Part Description <span class="required-star">*</span></td>
+                        <td><select id="descSelect" name="Part_Description" onchange="checkValidation()"><option value="">-- Select Description --</option></select></td>
+                    </tr>
+
+                    <tr>
+                        <td class="label-cell">Reason for Replacement <span class="required-star">*</span></td>
+                        <td><select id="reasonSelect" name="Reason_to_Replace" onchange="checkValidation()"><option value="">-- Select Reason --</option></select></td>
+                    </tr>
+                    
+                    <tr><td class="label-cell">Part Number</td><td><input type="text" name="Part_Number" id="valPartNum" placeholder="e.g. 5580006789"></td></tr>
+                    <tr><td class="label-cell">Quantity <span class="required-star">*</span></td><td><input type="number" name="Quantity" id="valQty" placeholder="0" oninput="checkValidation()" required></td></tr>
+                    <tr><td class="label-cell">Unit Price</td><td><input type="number" step="any" name="Unit_Price" placeholder="0.00"></td></tr>
+                    <tr><td class="label-cell">Consumption Remarks</td><td><textarea name="Remarks" rows="2" placeholder="Any additional info..."></textarea></td></tr>
+                </tbody>
+            </table>
+            
+            <div class="button-group hidden" id="formButtons">
+                <button type="submit" id="submitBtn" class="btn-submit" disabled>Submit Record to OneDrive</button>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        // CONFIGURATION
+        const scriptURL = "https://default896ecbeabd274a3ca13134aa0b46a0.86.environment.api.powerplatform.com:443/powerautomate/automations/direct/workflows/a2a538ccd2f648a589c3d8b8f71fa31b/triggers/manual/paths/invoke?api-version=1";
+        const passKey = "Epiroc@123";
+
+        // 1. DATA OBJECTS
+        const customerToSites = {
+            "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines"],
+            "ULTRATECH LTD": ["Rajshree Cements", "Kotputli Cement Works", "Manikgarh Cement Works", "Bela Cement Works", "Awarpur", "Kukurdih Cement Works", "Nathwara Cement Works", "Tadipatri Cement Works", "Rawan Cement Works", "Maihar Cement Works"],
+            "AMBUJA CEMENTS LTD": ["Ambuja Darlaghat", "Rabriyawas Cement Works"],
+            "LAFARGE": ["Shella Lime Stone Quarry"], 
+            "ACC LTD": ["Wadi Cement Works", "Gagal Cement Works", "Kymore Cement Works"],
+            "ADANI ENTERPRISES": ["Parsa Kenta Coal Mines"], 
+            "NMDC LTD": ["BACHELI", "KIRANDUL"],
+            "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines"], 
+            "BIRLA CORPORATION LIMITED": ["Birla Cements Satna"],
+            "GANPATI METAL MINING": ["MOIL"]
+        };
+
+        const siteToFleet = {
+            "Ambuja Darlaghat": ["DarlaT40"], 
+            "Wadi Cement Works": ["WadiSRD50", "WadiFRD50"],
+            "Rabriyawas Cement Works": ["RbwsD50I", "RbwsD50II"], 
+            "Rajshree Cements": ["RjshreeROCL6", "RjshreeFRD50"],
+            "Noamundi Iron Ore Mines": ["NoaD65I", "NoaD65II", "NoaD65III", "KTMD65I", "KTMD65II"],
+            "Kotputli Cement Works": ["KotputliT40I", "KotputliT40II", "KotputliT40III"], 
+            "Manikgarh Cement Works": ["ManikgarhT40"],
+            "Khondbond Iron Ore Mines": ["KhondbondD65", "KhondbondL8"], 
+            "Shella Lime Stone Quarry": ["LafargeD60", "LafargeT40"],
+            "Bela Cement Works": ["BelaFRD50"], 
+            "Joda Iron Ore Mines": ["JodaD65I", "JodaD65II"],
+            "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"], 
+            "Nuagaon Iron Ore Mines": ["NuagaonT45III"],
+            "TSL West Bokaro Q-SE": ["BokaroD65I", "BokaroPRD50", "QSE-DM14", "QSE-DM15"], 
+            "TSL West Bokaro Q-AB": ["QAB-DM2K10", "QAB-DM2K11"],
+            "Gagal Cement Works": ["GagalFRD50", "GagalT40"], 
+            "Kymore Cement Works": ["KymoreT40", "KymoreMGMFRD50", "KymoreBMGFRD50"],
+            "Awarpur": ["AwarpurD50I"], 
+            "Kukurdih Cement Works": ["KukurdihT45I"], 
+            "Nathwara Cement Works": ["NathwaraT40I", "NathwaraT40II"],
+            "Tadipatri Cement Works": ["TadipatriT45I"], 
+            "Rawan Cement Works": ["RawanD50I"], 
+            "Maihar Cement Works": ["MaiharT40I"],
+            "Parsa Kenta Coal Mines": ["US091130"], 
+            "Birla Cements Satna": ["BirlaT40I"], 
+            "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"],
+            "KIRANDUL": ["NMDCT45II"], 
+            "MOIL": ["GanpatiT40I"]
+        };
+
+        const partsData = {
+            "Lubricant": { 
+                "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "High Temp Hydraulic Oil"], 
+                "Compressor-Oil": ["Par Oil M", "Par Oil S", "XAS Gear Oil"], 
+                "Engine_Oil": ["CAT Deo 15W40", "Epiroc SAE 15W40", "Engine Oil Premium"] 
+            },
+            "Parts": { 
+                "Filter-Kits": ["Service Kit 50h", "Engine Oil Filter", "Fuel Filter", "Water Separator"], 
+                "Wear-Consumables": ["Ropes", "Chain Roller", "OSC Valve Block", "Feed Chain"] 
+            },
+            "RockTool": { 
+                "Hammer": ["PRISMA DHD Hammer", "QL-40 Hammer", "COP 44 Hammer"], 
+                "Buttonbit": ["PRISMA 4H BIT", "K5.5 Bit 152mm", "115mm Button Bit"] 
+            },
+            "Hoses": { 
+                "Hydraulic Hoses": ["Tram Hose", "RHS Hose", "Feed Motor Hose"], 
+                "Compressor Hoses": ["Discharge Hose", "BOOM Hose", "Main Air Hose"] 
+            }
+        };
+
+        const groupToReasons = {
+            "Lubricant": ["Schedule Top-up", "Oil Change (PM Service)", "Oil Leakage Correction", "Contamination Found"],
+            "Parts": ["Breakdown Failure", "Component Reached Life", "Preventive Replacement", "Accidental Damage"],
+            "RockTool": ["Bit Blunted / Finished", "Shank Failure", "Hammer Performance Drop", "Drill Rod Bent/Broken"],
+            "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing / Damage", "End-of-Life Replacement"]
+        };
+
+        // 2. INITIALIZATION
+        window.onload = function() {
+            const custSelect = document.getElementById('customerSelect');
+            Object.keys(customerToSites).sort().forEach(c => {
+                let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
+            });
+        };
+
+        // 3. DROPDOWN CASCADING LOGIC
+        function updateSites() {
+            const customer = document.getElementById('customerSelect').value;
+            const siteSelect = document.getElementById('workSiteSelect');
+            const fleetSelect = document.getElementById('fleetSelect');
+            siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
+            fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
+            if (customerToSites[customer]) {
+                customerToSites[customer].forEach(s => {
+                    let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
+                });
+            }
+        }
+
+        function updateFleet() {
+            const site = document.getElementById('workSiteSelect').value;
+            const fleetSelect = document.getElementById('fleetSelect');
+            fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
+            if (siteToFleet[site]) {
+                siteToFleet[site].forEach(f => {
+                    let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
+                });
+            }
+        }
+
+        function updatePartTypes() {
+            const group = document.getElementById('valGroup').value;
+            const typeSelect = document.getElementById('typeSelect');
+            const descSelect = document.getElementById('descSelect');
+            typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+            descSelect.innerHTML = '<option value="">-- Select Description --</option>';
+            if (partsData[group]) {
+                Object.keys(partsData[group]).forEach(type => {
+                    let opt = document.createElement('option'); opt.value = opt.text = type; typeSelect.add(opt);
+                });
+            }
+        }
+
+        function updatePartDescriptions() {
+            const group = document.getElementById('valGroup').value;
+            const type = document.getElementById('typeSelect').value;
+            const descSelect = document.getElementById('descSelect');
+            descSelect.innerHTML = '<option value="">-- Select Description --</option>';
+            if (partsData[group] && partsData[group][type]) {
+                partsData[group][type].forEach(desc => {
+                    let opt = document.createElement('option'); opt.value = opt.text = desc; descSelect.add(opt);
+                });
+            }
+        }
+
+        function updateReasons() {
+            const group = document.getElementById('valGroup').value;
+            const reasonSelect = document.getElementById('reasonSelect');
+            reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
+            if (groupToReasons[group]) {
+                groupToReasons[group].forEach(r => {
+                    let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
+                });
+            }
+        }
+
+        // 4. VALIDATION & SECURITY
+        function checkValidation() {
+            const req = ['customerSelect', 'valDate', 'valTech', 'workSiteSelect', 'fleetSelect', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty'];
+            const invalid = req.some(id => !document.getElementById(id).value);
+            document.getElementById('submitBtn').disabled = invalid;
+        }
+
+        document.getElementById('passInput').addEventListener('input', function() {
+            const match = this.value === passKey;
+            document.getElementById('protectedContent').classList.toggle('hidden', !match);
+            document.getElementById('formButtons').classList.toggle('hidden', !match);
+            document.getElementById('statusLabel').innerText = match ? "Unlocked" : "Locked";
+            document.getElementById('statusLabel').className = "status-tag " + (match ? "unlocked" : "locked");
+            checkValidation();
+        });
+
+        // 5. FORM SUBMISSION
+        document.getElementById('consumptionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.innerText = "Processing Sync..."; btn.disabled = true;
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch(scriptURL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(res => {
+                if(res.ok) { 
+                    alert("SUCCESS: Record synced to Enterprise OneDrive!"); 
+                    location.reload(); 
+                }
+                else throw new Error();
+            })
+            .catch(() => {
+                alert("CLOUD SYNC ERROR: Ensure you are on the site network or check the Power Automate Link.");
+                btn.disabled = false; btn.innerText = "Submit Record to OneDrive";
+            });
+        });
+    </script>
+</body>
+</html>
