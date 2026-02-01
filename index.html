@@ -341,9 +341,10 @@ function checkValidation() {
             }
         }
 
-       // --- 4. VALIDATION & ACCESS ---
+      // --- 4. VALIDATION & ACCESS ---
 function checkValidation() {
-    const req = ['customerSelect', 'valDate', 'valTech', 'workSiteSelect', 'fleetSelect', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty'];
+    // Added 'valHours' to the requirement list
+    const req = ['customerSelect', 'valDate', 'valTech', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty', 'valHours'];
     const invalid = req.some(id => {
         const el = document.getElementById(id);
         return !el || !el.value;
@@ -366,26 +367,25 @@ function verifyCredentials() {
     btn.innerText = "Verifying with Cloud...";
     btn.disabled = true;
 
-    // This calls the doGet function in your Google Script
+    // This calls the doGet function in your Google Script for live validation
     fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
     .then(response => response.text())
     .then(text => {
         if (text.startsWith("success")) {
             const siteName = text.split(":")[1];
             
-            // BOOM! Only opens if the password is 100% correct in the sheet
+            // Unlocks only on 100% correct match from Site_Access sheet
             document.getElementById('protectedContent').classList.remove('hidden');
             document.getElementById('formButtons').classList.remove('hidden');
             
             status.innerText = "✅ Access Granted: " + siteName;
             status.className = "status-tag unlocked";
-            btn.style.display = "none"; // Hide the verify button
+            btn.style.display = "none"; 
             
-            // Lock the login fields so they can't be changed after unlocking
+            // Prevent changing credentials after they are verified
             document.getElementById('valTech').readOnly = true;
             document.getElementById('passInput').readOnly = true;
         } else {
-            // Rejection happens HERE, before they even see the form
             alert("❌ LOGIN FAILED: Incorrect Username or Password.");
             status.innerText = "Access Denied - Check Credentials";
             status.className = "status-tag locked";
@@ -395,20 +395,22 @@ function verifyCredentials() {
     })
     .catch(err => {
         console.error(err);
-        alert("Connection Error. Please check your internet.");
+        alert("Connection Error. Check internet.");
         btn.disabled = false;
     });
 }
-// --- 5. SECURE FORM SUBMISSION (ONLY ONE LISTENER) ---
+
+// --- 5. SECURE FORM SUBMISSION ---
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const btn = document.getElementById('submitBtn');
-    btn.innerText = "Connecting to Cloud..."; 
+    btn.innerText = "Syncing to Cloud..."; 
     btn.disabled = true;
 
     const formData = new FormData(this);
-    // Grab password from the input and send it to the Google Bouncer
+    
+    // Ensure the password is sent so the Bouncer can do the final write check
     const pass = document.getElementById('passInput').value;
     formData.append('Unlock_Password', pass);
 
@@ -418,20 +420,20 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         body: formData
     })
     .then(() => {
-        alert("SYNC ATTEMPTED! If your User/Password is correct in the 'Site_Access' sheet, your data will appear in Part_Db now.");
+        alert("SUCCESS: Data synced to Part_Db! Form will now reset.");
         location.reload(); 
     })
     .catch((err) => {
         console.error(err);
-        alert("CONNECTION ERROR: Could not reach Google. Check your internet.");
+        alert("CONNECTION ERROR: Data not saved.");
         btn.disabled = false; 
         btn.innerText = "Submit Record to Part_Db";
     });
-});
-    </script>
+});    </script>
 </body>
 
 </html>
+
 
 
 
