@@ -345,25 +345,19 @@ document.getElementById('passInput').addEventListener('input', function() {
     const user = document.getElementById('valTech').value.trim();
     const typedPass = this.value.trim();
 
-    // This is a local "Security List" to allow the form to open
-    const localKeys = {
-        "Noa_Part": "Epiroc@129",
-        "Joda_Part": "Joda#2026",
-        "Bela_Part": "Bela_Admin"
-    };
-
     const statusLabel = document.getElementById('statusLabel');
     
-    // Check if the User exists and the Password matches EXACTLY
-    if (localKeys[user] && typedPass === localKeys[user]) {
+    // LOGIC: If username is 3+ chars and password is 4+ chars, "Boom" it opens.
+    // The actual "Correctness" check happens on the Google Sheet side.
+    if (user.length >= 3 && typedPass.length >= 4) {
         document.getElementById('protectedContent').classList.remove('hidden');
         document.getElementById('formButtons').classList.remove('hidden');
-        statusLabel.innerText = "Verified: " + user;
+        statusLabel.innerText = "Credentials Entered";
         statusLabel.className = "status-tag unlocked";
     } else {
         document.getElementById('protectedContent').classList.add('hidden');
         document.getElementById('formButtons').classList.add('hidden');
-        statusLabel.innerText = "Waiting for correct password...";
+        statusLabel.innerText = "Please enter full credentials...";
         statusLabel.className = "status-tag locked";
     }
     checkValidation();
@@ -401,6 +395,7 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
 </body>
 
 </html>
+
 
 
 
