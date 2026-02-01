@@ -144,9 +144,13 @@ h2 {
                 </tbody>
             </table>
             
-            <div class="button-group hidden" id="formButtons">
-                <button type="submit" id="submitBtn" class="btn-submit" disabled>Submit Record to Part_Db</button>
-            </div>
+            <div id="formButtons" class="hidden" style="text-align: center; margin-top: 20px;">
+    <button type="submit" id="submitBtn" class="btn-submit" disabled>Submit Record to Part_Db</button>
+    <br><br>
+    <button type="button" onclick="logoutSession()" style="background-color: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+        Sign Out / Finish Batch
+    </button>
+</div>
         </div>
     </form>
 
@@ -438,10 +442,38 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         btn.innerText = "Retry Submission";
     });
 });
+        function logoutSession() {
+    if (confirm("Are you sure you want to sign out? Any unsaved data will be lost.")) {
+        // 1. Clear all inputs
+        document.getElementById('consumptionForm').reset();
+        
+        // 2. Remove Read-Only status from login fields
+        document.getElementById('valTech').readOnly = false;
+        document.getElementById('passInput').readOnly = false;
+        
+        // 3. Hide the protected content and buttons
+        document.getElementById('protectedContent').classList.add('hidden');
+        document.getElementById('formButtons').classList.add('hidden');
+        
+        // 4. Reset the Status Label and Verify Button
+        const status = document.getElementById('statusLabel');
+        status.innerText = "Locked - Session Ended";
+        status.className = "status-tag locked";
+        
+        const verifyBtn = document.getElementById('verifyBtn');
+        verifyBtn.style.display = "inline-block";
+        verifyBtn.innerText = "Verify & Unlock Form";
+        verifyBtn.disabled = false;
+
+        // 5. Optional: Refresh the page to be 100% sure memory is wiped
+        location.reload();
+    }
+}
 </script>
 </body>
 
 </html>
+
 
 
 
