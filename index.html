@@ -77,16 +77,27 @@ h2 {
                <tr>
     <td class="label-cell">User Name <span class="required-star">*</span></td>
     <td>
-        <input type="text" name="Technician_Name" id="valTech" placeholder="Enter assigned username" oninput="checkValidation()" required>
+        <input type="text" name="Technician_Name" id="valTech" placeholder="e.g. tech_noamundi" required>
     </td>
 </tr>
-                <tr>
-    <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Site Access Password</td>
+
+<tr>
+    <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Site Access Password <span class="required-star">*</span></td>
     <td>
         <input type="password" id="passInput" placeholder="Enter your site-specific password" required>
     </td>
 </tr>
-                <tr><td class="label-cell">Form Status</td><td><span id="statusLabel" class="status-tag locked">Locked</span></td></tr>
+
+<tr>
+    <td colspan="2" style="text-align: center; padding: 15px; background-color: #f8f9fa;">
+        <button type="button" id="verifyBtn" onclick="verifyCredentials()" style="background-color: #007bff; color: white; width: 80%; cursor: pointer; padding: 10px; border-radius: 5px; border: none; font-weight: bold;">
+            Verify & Unlock Form
+        </button>
+        <div id="loginStatus" style="margin-top: 10px; font-size: 13px; font-weight: bold; color: #721c24;">
+            <span id="statusLabel" class="status-tag locked">Locked - Please Verify</span>
+        </div>
+    </td>
+</tr>
 
                 <tbody id="protectedContent" class="hidden">
                     <tr><td class="label-cell">Work Site <span class="required-star">*</span></td><td><select id="workSiteSelect" name="Work_Site" onchange="updateFleet(); checkValidation();"><option value="">-- Select Site --</option></select></td></tr>
@@ -340,28 +351,54 @@ function checkValidation() {
     document.getElementById('submitBtn').disabled = invalid;
 }
 
-// This unlocks the form when ANY password of 4+ characters is typed
-document.getElementById('passInput').addEventListener('input', function() {
+// --- NEW ACTIVE VERIFICATION LOGIC ---
+function verifyCredentials() {
     const user = document.getElementById('valTech').value.trim();
-    const typedPass = this.value.trim();
+    const pass = document.getElementById('passInput').value.trim();
+    const btn = document.getElementById('verifyBtn');
+    const status = document.getElementById('statusLabel');
 
-    const statusLabel = document.getElementById('statusLabel');
-    
-    // LOGIC: If username is 3+ chars and password is 4+ chars, "Boom" it opens.
-    // The actual "Correctness" check happens on the Google Sheet side.
-    if (user.length >= 3 && typedPass.length >= 4) {
-        document.getElementById('protectedContent').classList.remove('hidden');
-        document.getElementById('formButtons').classList.remove('hidden');
-        statusLabel.innerText = "Credentials Entered";
-        statusLabel.className = "status-tag unlocked";
-    } else {
-        document.getElementById('protectedContent').classList.add('hidden');
-        document.getElementById('formButtons').classList.add('hidden');
-        statusLabel.innerText = "Please enter full credentials...";
-        statusLabel.className = "status-tag locked";
+    if (user.length < 3 || pass.length < 4) {
+        alert("Please enter a valid Username and Password first.");
+        return;
     }
-    checkValidation();
-});
+
+    btn.innerText = "Verifying with Cloud...";
+    btn.disabled = true;
+
+    // This calls the doGet function in your Google Script
+    fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
+    .then(response => response.text())
+    .then(text => {
+        if (text.startsWith("success")) {
+            const siteName = text.split(":")[1];
+            
+            // BOOM! Only opens if the password is 100% correct in the sheet
+            document.getElementById('protectedContent').classList.remove('hidden');
+            document.getElementById('formButtons').classList.remove('hidden');
+            
+            status.innerText = "✅ Access Granted: " + siteName;
+            status.className = "status-tag unlocked";
+            btn.style.display = "none"; // Hide the verify button
+            
+            // Lock the login fields so they can't be changed after unlocking
+            document.getElementById('valTech').readOnly = true;
+            document.getElementById('passInput').readOnly = true;
+        } else {
+            // Rejection happens HERE, before they even see the form
+            alert("❌ LOGIN FAILED: Incorrect Username or Password.");
+            status.innerText = "Access Denied - Check Credentials";
+            status.className = "status-tag locked";
+            btn.innerText = "Verify & Unlock Form";
+            btn.disabled = false;
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Connection Error. Please check your internet.");
+        btn.disabled = false;
+    });
+}
 // --- 5. SECURE FORM SUBMISSION (ONLY ONE LISTENER) ---
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -395,6 +432,7 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
 </body>
 
 </html>
+
 
 
 
