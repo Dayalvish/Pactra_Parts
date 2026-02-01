@@ -274,12 +274,7 @@ h2 {
                 });
             }
         }
-        // --- SECURITY & LOGIN LOGIC ---
-document.getElementById('passInput').addEventListener('input', function() {
-    // Requirements: User Name > 2 chars, Password > 3 chars
-    const hasUser = document.getElementById('valTech').value.trim().length > 2;
-    const hasPass = this.value.trim().length > 3;
-    
+           
     const statusLabel = document.getElementById('statusLabel');
     const protectedContent = document.getElementById('protectedContent');
     const formButtons = document.getElementById('formButtons');
@@ -352,7 +347,22 @@ function checkValidation() {
     document.getElementById('submitBtn').disabled = invalid;
 }
 
-// --- NEW ACTIVE VERIFICATION LOGIC ---
+// --- 4. VALIDATION & ACTIVE ACCESS ---
+
+// Final check before submission to ensure all fields (including Engine Hours) are filled
+function checkValidation() {
+    const req = [
+        'customerSelect', 'valDate', 'valTech', 'valGroup', 
+        'typeSelect', 'descSelect', 'reasonSelect', 'valQty', 'valHours'
+    ];
+    const invalid = req.some(id => {
+        const el = document.getElementById(id);
+        return !el || !el.value;
+    });
+    document.getElementById('submitBtn').disabled = invalid;
+}
+
+// THIS IS THE ONLY WAY TO UNLOCK THE FORM
 function verifyCredentials() {
     const user = document.getElementById('valTech').value.trim();
     const pass = document.getElementById('passInput').value.trim();
@@ -367,25 +377,26 @@ function verifyCredentials() {
     btn.innerText = "Verifying with Cloud...";
     btn.disabled = true;
 
-    // This calls the doGet function in your Google Script for live validation
+    // Active Handshake: Calls doGet in Google Script to check Site_Access sheet
     fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
     .then(response => response.text())
     .then(text => {
         if (text.startsWith("success")) {
             const siteName = text.split(":")[1];
             
-            // Unlocks only on 100% correct match from Site_Access sheet
+            // REVEAL FORM: Only happens if password matches the database
             document.getElementById('protectedContent').classList.remove('hidden');
             document.getElementById('formButtons').classList.remove('hidden');
             
             status.innerText = "✅ Access Granted: " + siteName;
             status.className = "status-tag unlocked";
-            btn.style.display = "none"; 
+            btn.style.display = "none"; // Remove verify button to prevent double-clicks
             
-            // Prevent changing credentials after they are verified
+            // Lock credentials so user can't change identity after unlocking
             document.getElementById('valTech').readOnly = true;
             document.getElementById('passInput').readOnly = true;
         } else {
+            // REJECTION: Form stays hidden
             alert("❌ LOGIN FAILED: Incorrect Username or Password.");
             status.innerText = "Access Denied - Check Credentials";
             status.className = "status-tag locked";
@@ -394,9 +405,10 @@ function verifyCredentials() {
         }
     })
     .catch(err => {
-        console.error(err);
-        alert("Connection Error. Check internet.");
+        console.error("Verification error:", err);
+        alert("Connection Error. Check your internet.");
         btn.disabled = false;
+        btn.innerText = "Verify & Unlock Form";
     });
 }
 
@@ -410,7 +422,7 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
 
     const formData = new FormData(this);
     
-    // Ensure the password is sent so the Bouncer can do the final write check
+    // Pass the password again for the final write-authorization check
     const pass = document.getElementById('passInput').value;
     formData.append('Unlock_Password', pass);
 
@@ -424,15 +436,17 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         location.reload(); 
     })
     .catch((err) => {
-        console.error(err);
+        console.error("Submission error:", err);
         alert("CONNECTION ERROR: Data not saved.");
         btn.disabled = false; 
         btn.innerText = "Submit Record to Part_Db";
     });
-});    </script>
+});    
+</script>
 </body>
 
 </html>
+
 
 
 
