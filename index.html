@@ -349,25 +349,41 @@ function checkValidation() {
 
 // --- 4. VALIDATION & ACTIVE ACCESS ---
 
-// Final check before submission to ensure all fields (including Engine Hours) are filled
+/**
+ * Ensures the Submit button is only clickable if all required fields are filled.
+ * Includes 'valHours' to ensure Engine Hours are captured.
+ */
 function checkValidation() {
     const req = [
         'customerSelect', 'valDate', 'valTech', 'valGroup', 
         'typeSelect', 'descSelect', 'reasonSelect', 'valQty', 'valHours'
     ];
-    const invalid = req.some(id => {
+    
+    const isInvalid = req.some(id => {
         const el = document.getElementById(id);
-        return !el || !el.value;
+        return !el || !el.value || el.value.trim() === "";
     });
-    document.getElementById('submitBtn').disabled = invalid;
+
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.disabled = isInvalid;
+    }
 }
 
-// THIS IS THE ONLY WAY TO UNLOCK THE FORM
+/**
+ * THE ONLY WAY TO UNLOCK THE FORM
+ * Performs a live check against the 'Site_Access' sheet via Google Apps Script.
+ */
 function verifyCredentials() {
-    const user = document.getElementById('valTech').value.trim();
-    const pass = document.getElementById('passInput').value.trim();
+    const userEl = document.getElementById('valTech');
+    const passEl = document.getElementById('passInput');
     const btn = document.getElementById('verifyBtn');
     const status = document.getElementById('statusLabel');
+
+    if (!userEl || !passEl) return;
+
+    const user = userEl.value.trim();
+    const pass = passEl.value.trim();
 
     if (user.length < 3 || pass.length < 4) {
         alert("Please enter a valid Username and Password first.");
@@ -377,26 +393,25 @@ function verifyCredentials() {
     btn.innerText = "Verifying with Cloud...";
     btn.disabled = true;
 
-    // Active Handshake: Calls doGet in Google Script to check Site_Access sheet
+    // Calls doGet(e) in your Google Script to verify against 'Site_Access'
     fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
     .then(response => response.text())
     .then(text => {
         if (text.startsWith("success")) {
-            const siteName = text.split(":")[1];
+            const siteName = text.split(":")[1] || "Authorized";
             
-            // REVEAL FORM: Only happens if password matches the database
+            // REVEAL FORM: Hidden rows become visible only on a successful database match
             document.getElementById('protectedContent').classList.remove('hidden');
             document.getElementById('formButtons').classList.remove('hidden');
             
             status.innerText = "✅ Access Granted: " + siteName;
             status.className = "status-tag unlocked";
-            btn.style.display = "none"; // Remove verify button to prevent double-clicks
+            btn.style.display = "none"; // Hide button to prevent re-verification
             
-            // Lock credentials so user can't change identity after unlocking
-            document.getElementById('valTech').readOnly = true;
-            document.getElementById('passInput').readOnly = true;
+            // Lock credentials to prevent tampering after verification
+            userEl.readOnly = true;
+            passEl.readOnly = true;
         } else {
-            // REJECTION: Form stays hidden
             alert("❌ LOGIN FAILED: Incorrect Username or Password.");
             status.innerText = "Access Denied - Check Credentials";
             status.className = "status-tag locked";
@@ -406,23 +421,28 @@ function verifyCredentials() {
     })
     .catch(err => {
         console.error("Verification error:", err);
-        alert("Connection Error. Check your internet.");
+        alert("Connection Error. Please check your internet.");
         btn.disabled = false;
         btn.innerText = "Verify & Unlock Form";
     });
 }
 
 // --- 5. SECURE FORM SUBMISSION ---
+
+/**
+ * Handles the final submission to 'Part_Db'.
+ * Re-sends the password for final write-authorization on the server side.
+ */
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
     const btn = document.getElementById('submitBtn');
+    const originalText = btn.innerText;
+    
     btn.innerText = "Syncing to Cloud..."; 
     btn.disabled = true;
 
     const formData = new FormData(this);
-    
-    // Pass the password again for the final write-authorization check
     const pass = document.getElementById('passInput').value;
     formData.append('Unlock_Password', pass);
 
@@ -439,13 +459,14 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         console.error("Submission error:", err);
         alert("CONNECTION ERROR: Data not saved.");
         btn.disabled = false; 
-        btn.innerText = "Submit Record to Part_Db";
+        btn.innerText = originalText;
     });
-});    
+});  
 </script>
 </body>
 
 </html>
+
 
 
 
