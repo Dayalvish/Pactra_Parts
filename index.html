@@ -123,6 +123,12 @@ h2 {
                     <tr><td class="label-cell">Part Number</td><td><input type="text" name="Part_Number" id="valPartNum" placeholder="e.g. 5580006789"></td></tr>
                     <tr><td class="label-cell">Quantity <span class="required-star">*</span></td><td><input type="number" name="Quantity" id="valQty" placeholder="0" oninput="checkValidation()" required></td></tr>
                     <tr><td class="label-cell">Unit Price</td><td><input type="number" step="any" name="Unit_Price" placeholder="0.00"></td></tr>
+                    <tr>
+    <td class="label-cell">Engine Hours <span class="required-star">*</span></td>
+    <td>
+        <input type="number" name="Engine_Hours" id="valHours" placeholder="e.g. 4500" oninput="checkValidation()" required>
+    </td>
+</tr>
                     <tr><td class="label-cell">Consumption Remarks</td><td><textarea name="Remarks" rows="2" placeholder="Any additional info..."></textarea></td></tr>
                 </tbody>
             </table>
@@ -282,13 +288,10 @@ document.getElementById('passInput').addEventListener('input', function() {
 });
 
 function checkValidation() {
-    const requiredFields = [
-        'customerSelect', 'valDate', 'valTech', 'valGroup', 
-        'typeSelect', 'descSelect', 'reasonSelect', 'valQty'
-    ];
-    // Button is enabled ONLY if every required field has a value
-    const isInvalid = requiredFields.some(id => !document.getElementById(id).value);
-    document.getElementById('submitBtn').disabled = isInvalid;
+    // Add 'valHours' to the list below
+    const req = ['customerSelect', 'valDate', 'valTech', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty', 'valHours'];
+    const invalid = req.some(id => !document.getElementById(id).value);
+    document.getElementById('submitBtn').disabled = invalid;
 }
 
         function updatePartTypes() {
@@ -398,6 +401,7 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
 </body>
 
 </html>
+
 
 
 
