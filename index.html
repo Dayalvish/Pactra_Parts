@@ -379,15 +379,23 @@ function verifyCredentials() {
     });
 }
 
-// --- 5. SECURE FORM SUBMISSION ---
+// --- 5. SECURE FORM SUBMISSION (Stay Logged In Version) ---
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
+    
     const btn = document.getElementById('submitBtn');
-    btn.innerText = "Syncing to Cloud..."; 
+    
+    // 1. Capture the session info before we reset the form
+    const currentTech = document.getElementById('valTech').value;
+    const currentPass = document.getElementById('passInput').value;
+    const currentDate = document.getElementById('valDate').value;
+    const currentCustomer = document.getElementById('customerSelect').value;
+
+    btn.innerText = "Syncing Record..."; 
     btn.disabled = true;
 
     const formData = new FormData(this);
-    formData.append('Unlock_Password', document.getElementById('passInput').value);
+    formData.append('Unlock_Password', currentPass);
 
     fetch(scriptURL, {
         method: 'POST',
@@ -395,19 +403,46 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         body: formData
     })
     .then(() => {
-        alert("SUCCESS: Data synced to Part_Db!");
-        location.reload(); 
+        // SUCCESS: Show a quick notification instead of a blocking alert
+        console.log("Data Synced Successfully");
+        
+        // 2. Reset the form to clear Part Details (Group, Type, Qty, Hours)
+        this.reset(); 
+
+        // 3. Restore the Session Info immediately
+        document.getElementById('valTech').value = currentTech;
+        document.getElementById('passInput').value = currentPass;
+        document.getElementById('valDate').value = currentDate;
+        document.getElementById('customerSelect').value = currentCustomer;
+        
+        // Ensure credentials remain Read-Only
+        document.getElementById('valTech').readOnly = true;
+        document.getElementById('passInput').readOnly = true;
+
+        // 4. Keep the form visible
+        document.getElementById('protectedContent').classList.remove('hidden');
+        document.getElementById('formButtons').classList.remove('hidden');
+        
+        // 5. Update the UI for the next entry
+        btn.innerText = "Submit Next Part";
+        
+        // Re-run the dropdown logic to ensure the site/fleet stays populated if needed
+        // or let the user pick a new fleet for the same site.
+        alert("✅ Success! Part recorded. Form ready for next entry.");
+        
+        checkValidation();
     })
     .catch((err) => {
         alert("CONNECTION ERROR: Data not saved.");
         btn.disabled = false; 
-        btn.innerText = "Submit Record";
+        btn.innerText = "Retry Submission";
     });
 });
 </script>
 </body>
 
 </html>
+
 
 
 
