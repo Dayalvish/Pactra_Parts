@@ -373,15 +373,20 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         // --- SECURE SUBMISSION ENGINE ---
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    const originalText = btn.innerText;
+    console.log("Submit clicked!"); // Check if this shows in F12 console
     
-    btn.innerText = "Verifying & Syncing...";
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "Connecting..."; 
     btn.disabled = true;
 
     const formData = new FormData(this);
-    // Securely append the password to the form data object
-    formData.append('Unlock_Password', document.getElementById('passInput').value);
+    // Grab user/pass from your specific IDs
+    const user = document.getElementById('valTech').value;
+    const pass = document.getElementById('passInput').value;
+    
+    formData.append('Unlock_Password', pass);
+    
+    console.log("Sending data for user:", user);
 
     fetch(scriptURL, {
         method: 'POST',
@@ -389,22 +394,20 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         body: formData
     })
     .then(() => {
-        // Mode 'no-cors' means we can't read the response, 
-        // so we provide a general success message.
-        alert("SYNC ATTEMPT SENT: If your credentials match, the record will appear in Part_Db. Please refresh your sheet.");
+        alert("SYNC ATTEMPTED! Check your Part_Db sheet now.");
         location.reload(); 
     })
     .catch((err) => {
-        console.error("Sync Error:", err);
-        alert("NETWORK ERROR: Data could not reach the cloud. Please check your internet.");
+        alert("CONNECTION ERROR: " + err);
         btn.disabled = false;
-        btn.innerText = originalText;
+        btn.innerText = "Retry Sync";
     });
 });
     </script>
 </body>
 
 </html>
+
 
 
 
