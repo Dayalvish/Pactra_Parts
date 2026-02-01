@@ -339,27 +339,32 @@ function checkValidation() {
 
 // This unlocks the form when ANY password of 4+ characters is typed
 document.getElementById('passInput').addEventListener('input', function() {
-    const hasUser = document.getElementById('valTech').value.trim().length > 2;
-    const hasPass = this.value.trim().length > 3;
-    
-    const statusLabel = document.getElementById('statusLabel');
-    const protectedContent = document.getElementById('protectedContent');
-    const formButtons = document.getElementById('formButtons');
+    const user = document.getElementById('valTech').value.trim();
+    const typedPass = this.value.trim();
 
-    if (hasUser && hasPass) {
-        protectedContent.classList.remove('hidden');
-        formButtons.classList.remove('hidden');
-        statusLabel.innerText = "Credentials Entered";
+    // This is a local "Security List" to allow the form to open
+    const localKeys = {
+        "Noa_Part": "Epiroc@129",
+        "Joda_Part": "Joda#2026",
+        "Bela_Part": "Bela_Admin"
+    };
+
+    const statusLabel = document.getElementById('statusLabel');
+    
+    // Check if the User exists and the Password matches EXACTLY
+    if (localKeys[user] && typedPass === localKeys[user]) {
+        document.getElementById('protectedContent').classList.remove('hidden');
+        document.getElementById('formButtons').classList.remove('hidden');
+        statusLabel.innerText = "Verified: " + user;
         statusLabel.className = "status-tag unlocked";
     } else {
-        protectedContent.classList.add('hidden');
-        formButtons.classList.add('hidden');
-        statusLabel.innerText = "Locked";
+        document.getElementById('protectedContent').classList.add('hidden');
+        document.getElementById('formButtons').classList.add('hidden');
+        statusLabel.innerText = "Waiting for correct password...";
         statusLabel.className = "status-tag locked";
     }
     checkValidation();
 });
-
 // --- 5. SECURE FORM SUBMISSION (ONLY ONE LISTENER) ---
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -393,6 +398,7 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
 </body>
 
 </html>
+
 
 
 
