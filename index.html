@@ -250,109 +250,75 @@ h2 {
             });
         };
 
-        // 3. DROPDOWN CASCADING LOGIC
-        function updateSites() {
-            const customer = document.getElementById('customerSelect').value;
-            const siteSelect = document.getElementById('workSiteSelect');
-            const fleetSelect = document.getElementById('fleetSelect');
-            siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
-            fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
-            if (customerToSites[customer]) {
-                customerToSites[customer].forEach(s => {
-                    let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
-                });
-            }
-        }
-
-        function updateFleet() {
-            const site = document.getElementById('workSiteSelect').value;
-            const fleetSelect = document.getElementById('fleetSelect');
-            fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
-            if (siteToFleet[site]) {
-                siteToFleet[site].forEach(f => {
-                    let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
-                });
-            }
-        }
-           
-    const statusLabel = document.getElementById('statusLabel');
-    const protectedContent = document.getElementById('protectedContent');
-    const formButtons = document.getElementById('formButtons');
-
-    if (hasUser && hasPass) {
-        protectedContent.classList.remove('hidden');
-        formButtons.classList.remove('hidden');
-        statusLabel.innerText = "Logged In";
-        statusLabel.className = "status-tag unlocked";
-    } else {
-        protectedContent.classList.add('hidden');
-        formButtons.classList.add('hidden');
-        statusLabel.innerText = "Locked";
-        statusLabel.className = "status-tag locked";
+        // --- 3. DROPDOWN CASCADING LOGIC ---
+function updateSites() {
+    const customer = document.getElementById('customerSelect').value;
+    const siteSelect = document.getElementById('workSiteSelect');
+    const fleetSelect = document.getElementById('fleetSelect');
+    siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
+    fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
+    if (customerToSites[customer]) {
+        customerToSites[customer].forEach(s => {
+            let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
+        });
     }
     checkValidation();
-});
-
-function checkValidation() {
-    // Add 'valHours' to the list below
-    const req = ['customerSelect', 'valDate', 'valTech', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty', 'valHours'];
-    const invalid = req.some(id => !document.getElementById(id).value);
-    document.getElementById('submitBtn').disabled = invalid;
 }
 
-        function updatePartTypes() {
-            const group = document.getElementById('valGroup').value;
-            const typeSelect = document.getElementById('typeSelect');
-            const descSelect = document.getElementById('descSelect');
-            typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
-            descSelect.innerHTML = '<option value="">-- Select Description --</option>';
-            if (partsData[group]) {
-                Object.keys(partsData[group]).forEach(type => {
-                    let opt = document.createElement('option'); opt.value = opt.text = type; typeSelect.add(opt);
-                });
-            }
-        }
+function updateFleet() {
+    const site = document.getElementById('workSiteSelect').value;
+    const fleetSelect = document.getElementById('fleetSelect');
+    fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
+    if (siteToFleet[site]) {
+        siteToFleet[site].forEach(f => {
+            let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
+        });
+    }
+    checkValidation();
+}
 
-        function updatePartDescriptions() {
-            const group = document.getElementById('valGroup').value;
-            const type = document.getElementById('typeSelect').value;
-            const descSelect = document.getElementById('descSelect');
-            descSelect.innerHTML = '<option value="">-- Select Description --</option>';
-            if (partsData[group] && partsData[group][type]) {
-                partsData[group][type].forEach(desc => {
-                    let opt = document.createElement('option'); opt.value = opt.text = desc; descSelect.add(opt);
-                });
-            }
-        }
+function updatePartTypes() {
+    const group = document.getElementById('valGroup').value;
+    const typeSelect = document.getElementById('typeSelect');
+    const descSelect = document.getElementById('descSelect');
+    typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
+    if (partsData[group]) {
+        Object.keys(partsData[group]).forEach(type => {
+            let opt = document.createElement('option'); opt.value = opt.text = type; typeSelect.add(opt);
+        });
+    }
+    updateReasons();
+    checkValidation();
+}
 
-        function updateReasons() {
-            const group = document.getElementById('valGroup').value;
-            const reasonSelect = document.getElementById('reasonSelect');
-            reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
-            if (groupToReasons[group]) {
-                groupToReasons[group].forEach(r => {
-                    let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
-                });
-            }
-        }
+function updatePartDescriptions() {
+    const group = document.getElementById('valGroup').value;
+    const type = document.getElementById('typeSelect').value;
+    const descSelect = document.getElementById('descSelect');
+    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
+    if (partsData[group] && partsData[group][type]) {
+        partsData[group][type].forEach(desc => {
+            let opt = document.createElement('option'); opt.value = opt.text = desc; descSelect.add(opt);
+        });
+    }
+    checkValidation();
+}
 
-      // --- 4. VALIDATION & ACCESS ---
-function checkValidation() {
-    // Added 'valHours' to the requirement list
-    const req = ['customerSelect', 'valDate', 'valTech', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty', 'valHours'];
-    const invalid = req.some(id => {
-        const el = document.getElementById(id);
-        return !el || !el.value;
-    });
-    document.getElementById('submitBtn').disabled = invalid;
+function updateReasons() {
+    const group = document.getElementById('valGroup').value;
+    const reasonSelect = document.getElementById('reasonSelect');
+    reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
+    if (groupToReasons[group]) {
+        groupToReasons[group].forEach(r => {
+            let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
+        });
+    }
 }
 
 // --- 4. VALIDATION & ACTIVE ACCESS ---
 
-/**
- * Ensures the Submit button is only clickable if all required fields are filled.
- * Includes 'valHours' to ensure Engine Hours are captured.
- */
+// SINGLE definition of checkValidation to prevent freezing
 function checkValidation() {
     const req = [
         'customerSelect', 'valDate', 'valTech', 'valGroup', 
@@ -370,17 +336,11 @@ function checkValidation() {
     }
 }
 
-/**
- * THE ONLY WAY TO UNLOCK THE FORM
- * Performs a live check against the 'Site_Access' sheet via Google Apps Script.
- */
 function verifyCredentials() {
     const userEl = document.getElementById('valTech');
     const passEl = document.getElementById('passInput');
     const btn = document.getElementById('verifyBtn');
     const status = document.getElementById('statusLabel');
-
-    if (!userEl || !passEl) return;
 
     const user = userEl.value.trim();
     const pass = passEl.value.trim();
@@ -393,58 +353,41 @@ function verifyCredentials() {
     btn.innerText = "Verifying with Cloud...";
     btn.disabled = true;
 
-    // Calls doGet(e) in your Google Script to verify against 'Site_Access'
     fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
     .then(response => response.text())
     .then(text => {
         if (text.startsWith("success")) {
             const siteName = text.split(":")[1] || "Authorized";
-            
-            // REVEAL FORM: Hidden rows become visible only on a successful database match
             document.getElementById('protectedContent').classList.remove('hidden');
             document.getElementById('formButtons').classList.remove('hidden');
-            
             status.innerText = "✅ Access Granted: " + siteName;
             status.className = "status-tag unlocked";
-            btn.style.display = "none"; // Hide button to prevent re-verification
-            
-            // Lock credentials to prevent tampering after verification
+            btn.style.display = "none";
             userEl.readOnly = true;
             passEl.readOnly = true;
         } else {
             alert("❌ LOGIN FAILED: Incorrect Username or Password.");
-            status.innerText = "Access Denied - Check Credentials";
+            status.innerText = "Access Denied";
             status.className = "status-tag locked";
             btn.innerText = "Verify & Unlock Form";
             btn.disabled = false;
         }
     })
     .catch(err => {
-        console.error("Verification error:", err);
-        alert("Connection Error. Please check your internet.");
+        alert("Connection Error. Check internet.");
         btn.disabled = false;
-        btn.innerText = "Verify & Unlock Form";
     });
 }
 
 // --- 5. SECURE FORM SUBMISSION ---
-
-/**
- * Handles the final submission to 'Part_Db'.
- * Re-sends the password for final write-authorization on the server side.
- */
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    
     const btn = document.getElementById('submitBtn');
-    const originalText = btn.innerText;
-    
     btn.innerText = "Syncing to Cloud..."; 
     btn.disabled = true;
 
     const formData = new FormData(this);
-    const pass = document.getElementById('passInput').value;
-    formData.append('Unlock_Password', pass);
+    formData.append('Unlock_Password', document.getElementById('passInput').value);
 
     fetch(scriptURL, {
         method: 'POST',
@@ -452,20 +395,20 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         body: formData
     })
     .then(() => {
-        alert("SUCCESS: Data synced to Part_Db! Form will now reset.");
+        alert("SUCCESS: Data synced to Part_Db!");
         location.reload(); 
     })
     .catch((err) => {
-        console.error("Submission error:", err);
         alert("CONNECTION ERROR: Data not saved.");
         btn.disabled = false; 
-        btn.innerText = originalText;
+        btn.innerText = "Submit Record";
     });
-});  
+});
 </script>
 </body>
 
 </html>
+
 
 
 
