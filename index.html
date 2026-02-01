@@ -327,66 +327,51 @@ function checkValidation() {
             }
         }
 
-        // 4. VALIDATION & SECURITY
-        function checkValidation() {
-            const req = ['customerSelect', 'valDate', 'valTech', 'workSiteSelect', 'fleetSelect', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty'];
-            const invalid = req.some(id => !document.getElementById(id).value);
-            document.getElementById('submitBtn').disabled = invalid;
-        }
-
-        document.getElementById('passInput').addEventListener('input', function() {
-            const match = this.value === passKey;
-            document.getElementById('protectedContent').classList.toggle('hidden', !match);
-            document.getElementById('formButtons').classList.toggle('hidden', !match);
-            document.getElementById('statusLabel').innerText = match ? "Unlocked" : "Locked";
-            document.getElementById('statusLabel').className = "status-tag " + (match ? "unlocked" : "locked");
-            checkValidation();
-        });
-
-        // 5. FORM SUBMISSION
-document.getElementById('consumptionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    btn.innerText = "Processing Sync..."; 
-    btn.disabled = true;
-
-    // Use URLSearchParams to ensure Google can read the data easily
-    const formData = new FormData(this);
-    
-    fetch(scriptURL, {
-        method: 'POST',
-        mode: 'no-cors', // This bypasses the "Cloud Sync Error"
-        body: formData
-    })
-    .then(() => {
-        // With 'no-cors', we assume success if the fetch doesn't crash
-        alert("SUCCESS: Record synced to Part_Db!"); 
-        location.reload(); 
-    })
-    .catch((err) => {
-        console.error(err);
-        alert("CRITICAL ERROR: Check your internet or Google Script URL.");
-        btn.disabled = false; 
-        btn.innerText = "Submit Record to Part_Db";
+       // --- 4. VALIDATION & ACCESS ---
+function checkValidation() {
+    const req = ['customerSelect', 'valDate', 'valTech', 'workSiteSelect', 'fleetSelect', 'valGroup', 'typeSelect', 'descSelect', 'reasonSelect', 'valQty'];
+    const invalid = req.some(id => {
+        const el = document.getElementById(id);
+        return !el || !el.value;
     });
+    document.getElementById('submitBtn').disabled = invalid;
+}
+
+// This unlocks the form when ANY password of 4+ characters is typed
+document.getElementById('passInput').addEventListener('input', function() {
+    const hasUser = document.getElementById('valTech').value.trim().length > 2;
+    const hasPass = this.value.trim().length > 3;
+    
+    const statusLabel = document.getElementById('statusLabel');
+    const protectedContent = document.getElementById('protectedContent');
+    const formButtons = document.getElementById('formButtons');
+
+    if (hasUser && hasPass) {
+        protectedContent.classList.remove('hidden');
+        formButtons.classList.remove('hidden');
+        statusLabel.innerText = "Credentials Entered";
+        statusLabel.className = "status-tag unlocked";
+    } else {
+        protectedContent.classList.add('hidden');
+        formButtons.classList.add('hidden');
+        statusLabel.innerText = "Locked";
+        statusLabel.className = "status-tag locked";
+    }
+    checkValidation();
 });
-        // --- SECURE SUBMISSION ENGINE ---
+
+// --- 5. SECURE FORM SUBMISSION (ONLY ONE LISTENER) ---
 document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    console.log("Submit clicked!"); // Check if this shows in F12 console
     
     const btn = document.getElementById('submitBtn');
-    btn.innerText = "Connecting..."; 
+    btn.innerText = "Connecting to Cloud..."; 
     btn.disabled = true;
 
     const formData = new FormData(this);
-    // Grab user/pass from your specific IDs
-    const user = document.getElementById('valTech').value;
+    // Grab password from the input and send it to the Google Bouncer
     const pass = document.getElementById('passInput').value;
-    
     formData.append('Unlock_Password', pass);
-    
-    console.log("Sending data for user:", user);
 
     fetch(scriptURL, {
         method: 'POST',
@@ -394,19 +379,21 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         body: formData
     })
     .then(() => {
-        alert("SYNC ATTEMPTED! Check your Part_Db sheet now.");
+        alert("SYNC ATTEMPTED! If your User/Password is correct in the 'Site_Access' sheet, your data will appear in Part_Db now.");
         location.reload(); 
     })
     .catch((err) => {
-        alert("CONNECTION ERROR: " + err);
-        btn.disabled = false;
-        btn.innerText = "Retry Sync";
+        console.error(err);
+        alert("CONNECTION ERROR: Could not reach Google. Check your internet.");
+        btn.disabled = false; 
+        btn.innerText = "Submit Record to Part_Db";
     });
 });
     </script>
 </body>
 
 </html>
+
 
 
 
