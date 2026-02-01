@@ -74,11 +74,18 @@ h2 {
                     </td>
                 </tr>
                 <tr><td class="label-cell">Date <span class="required-star">*</span></td><td><input type="date" name="Entry_Date" id="valDate" oninput="checkValidation()" required></td></tr>
-                <tr><td class="label-cell">User Name <span class="required-star">*</span></td><td><input type="text" name="User Name" id="valTech" placeholder="Enter Full Name" oninput="checkValidation()" required></td></tr>
+               <tr>
+    <td class="label-cell">User Name <span class="required-star">*</span></td>
+    <td>
+        <input type="text" name="Technician_Name" id="valTech" placeholder="Enter assigned username" oninput="checkValidation()" required>
+    </td>
+</tr>
                 <tr>
-                    <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Unlock Password</td>
-                    <td><input type="password" id="passInput" placeholder="Enter password to enable fields"></td>
-                </tr>
+    <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Site Access Password</td>
+    <td>
+        <input type="password" id="passInput" placeholder="Enter your site-specific password" required>
+    </td>
+</tr>
                 <tr><td class="label-cell">Form Status</td><td><span id="statusLabel" class="status-tag locked">Locked</span></td></tr>
 
                 <tbody id="protectedContent" class="hidden">
@@ -250,6 +257,39 @@ h2 {
                 });
             }
         }
+        // --- SECURITY & LOGIN LOGIC ---
+document.getElementById('passInput').addEventListener('input', function() {
+    // Requirements: User Name > 2 chars, Password > 3 chars
+    const hasUser = document.getElementById('valTech').value.trim().length > 2;
+    const hasPass = this.value.trim().length > 3;
+    
+    const statusLabel = document.getElementById('statusLabel');
+    const protectedContent = document.getElementById('protectedContent');
+    const formButtons = document.getElementById('formButtons');
+
+    if (hasUser && hasPass) {
+        protectedContent.classList.remove('hidden');
+        formButtons.classList.remove('hidden');
+        statusLabel.innerText = "Logged In";
+        statusLabel.className = "status-tag unlocked";
+    } else {
+        protectedContent.classList.add('hidden');
+        formButtons.classList.add('hidden');
+        statusLabel.innerText = "Locked";
+        statusLabel.className = "status-tag locked";
+    }
+    checkValidation();
+});
+
+function checkValidation() {
+    const requiredFields = [
+        'customerSelect', 'valDate', 'valTech', 'valGroup', 
+        'typeSelect', 'descSelect', 'reasonSelect', 'valQty'
+    ];
+    // Button is enabled ONLY if every required field has a value
+    const isInvalid = requiredFields.some(id => !document.getElementById(id).value);
+    document.getElementById('submitBtn').disabled = isInvalid;
+}
 
         function updatePartTypes() {
             const group = document.getElementById('valGroup').value;
@@ -330,10 +370,42 @@ document.getElementById('consumptionForm').addEventListener('submit', function(e
         btn.innerText = "Submit Record to Part_Db";
     });
 });
+        // --- SECURE SUBMISSION ENGINE ---
+document.getElementById('consumptionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    const originalText = btn.innerText;
+    
+    btn.innerText = "Verifying & Syncing...";
+    btn.disabled = true;
+
+    const formData = new FormData(this);
+    // Securely append the password to the form data object
+    formData.append('Unlock_Password', document.getElementById('passInput').value);
+
+    fetch(scriptURL, {
+        method: 'POST',
+        mode: 'no-cors', 
+        body: formData
+    })
+    .then(() => {
+        // Mode 'no-cors' means we can't read the response, 
+        // so we provide a general success message.
+        alert("SYNC ATTEMPT SENT: If your credentials match, the record will appear in Part_Db. Please refresh your sheet.");
+        location.reload(); 
+    })
+    .catch((err) => {
+        console.error("Sync Error:", err);
+        alert("NETWORK ERROR: Data could not reach the cloud. Please check your internet.");
+        btn.disabled = false;
+        btn.innerText = originalText;
+    });
+});
     </script>
 </body>
 
 </html>
+
 
 
 
