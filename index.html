@@ -7,31 +7,22 @@
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; }
         .header-section { background-color: #f8f9fa; border-bottom: 2px solid #ddd; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .brand-logo { height: 55px; width: auto; }
-        h2 { color: #333; font-family: 'Segoe UI', sans-serif; font-weight: bold; text-transform: uppercase; margin: 0 30px; white-space: nowrap; }
-        
-        .sheet-container { background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto; border-radius: 8px; overflow: hidden; }
+        .sheet-container { background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 750px; margin: 0 auto; border-radius: 8px; overflow: hidden; }
         table { border-collapse: collapse; width: 100%; }
         td { border: 1px solid #dfe3e8; padding: 12px; font-size: 14px; }
-
-        /* Excel Style Alternating Labels */
-        .label-cell { font-weight: bold; width: 35%; }
-        .row-odd .label-cell { background-color: #FFD700 !important; color: #000 !important; }
-        .row-even .label-cell { background-color: #555555 !important; color: #ffffff !important; }
-
-        /* Multi-Part Styling */
-        .part-header { background-color: #15222F; color: #00FF7F; font-weight: bold; text-align: center; padding: 8px; }
-        .part-block { border: 2px solid #15222F; margin: 10px; border-radius: 5px; }
-
+        
+        /* Excel Style Alternating Colors */
+        .row-odd .label-cell { background-color: #FFD700 !important; color: #000 !important; font-weight: bold; width: 40%; }
+        .row-even .label-cell { background-color: #555555 !important; color: #ffffff !important; font-weight: bold; width: 40%; }
+        
+        .part-block { border: 2px solid #15222F; margin: 15px; border-radius: 6px; background: #fff; position: relative; }
+        .part-header { background: #15222F; color: #00FF7F; padding: 8px; font-weight: bold; text-align: center; }
+        
         input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
         .hidden { display: none; }
-        .button-group { padding: 20px; text-align: center; background: #f8f9fa; border-top: 1px solid #ddd; }
-        
-        button { padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 16px; }
-        .btn-submit { background-color: #28a745; color: white; width: 100%; }
-        .btn-add { background-color: #007bff; color: white; margin: 10px; }
-        .btn-remove { background-color: #dc3545; color: white; font-size: 12px; padding: 5px 10px; }
-        
+        button { padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
+        .btn-submit { background-color: #28a745; color: white; width: 100%; margin-top: 20px; }
+        .btn-add { background-color: #007bff; color: white; width: 100%; margin: 10px 0; }
         .status-tag { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .locked { background: #f8d7da; color: #721c24; }
         .unlocked { background: #d4edda; color: #155724; }
@@ -41,253 +32,213 @@
 <body>
 
 <div class="header-section">
-    <img src="pactra new .jpg" alt="Pactra 360" class="brand-logo" onerror="this.src='Picture1.png'">
-    <h2>PACTRA360 PARTS ENTRY FORM</h2>
-    <img src="Picture1.png" alt="Epiroc Logo" class="brand-logo">
+    <div style="display: flex; align-items: center; gap: 30px;">
+        <img src="pactra new .jpg" alt="Pactra 360" style="height: 55px;" onerror="this.src='Picture1.png'">
+        <h2 style="margin: 0; color: #333; font-family: sans-serif;">PACTRA360 PARTS ENTRY FORM</h2>
+        <img src="Picture1.png" alt="Epiroc Logo" style="height: 55px;">
+    </div>
 </div>
 
 <form id="consumptionForm">
     <div class="sheet-container">
         <table>
-            <tr class="row-odd">
-                <td class="label-cell">Customer Name <span class="required-star">*</span></td>
-                <td>
-                    <select id="customerSelect" name="Customer_Name" onchange="updateSites(); checkValidation();" required>
-                        <option value="">-- Select Customer --</option>
-                    </select>
-                </td>
-            </tr>
-            <tr class="row-even">
-                <td class="label-cell">Date <span class="required-star">*</span></td>
-                <td><input type="date" name="Entry_Date" id="valDate" oninput="checkValidation()" required></td>
-            </tr>
-            <tr class="row-odd">
-                <td class="label-cell">User Name <span class="required-star">*</span></td>
-                <td><input type="text" name="Technician_Name" id="valTech" placeholder="e.g. tech_noamundi" required></td>
-            </tr>
-            <tr class="row-even">
-                <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Site Access Password <span class="required-star">*</span></td>
-                <td><input type="password" id="passInput" placeholder="Enter password" required></td>
-            </tr>
+            <tr class="row-odd"><td class="label-cell">Customer Name *</td><td><select id="customerSelect" name="Customer_Name" onchange="updateSites(); checkValidation();" required><option value="">-- Select Customer --</option></select></td></tr>
+            <tr class="row-even"><td class="label-cell">Date *</td><td><input type="date" name="Entry_Date" id="valDate" oninput="checkValidation()" required></td></tr>
+            <tr class="row-odd"><td class="label-cell">User Name *</td><td><input type="text" name="Technician_Name" id="valTech" placeholder="e.g. tech_id" required></td></tr>
+            <tr class="row-even"><td class="label-cell" style="background-color: #fff3cd !important; color:#000 !important;">Site Access Password *</td><td><input type="password" id="passInput" required></td></tr>
             <tr>
                 <td colspan="2" style="text-align: center; padding: 15px;">
-                    <button type="button" id="verifyBtn" onclick="verifyCredentials()" style="background-color: #007bff; color: white; width: 80%;">Verify & Unlock Form</button>
+                    <button type="button" id="verifyBtn" onclick="verifyCredentials()" style="background: #007bff; color: white; width: 80%;">Verify & Unlock Form</button>
                     <div id="loginStatus" style="margin-top: 10px;"><span id="statusLabel" class="status-tag locked">Locked - Please Verify</span></div>
                 </td>
             </tr>
 
             <tbody id="protectedContent" class="hidden">
-                <tr class="row-odd"><td class="label-cell">Work Site <span class="required-star">*</span></td><td><select id="workSiteSelect" name="Work_Site" onchange="updateFleet(); checkValidation();"><option value="">-- Select Site --</option></select></td></tr>
-                <tr class="row-even"><td class="label-cell">Fleet ID <span class="required-star">*</span></td><td><select id="fleetSelect" name="Fleet_ID" onchange="checkValidation()"><option value="">-- Select Fleet --</option></select></td></tr>
-                <tr class="row-odd"><td class="label-cell">Engine Hours <span class="required-star">*</span></td><td><input type="number" name="Engine_Hours" id="valHours" oninput="checkValidation()" required></td></tr>
-                <tr class="row-even"><td class="label-cell">Consumption Remarks</td><td><textarea name="Remarks" rows="2"></textarea></td></tr>
+                <tr class="row-odd"><td class="label-cell">Work Site *</td><td><select id="workSiteSelect" name="Work_Site" onchange="updateFleet(); checkValidation();"><option value="">-- Select Site --</option></select></td></tr>
+                <tr class="row-even"><td class="label-cell">Fleet ID *</td><td><select id="fleetSelect" name="Fleet_ID" onchange="checkValidation()"><option value="">-- Select Fleet --</option></select></td></tr>
+                <tr class="row-odd"><td class="label-cell">Engine Hours *</td><td><input type="number" name="Engine_Hours" id="valHours" oninput="checkValidation()" required></td></tr>
+                <tr class="row-even"><td class="label-cell">Remarks</td><td><textarea name="Remarks" rows="2"></textarea></td></tr>
                 
-                <tr>
-                    <td colspan="2" class="part-header">PART CONSUMPTION DETAILS (Up to 10 Lines)</td>
-                </tr>
-                <tr>
-                    <td colspan="2" id="partsContainer">
-                       <div class="part-block" id="part-row-1" style="border: 2px solid #15222F; margin: 10px; border-radius: 5px;">
-    <table style="width:100%; border:none;">
-        <tr class="row-odd">
-            <td class="label-cell">Part Group <span class="required-star">*</span></td>
-            <td>
-                <select name="part_group[]" class="group-sel" onchange="updateRowCascades(this); checkValidation();" required>
-                    <option value="">-- Select Group --</option>
-                    <option value="Lubricant">Lubricant</option>
-                    <option value="Parts">Parts</option>
-                    <option value="RockTool">RockTool</option>
-                    <option value="Hoses">Hoses</option>
-                </select>
-            </td>
-        </tr>
-        <tr class="row-even">
-            <td class="label-cell">Quantity <span class="required-star">*</span></td>
-            <td><input type="number" name="qty[]" value="1" oninput="checkValidation()" required></td>
-        </tr>
-        <tr class="row-odd">
-            <td class="label-cell">Unit Price</td>
-            <td><input type="number" step="any" name="unit_price[]" placeholder="0.00"></td>
-        </tr>
-    </table>
-</div>                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" style="text-align: center; background: #eee;">
-                        <button type="button" class="btn-add" onclick="addPartLine()">+ Add Another Part Line</button>
-                        <span id="lineCountText" style="font-weight:bold;">(1/10)</span>
-                    </td>
-                </tr>
+                <tr><td colspan="2" id="partsContainer">
+                    <div class="part-block" id="part-row-1">
+                        <div class="part-header">PART ENTRY #1</div>
+                        <table style="width:100%; border:none;">
+                            <tr class="row-odd">
+                                <td class="label-cell">Part Group *</td>
+                                <td><select name="part_group[]" class="group-sel" onchange="updateRowCascades(this); checkValidation();" required>
+                                    <option value="">-- Select Group --</option>
+                                    <option value="Lubricant">Lubricant</option>
+                                    <option value="Parts">Parts</option>
+                                    <option value="RockTool">RockTool</option>
+                                    <option value="Hoses">Hoses</option>
+                                </select></td>
+                            </tr>
+                            <tr class="row-even">
+                                <td class="label-cell">Part Type *</td>
+                                <td><select name="part_type[]" class="type-sel" onchange="updateRowDesc(this); checkValidation();" required><option value="">-- Select Type --</option></select></td>
+                            </tr>
+                            <tr class="row-odd">
+                                <td class="label-cell">Part Description *</td>
+                                <td><select name="part_desc[]" class="desc-sel" onchange="checkValidation()" required><option value="">-- Select Description --</option></select></td>
+                            </tr>
+                            <tr class="row-even">
+                                <td class="label-cell">Reason for Replacement *</td>
+                                <td><select name="reason[]" class="reason-sel" onchange="checkValidation()" required><option value="">-- Select Reason --</option></select></td>
+                            </tr>
+                            <tr class="row-odd">
+                                <td class="label-cell">Part Number</td>
+                                <td><input type="text" name="part_no[]" placeholder="e.g. 558000XXXX"></td>
+                            </tr>
+                            <tr class="row-even">
+                                <td class="label-cell">Quantity *</td>
+                                <td><input type="number" name="qty[]" value="1" min="1" oninput="checkValidation()" required></td>
+                            </tr>
+                            <tr class="row-odd">
+                                <td class="label-cell">Price</td>
+                                <td><input type="number" step="any" name="unit_price[]" placeholder="0.00"></td>
+                            </tr>
+                        </table>
+                    </div>
+                </td></tr>
+                
+                <tr><td colspan="2" style="text-align: center;">
+                    <button type="button" class="btn-add" onclick="addPartLine()">+ Add Another Part Line (Max 10)</button>
+                </td></tr>
             </tbody>
         </table>
 
-        <div id="formButtons" class="hidden" style="text-align: center; padding: 20px;">
+        <div id="formButtons" class="hidden" style="padding: 20px;">
             <button type="submit" id="submitBtn" class="btn-submit" disabled>Submit All Records to Part_Db</button>
-            <br><br>
-            <button type="button" onclick="logoutSession()" style="background-color: #dc3545; color: white;">Sign Out / Finish Batch</button>
+            <button type="button" onclick="location.reload()" style="background:#dc3545; color:white; width:100%; margin-top:10px;">Sign Out / Clear Form</button>
         </div>
     </div>
 </form>
 
 <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbxsgUqAbSSl33B_oRhJpkMfYDl9Krf03GObL7hBeTXYrWHC4NOZuwxtvGEkZR8pe1lS/exec";
-    
-    // DATA OBJECTS (Remains same as your original)
+
     const customerToSites = { "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines"], "ULTRATECH LTD": ["Rajshree Cements", "Kotputli Cement Works", "Manikgarh Cement Works", "Bela Cement Works", "Awarpur", "Kukurdih Cement Works", "Nathwara Cement Works", "Tadipatri Cement Works", "Rawan Cement Works", "Maihar Cement Works"], "AMBUJA CEMENTS LTD": ["Ambuja Darlaghat", "Rabriyawas Cement Works"], "LAFARGE": ["Shella Lime Stone Quarry"], "ACC LTD": ["Wadi Cement Works", "Gagal Cement Works", "Kymore Cement Works"], "ADANI ENTERPRISES": ["Parsa Kenta Coal Mines"], "NMDC LTD": ["BACHELI", "KIRANDUL"], "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines"], "BIRLA CORPORATION LIMITED": ["Birla Cements Satna"], "GANPATI METAL MINING": ["MOIL"] };
     const siteToFleet = { "Ambuja Darlaghat": ["DarlaT40"], "Wadi Cement Works": ["WadiSRD50", "WadiFRD50"], "Rabriyawas Cement Works": ["RbwsD50I", "RbwsD50II"], "Rajshree Cements": ["RjshreeROCL6", "RjshreeFRD50"], "Noamundi Iron Ore Mines": ["NoaD65I", "NoaD65II", "NoaD65III", "KTMD65I", "KTMD65II"], "Kotputli Cement Works": ["KotputliT40I", "KotputliT40II", "KotputliT40III"], "Manikgarh Cement Works": ["ManikgarhT40"], "Khondbond Iron Ore Mines": ["KhondbondD65", "KhondbondL8"], "Shella Lime Stone Quarry": ["LafargeD60", "LafargeT40"], "Bela Cement Works": ["BelaFRD50"], "Joda Iron Ore Mines": ["JodaD65I", "JodaD65II"], "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"], "Nuagaon Iron Ore Mines": ["NuagaonT45III"], "TSL West Bokaro Q-SE": ["BokaroD65I", "BokaroPRD50", "QSE-DM14", "QSE-DM15"], "TSL West Bokaro Q-AB": ["QAB-DM2K10", "QAB-DM2K11"], "Gagal Cement Works": ["GagalFRD50", "GagalT40"], "Kymore Cement Works": ["KymoreT40", "KymoreMGMFRD50", "KymoreBMGFRD50"], "Awarpur": ["AwarpurD50I"], "Kukurdih Cement Works": ["KukurdihT45I"], "Nathwara Cement Works": ["NathwaraT40I", "NathwaraT40II"], "Tadipatri Cement Works": ["TadipatriT45I"], "Rawan Cement Works": ["RawanD50I"], "Maihar Cement Works": ["MaiharT40I"], "Parsa Kenta Coal Mines": ["US091130"], "Birla Cements Satna": ["BirlaT40I"], "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"], "KIRANDUL": ["NMDCT45II"], "MOIL": ["GanpatiT40I"] };
     const partsData = { "Lubricant": { "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "High Temp Hydraulic Oil"], "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube"], "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40"], "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100"], "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90"], "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"] }, "Parts": { "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"], "COP-DHR": ["Seal Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"], "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"], "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"], "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] }, "RockTool": { "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"], "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"], "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"], "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"] }, "Hoses": { "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"], "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"], "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"], "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"], "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"] } };
-    const groupToReasons = { "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"], "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"], "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Thread Worn","Dropped in Hole","Jam in hole","shank crack"], "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"] };
+    const groupToReasons = { "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"], "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"], "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Dropped in Hole","shank crack"], "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing", "End-of-Life Replacement"] };
 
-   let partCount = 1;
+    let partCount = 1;
 
-window.onload = function() {
-    const custSelect = document.getElementById('customerSelect');
-    Object.keys(customerToSites).sort().forEach(c => {
-        let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
-    });
-};
-
-// --- NEW MULTI-PART CASCADING LOGIC ---
-function updateRowCascades(el) {
-    const block = el.closest('.part-block'); 
-    const group = el.value;
-    
-    const typeSelect = block.querySelector('.type-sel');
-    const reasonSelect = block.querySelector('.reason-sel');
-    const descSelect = block.querySelector('.desc-sel');
-    
-    typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
-    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
-    reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
-
-    if (partsData[group]) {
-        Object.keys(partsData[group]).forEach(t => {
-            let opt = document.createElement('option'); opt.value = opt.text = t; typeSelect.add(opt);
+    window.onload = function() {
+        const custSelect = document.getElementById('customerSelect');
+        Object.keys(customerToSites).sort().forEach(c => {
+            let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
         });
-    }
-    if (groupToReasons[group]) {
-        groupToReasons[group].forEach(r => {
-            let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
-        });
-    }
-    checkValidation();
-}
+    };
 
-function updateRowDesc(el) {
-    const block = el.closest('.part-block');
-    const group = block.querySelector('.group-sel').value;
-    const type = el.value;
-    const descSelect = block.querySelector('.desc-sel');
-    
-    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
-    if (partsData[group] && partsData[group][type]) {
-        partsData[group][type].forEach(d => {
-            let opt = document.createElement('option'); opt.value = opt.text = d; descSelect.add(opt);
-        });
-    }
-    checkValidation();
-}
-
-// --- ADD NEW LINE FUNCTION ---
-function addPartLine() {
-    if (partCount >= 10) return alert("Maximum 10 lines allowed.");
-    partCount++;
-    
-    const container = document.getElementById('partsContainer');
-    const original = document.querySelector('.part-block');
-    const clone = original.cloneNode(true);
-    
-    clone.id = "part-row-" + partCount;
-    
-    // Clear values in the clone
-    clone.querySelectorAll('select, input').forEach(input => {
-        if (input.name === "qty[]") input.value = 1;
-        else input.value = "";
-    });
-
-    // Reset the cascades for the new row
-    clone.querySelector('.type-sel').innerHTML = '<option value="">-- Select Type --</option>';
-    clone.querySelector('.desc-sel').innerHTML = '<option value="">-- Select Description --</option>';
-
-    // Add a Remove Button (Optional but recommended)
-    const removeBtn = document.createElement('button');
-    removeBtn.type = "button";
-    removeBtn.innerText = "✖ Remove Line " + partCount;
-    removeBtn.style = "background:#dc3545; color:white; margin:10px; font-size:12px; padding:5px;";
-    removeBtn.onclick = function() { clone.remove(); partCount--; checkValidation(); };
-    clone.appendChild(removeBtn);
-
-    container.appendChild(clone);
-    checkValidation();
-}
-
-    function updateCounterText() {
-        document.getElementById('lineCountText').innerText = "(" + partCount + "/10)";
+    function updateRowCascades(el) {
+        const block = el.closest('.part-block');
+        const group = el.value;
+        const typeSel = block.querySelector('.type-sel');
+        const reasonSel = block.querySelector('.reason-sel');
+        typeSel.innerHTML = '<option value="">-- Select Type --</option>';
+        reasonSel.innerHTML = '<option value="">-- Select Reason --</option>';
+        if (partsData[group]) {
+            Object.keys(partsData[group]).forEach(t => {
+                let opt = document.createElement('option'); opt.value = opt.text = t; typeSel.add(opt);
+            });
+        }
+        if (groupToReasons[group]) {
+            groupToReasons[group].forEach(r => {
+                let opt = document.createElement('option'); opt.value = opt.text = r; reasonSel.add(opt);
+            });
+        }
     }
 
-    function checkValidation() {
-        const req = ['customerSelect', 'valDate', 'valTech', 'valHours', 'valQty'];
-        let isInvalid = req.some(id => {
-            const el = document.getElementById(id);
-            return !el || !el.value.trim();
-        });
+    function updateRowDesc(el) {
+        const block = el.closest('.part-block');
+        const group = block.querySelector('.group-sel').value;
+        const type = el.value;
+        const descSel = block.querySelector('.desc-sel');
+        descSel.innerHTML = '<option value="">-- Select Description --</option>';
+        if (partsData[group] && partsData[group][type]) {
+            partsData[group][type].forEach(d => {
+                let opt = document.createElement('option'); opt.value = opt.text = d; descSel.add(opt);
+            });
+        }
+    }
+
+    function addPartLine() {
+        if (partCount >= 10) return alert("Limit of 10 parts reached.");
+        partCount++;
+        const container = document.getElementById('partsContainer');
+        const clone = document.getElementById('part-row-1').cloneNode(true);
+        clone.id = "part-row-" + partCount;
+        clone.querySelector('.part-header').innerText = "PART ENTRY #" + partCount;
+        clone.querySelectorAll('select, input').forEach(i => i.value = (i.name === "qty[]" ? 1 : ""));
         
-        // Also check if Part Groups are selected for all added lines
-        document.querySelectorAll('.group-sel').forEach(sel => {
-            if (!sel.value) isInvalid = true;
-        });
-
-        document.getElementById('submitBtn').disabled = isInvalid;
+        const removeBtn = document.createElement('button');
+        removeBtn.innerText = "Remove Line";
+        removeBtn.style = "background:#dc3545; color:white; margin:10px; font-size:12px; padding: 5px 10px;";
+        removeBtn.onclick = function() { clone.remove(); partCount--; checkValidation(); };
+        clone.appendChild(removeBtn);
+        container.appendChild(clone);
+        checkValidation();
     }
 
     function verifyCredentials() {
         const user = document.getElementById('valTech').value.trim();
         const pass = document.getElementById('passInput').value.trim();
-        const btn = document.getElementById('verifyBtn');
-        const status = document.getElementById('statusLabel');
-
-        if (!user || !pass) return alert("Enter credentials.");
-        btn.innerText = "Verifying..."; btn.disabled = true;
-
+        if(!user || !pass) return alert("Enter credentials.");
+        document.getElementById('verifyBtn').innerText = "Verifying...";
         fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
         .then(r => r.text())
         .then(text => {
             if (text.startsWith("success")) {
                 document.getElementById('protectedContent').classList.remove('hidden');
                 document.getElementById('formButtons').classList.remove('hidden');
-                status.innerText = "✅ Access Granted: " + (text.split(":")[1] || "Authorized");
-                status.className = "status-tag unlocked";
-                btn.style.display = "none";
+                document.getElementById('statusLabel').innerText = "✅ Unlocked: " + (text.split(":")[1] || "Site");
+                document.getElementById('statusLabel').className = "status-tag unlocked";
+                document.getElementById('verifyBtn').style.display = "none";
                 document.getElementById('valTech').readOnly = true;
                 document.getElementById('passInput').readOnly = true;
-            } else {
-                alert("Login Failed.");
-                btn.innerText = "Verify & Unlock Form"; btn.disabled = false;
-            }
+            } else { alert("Login Failed."); document.getElementById('verifyBtn').innerText = "Verify & Unlock Form"; }
         });
+    }
+
+    function checkValidation() {
+        const core = ['customerSelect', 'valDate', 'valTech', 'valHours'];
+        let invalid = core.some(id => !document.getElementById(id).value.trim());
+        document.querySelectorAll('.group-sel').forEach(s => { if(!s.value) invalid = true; });
+        document.getElementById('submitBtn').disabled = invalid;
+    }
+
+    function updateSites() {
+        const customer = document.getElementById('customerSelect').value;
+        const siteSelect = document.getElementById('workSiteSelect');
+        siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
+        if (customerToSites[customer]) {
+            customerToSites[customer].forEach(s => {
+                let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
+            });
+        }
+        updateFleet();
+    }
+
+    function updateFleet() {
+        const site = document.getElementById('workSiteSelect').value;
+        const fleetSelect = document.getElementById('fleetSelect');
+        fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
+        if (siteToFleet[site]) { siteToFleet[site].forEach(f => {
+            let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
+        }); }
     }
 
     document.getElementById('consumptionForm').addEventListener('submit', function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        btn.innerText = "Syncing All Parts..."; btn.disabled = true;
-
+        btn.innerText = "Processing..."; btn.disabled = true;
         const formData = new FormData(this);
         formData.append('Unlock_Password', document.getElementById('passInput').value);
-
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: formData })
-        .then(() => {
-            alert("✅ SUCCESS! " + partCount + " parts recorded.");
-            location.reload(); 
-        })
-        .catch(() => {
-            alert("Error saving.");
-            btn.disabled = false;
-        });
+        .then(() => { alert("Success! Records saved."); location.reload(); })
+        .catch(() => { alert("Error saving data."); btn.disabled = false; });
     });
-
-    function logoutSession() { if(confirm("Sign out?")) location.reload(); }
 </script>
 </body>
 </html>
-
