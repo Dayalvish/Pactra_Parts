@@ -6,35 +6,22 @@
     <title>PACTRA360 PARTS ENTRY FORM</title>
     <style>
         body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; }
-        .header-section {
-    background-color: #f8f9fa; /* Light grey background */
-    border-bottom: 2px solid #ddd;
-    display: flex;
-    justify-content: space-between; /* Pushes logos to far left and right */
-    align-items: center;
-    padding: 15px 25px;
-}
-
-.brand-logo {
-    max-height: 70px; /* Adjust based on your image size */
-    width: auto;
-    object-fit: contain;
-}
-
-h2 {
-    color: #333;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-weight: bold;
-    text-transform: uppercase;
-}
+        .header-section { background-color: #f8f9fa; border-bottom: 2px solid #ddd; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .brand-logo { height: 55px; width: auto; }
+        h2 { color: #333; font-family: 'Segoe UI', sans-serif; font-weight: bold; text-transform: uppercase; margin: 0 30px; white-space: nowrap; }
         
-        .sheet-container { background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 700px; margin: 0 auto; border-radius: 8px; overflow: hidden; }
+        .sheet-container { background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto; border-radius: 8px; overflow: hidden; }
         table { border-collapse: collapse; width: 100%; }
         td { border: 1px solid #dfe3e8; padding: 12px; font-size: 14px; }
 
-        /* Alternating Label Colors (Excel Style) */
-        tr:nth-child(odd) .label-cell { background-color: #FFD700 !important; color: #000 !important; font-weight: bold; width: 40%; }
-        tr:nth-child(even) .label-cell { background-color: #555555 !important; color: #ffffff !important; font-weight: bold; width: 40%; }
+        /* Excel Style Alternating Labels */
+        .label-cell { font-weight: bold; width: 35%; }
+        .row-odd .label-cell { background-color: #FFD700 !important; color: #000 !important; }
+        .row-even .label-cell { background-color: #555555 !important; color: #ffffff !important; }
+
+        /* Multi-Part Styling */
+        .part-header { background-color: #15222F; color: #00FF7F; font-weight: bold; text-align: center; padding: 8px; }
+        .part-block { border: 2px solid #15222F; margin: 10px; border-radius: 5px; }
 
         input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
         .hidden { display: none; }
@@ -42,7 +29,8 @@ h2 {
         
         button { padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 16px; }
         .btn-submit { background-color: #28a745; color: white; width: 100%; }
-        .btn-submit:disabled { background-color: #ccc; cursor: not-allowed; opacity: 0.6; }
+        .btn-add { background-color: #007bff; color: white; margin: 10px; }
+        .btn-remove { background-color: #dc3545; color: white; font-size: 12px; padding: 5px 10px; }
         
         .status-tag { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
         .locked { background: #f8d7da; color: #721c24; }
@@ -52,450 +40,279 @@ h2 {
 </head>
 <body>
 
-    <div class="header-section" style="display: flex; justify-content: center; align-items: center; padding: 20px; background-color: #f8f9fa;">
-    <div style="display: flex; align-items: center; gap: 30px;">
-        <img src="pactra new .jpg" alt="Pactra 360" style="height: 55px; width: auto;" onerror="this.src='Picture1.png'">
-        
-        <h2 style="margin: 0; font-family: 'Segoe UI', sans-serif; color: #333; white-space: nowrap;">PACTRA360 PARTS ENTRY FORM</h2>
-        
-        <img src="Picture1.png" alt="Epiroc Logo" style="height: 55px; width: auto;" onerror="this.style.display='none'">
-    </div>
+<div class="header-section">
+    <img src="pactra new .jpg" alt="Pactra 360" class="brand-logo" onerror="this.src='Picture1.png'">
+    <h2>PACTRA360 PARTS ENTRY FORM</h2>
+    <img src="Picture1.png" alt="Epiroc Logo" class="brand-logo">
 </div>
 
-    <form id="consumptionForm">
-        <div class="sheet-container">
-            <table>
+<form id="consumptionForm">
+    <div class="sheet-container">
+        <table>
+            <tr class="row-odd">
+                <td class="label-cell">Customer Name <span class="required-star">*</span></td>
+                <td>
+                    <select id="customerSelect" name="Customer_Name" onchange="updateSites(); checkValidation();" required>
+                        <option value="">-- Select Customer --</option>
+                    </select>
+                </td>
+            </tr>
+            <tr class="row-even">
+                <td class="label-cell">Date <span class="required-star">*</span></td>
+                <td><input type="date" name="Entry_Date" id="valDate" oninput="checkValidation()" required></td>
+            </tr>
+            <tr class="row-odd">
+                <td class="label-cell">User Name <span class="required-star">*</span></td>
+                <td><input type="text" name="Technician_Name" id="valTech" placeholder="e.g. tech_noamundi" required></td>
+            </tr>
+            <tr class="row-even">
+                <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Site Access Password <span class="required-star">*</span></td>
+                <td><input type="password" id="passInput" placeholder="Enter password" required></td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align: center; padding: 15px;">
+                    <button type="button" id="verifyBtn" onclick="verifyCredentials()" style="background-color: #007bff; color: white; width: 80%;">Verify & Unlock Form</button>
+                    <div id="loginStatus" style="margin-top: 10px;"><span id="statusLabel" class="status-tag locked">Locked - Please Verify</span></div>
+                </td>
+            </tr>
+
+            <tbody id="protectedContent" class="hidden">
+                <tr class="row-odd"><td class="label-cell">Work Site <span class="required-star">*</span></td><td><select id="workSiteSelect" name="Work_Site" onchange="updateFleet(); checkValidation();"><option value="">-- Select Site --</option></select></td></tr>
+                <tr class="row-even"><td class="label-cell">Fleet ID <span class="required-star">*</span></td><td><select id="fleetSelect" name="Fleet_ID" onchange="checkValidation()"><option value="">-- Select Fleet --</option></select></td></tr>
+                <tr class="row-odd"><td class="label-cell">Engine Hours <span class="required-star">*</span></td><td><input type="number" name="Engine_Hours" id="valHours" oninput="checkValidation()" required></td></tr>
+                <tr class="row-even"><td class="label-cell">Consumption Remarks</td><td><textarea name="Remarks" rows="2"></textarea></td></tr>
+                
                 <tr>
-                    <td class="label-cell">Customer Name <span class="required-star">*</span></td>
-                    <td>
-                        <select id="customerSelect" name="Customer_Name" onchange="updateSites(); checkValidation();" required>
-                            <option value="">-- Select Customer --</option>
-                        </select>
+                    <td colspan="2" class="part-header">PART CONSUMPTION DETAILS (Up to 10 Lines)</td>
+                </tr>
+                <tr>
+                    <td colspan="2" id="partsContainer">
+                        <div class="part-block" id="part-row-1">
+                            <table style="width:100%; border:none;">
+                                <tr class="row-odd">
+                                    <td class="label-cell">Part Group #1 <span class="required-star">*</span></td>
+                                    <td>
+                                        <select name="part_group[]" class="group-sel" onchange="updateRowCascades(this); checkValidation();" required>
+                                            <option value="">-- Select Group --</option>
+                                            <option value="Lubricant">Lubricant</option>
+                                            <option value="Parts">Parts</option>
+                                            <option value="RockTool">RockTool</option>
+                                            <option value="Hoses">Hoses</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr class="row-even">
+                                    <td class="label-cell">Part Type <span class="required-star">*</span></td>
+                                    <td><select name="part_type[]" class="type-sel" onchange="updateRowDesc(this); checkValidation();" required><option value="">-- Select Type --</option></select></td>
+                                </tr>
+                                <tr class="row-odd">
+                                    <td class="label-cell">Description <span class="required-star">*</span></td>
+                                    <td><select name="part_desc[]" class="desc-sel" onchange="checkValidation()" required><option value="">-- Select Description --</option></select></td>
+                                </tr>
+                                <tr class="row-even">
+                                    <td class="label-cell">Reason <span class="required-star">*</span></td>
+                                    <td><select name="reason[]" class="reason-sel" onchange="checkValidation()" required><option value="">-- Select Reason --</option></select></td>
+                                </tr>
+                                <tr class="row-odd">
+                                    <td class="label-cell">Part Number</td>
+                                    <td><input type="text" name="part_no[]"></td>
+                                </tr>
+                                <tr class="row-even">
+                                    <td class="label-cell">Quantity <span class="required-star">*</span></td>
+                                    <td><input type="number" name="qty[]" value="1" oninput="checkValidation()" required></td>
+                                </tr>
+                            </table>
+                        </div>
                     </td>
                 </tr>
-                <tr><td class="label-cell">Date <span class="required-star">*</span></td><td><input type="date" name="Entry_Date" id="valDate" oninput="checkValidation()" required></td></tr>
-               <tr>
-    <td class="label-cell">User Name <span class="required-star">*</span></td>
-    <td>
-        <input type="text" name="Technician_Name" id="valTech" placeholder="e.g. tech_noamundi" required>
-    </td>
-</tr>
+                <tr>
+                    <td colspan="2" style="text-align: center; background: #eee;">
+                        <button type="button" class="btn-add" onclick="addPartLine()">+ Add Another Part Line</button>
+                        <span id="lineCountText" style="font-weight:bold;">(1/10)</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
 
-<tr>
-    <td class="label-cell" style="background-color: #fff3cd !important; color: #000 !important;">Site Access Password <span class="required-star">*</span></td>
-    <td>
-        <input type="password" id="passInput" placeholder="Enter your site-specific password" required>
-    </td>
-</tr>
-
-<tr>
-    <td colspan="2" style="text-align: center; padding: 15px; background-color: #f8f9fa;">
-        <button type="button" id="verifyBtn" onclick="verifyCredentials()" style="background-color: #007bff; color: white; width: 80%; cursor: pointer; padding: 10px; border-radius: 5px; border: none; font-weight: bold;">
-            Verify & Unlock Form
-        </button>
-        <div id="loginStatus" style="margin-top: 10px; font-size: 13px; font-weight: bold; color: #721c24;">
-            <span id="statusLabel" class="status-tag locked">Locked - Please Verify</span>
+        <div id="formButtons" class="hidden" style="text-align: center; padding: 20px;">
+            <button type="submit" id="submitBtn" class="btn-submit" disabled>Submit All Records to Part_Db</button>
+            <br><br>
+            <button type="button" onclick="logoutSession()" style="background-color: #dc3545; color: white;">Sign Out / Finish Batch</button>
         </div>
-    </td>
-</tr>
+    </div>
+</form>
 
-                <tbody id="protectedContent" class="hidden">
-                    <tr><td class="label-cell">Work Site <span class="required-star">*</span></td><td><select id="workSiteSelect" name="Work_Site" onchange="updateFleet(); checkValidation();"><option value="">-- Select Site --</option></select></td></tr>
-                    <tr><td class="label-cell">Fleet ID <span class="required-star">*</span></td><td><select id="fleetSelect" name="Fleet_ID" onchange="checkValidation()"><option value="">-- Select Fleet --</option></select></td></tr>
-                    
-                    <tr>
-                        <td class="label-cell">Part Group <span class="required-star">*</span></td>
-                        <td>
-                            <select name="Part_Group" id="valGroup" onchange="updatePartTypes(); updateReasons(); checkValidation();">
-                                <option value="">-- Select Group --</option>
-                                <option value="Lubricant">Lubricant</option>
-                                <option value="Parts">Parts</option>
-                                <option value="RockTool">RockTool</option>
-                                <option value="Hoses">Hoses</option>
-                            </select>
-                        </td>
-                    </tr>
-                    
-                    <tr>
-                        <td class="label-cell">Part Type <span class="required-star">*</span></td>
-                        <td><select id="typeSelect" name="Part_Type" onchange="updatePartDescriptions(); checkValidation();"><option value="">-- Select Type --</option></select></td>
-                    </tr>
-                    
-                    <tr>
-                        <td class="label-cell">Part Description <span class="required-star">*</span></td>
-                        <td><select id="descSelect" name="Part_Description" onchange="checkValidation()"><option value="">-- Select Description --</option></select></td>
-                    </tr>
+<script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbxsgUqAbSSl33B_oRhJpkMfYDl9Krf03GObL7hBeTXYrWHC4NOZuwxtvGEkZR8pe1lS/exec";
+    
+    // DATA OBJECTS (Remains same as your original)
+    const customerToSites = { "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines"], "ULTRATECH LTD": ["Rajshree Cements", "Kotputli Cement Works", "Manikgarh Cement Works", "Bela Cement Works", "Awarpur", "Kukurdih Cement Works", "Nathwara Cement Works", "Tadipatri Cement Works", "Rawan Cement Works", "Maihar Cement Works"], "AMBUJA CEMENTS LTD": ["Ambuja Darlaghat", "Rabriyawas Cement Works"], "LAFARGE": ["Shella Lime Stone Quarry"], "ACC LTD": ["Wadi Cement Works", "Gagal Cement Works", "Kymore Cement Works"], "ADANI ENTERPRISES": ["Parsa Kenta Coal Mines"], "NMDC LTD": ["BACHELI", "KIRANDUL"], "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines"], "BIRLA CORPORATION LIMITED": ["Birla Cements Satna"], "GANPATI METAL MINING": ["MOIL"] };
+    const siteToFleet = { "Ambuja Darlaghat": ["DarlaT40"], "Wadi Cement Works": ["WadiSRD50", "WadiFRD50"], "Rabriyawas Cement Works": ["RbwsD50I", "RbwsD50II"], "Rajshree Cements": ["RjshreeROCL6", "RjshreeFRD50"], "Noamundi Iron Ore Mines": ["NoaD65I", "NoaD65II", "NoaD65III", "KTMD65I", "KTMD65II"], "Kotputli Cement Works": ["KotputliT40I", "KotputliT40II", "KotputliT40III"], "Manikgarh Cement Works": ["ManikgarhT40"], "Khondbond Iron Ore Mines": ["KhondbondD65", "KhondbondL8"], "Shella Lime Stone Quarry": ["LafargeD60", "LafargeT40"], "Bela Cement Works": ["BelaFRD50"], "Joda Iron Ore Mines": ["JodaD65I", "JodaD65II"], "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"], "Nuagaon Iron Ore Mines": ["NuagaonT45III"], "TSL West Bokaro Q-SE": ["BokaroD65I", "BokaroPRD50", "QSE-DM14", "QSE-DM15"], "TSL West Bokaro Q-AB": ["QAB-DM2K10", "QAB-DM2K11"], "Gagal Cement Works": ["GagalFRD50", "GagalT40"], "Kymore Cement Works": ["KymoreT40", "KymoreMGMFRD50", "KymoreBMGFRD50"], "Awarpur": ["AwarpurD50I"], "Kukurdih Cement Works": ["KukurdihT45I"], "Nathwara Cement Works": ["NathwaraT40I", "NathwaraT40II"], "Tadipatri Cement Works": ["TadipatriT45I"], "Rawan Cement Works": ["RawanD50I"], "Maihar Cement Works": ["MaiharT40I"], "Parsa Kenta Coal Mines": ["US091130"], "Birla Cements Satna": ["BirlaT40I"], "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"], "KIRANDUL": ["NMDCT45II"], "MOIL": ["GanpatiT40I"] };
+    const partsData = { "Lubricant": { "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "High Temp Hydraulic Oil"], "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube"], "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40"], "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100"], "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90"], "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"] }, "Parts": { "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"], "COP-DHR": ["Seal Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"], "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"], "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"], "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] }, "RockTool": { "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"], "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"], "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"], "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"] }, "Hoses": { "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"], "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"], "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"], "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"], "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"] } };
+    const groupToReasons = { "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"], "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"], "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Thread Worn","Dropped in Hole","Jam in hole","shank crack"], "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"] };
 
-                    <tr>
-                        <td class="label-cell">Reason for Replacement <span class="required-star">*</span></td>
-                        <td><select id="reasonSelect" name="Reason_to_Replace" onchange="checkValidation()"><option value="">-- Select Reason --</option></select></td>
-                    </tr>
-                    
-                    <tr><td class="label-cell">Part Number</td><td><input type="text" name="Part_Number" id="valPartNum" placeholder="e.g. 5580006789"></td></tr>
-                    <tr><td class="label-cell">Quantity <span class="required-star">*</span></td><td><input type="number" name="Quantity" id="valQty" placeholder="0" oninput="checkValidation()" required></td></tr>
-                    <tr><td class="label-cell">Unit Price</td><td><input type="number" step="any" name="Unit_Price" placeholder="0.00"></td></tr>
-                    <tr>
-    <td class="label-cell">Engine Hours <span class="required-star">*</span></td>
-    <td>
-        <input type="number" name="Engine_Hours" id="valHours" placeholder="e.g. 4500" oninput="checkValidation()" required>
-    </td>
-</tr>
-                    <tr><td class="label-cell">Consumption Remarks</td><td><textarea name="Remarks" rows="2" placeholder="Any additional info..."></textarea></td></tr>
-                </tbody>
-            </table>
-            
-            <div id="formButtons" class="hidden" style="text-align: center; margin-top: 20px;">
-    <button type="submit" id="submitBtn" class="btn-submit" disabled>Submit Record to Part_Db</button>
-    <br><br>
-    <button type="button" onclick="logoutSession()" style="background-color: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-        Sign Out / Finish Batch
-    </button>
-</div>
-        </div>
-    </form>
+    let partCount = 1;
 
-    <script>
-        // CONFIGURATION
-        const scriptURL = "https://script.google.com/macros/s/AKfycbxsgUqAbSSl33B_oRhJpkMfYDl9Krf03GObL7hBeTXYrWHC4NOZuwxtvGEkZR8pe1lS/exec";
-        const passKey = "Epiroc@123";
+    window.onload = function() {
+        const custSelect = document.getElementById('customerSelect');
+        Object.keys(customerToSites).sort().forEach(c => {
+            let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
+        });
+    };
 
-        // 1. DATA OBJECTS
-        const customerToSites = {
-            "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines"],
-            "ULTRATECH LTD": ["Rajshree Cements", "Kotputli Cement Works", "Manikgarh Cement Works", "Bela Cement Works", "Awarpur", "Kukurdih Cement Works", "Nathwara Cement Works", "Tadipatri Cement Works", "Rawan Cement Works", "Maihar Cement Works"],
-            "AMBUJA CEMENTS LTD": ["Ambuja Darlaghat", "Rabriyawas Cement Works"],
-            "LAFARGE": ["Shella Lime Stone Quarry"], 
-            "ACC LTD": ["Wadi Cement Works", "Gagal Cement Works", "Kymore Cement Works"],
-            "ADANI ENTERPRISES": ["Parsa Kenta Coal Mines"], 
-            "NMDC LTD": ["BACHELI", "KIRANDUL"],
-            "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines"], 
-            "BIRLA CORPORATION LIMITED": ["Birla Cements Satna"],
-            "GANPATI METAL MINING": ["MOIL"]
-        };
-
-        const siteToFleet = {
-            "Ambuja Darlaghat": ["DarlaT40"], 
-            "Wadi Cement Works": ["WadiSRD50", "WadiFRD50"],
-            "Rabriyawas Cement Works": ["RbwsD50I", "RbwsD50II"], 
-            "Rajshree Cements": ["RjshreeROCL6", "RjshreeFRD50"],
-            "Noamundi Iron Ore Mines": ["NoaD65I", "NoaD65II", "NoaD65III", "KTMD65I", "KTMD65II"],
-            "Kotputli Cement Works": ["KotputliT40I", "KotputliT40II", "KotputliT40III"], 
-            "Manikgarh Cement Works": ["ManikgarhT40"],
-            "Khondbond Iron Ore Mines": ["KhondbondD65", "KhondbondL8"], 
-            "Shella Lime Stone Quarry": ["LafargeD60", "LafargeT40"],
-            "Bela Cement Works": ["BelaFRD50"], 
-            "Joda Iron Ore Mines": ["JodaD65I", "JodaD65II"],
-            "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"], 
-            "Nuagaon Iron Ore Mines": ["NuagaonT45III"],
-            "TSL West Bokaro Q-SE": ["BokaroD65I", "BokaroPRD50", "QSE-DM14", "QSE-DM15"], 
-            "TSL West Bokaro Q-AB": ["QAB-DM2K10", "QAB-DM2K11"],
-            "Gagal Cement Works": ["GagalFRD50", "GagalT40"], 
-            "Kymore Cement Works": ["KymoreT40", "KymoreMGMFRD50", "KymoreBMGFRD50"],
-            "Awarpur": ["AwarpurD50I"], 
-            "Kukurdih Cement Works": ["KukurdihT45I"], 
-            "Nathwara Cement Works": ["NathwaraT40I", "NathwaraT40II"],
-            "Tadipatri Cement Works": ["TadipatriT45I"], 
-            "Rawan Cement Works": ["RawanD50I"], 
-            "Maihar Cement Works": ["MaiharT40I"],
-            "Parsa Kenta Coal Mines": ["US091130"], 
-            "Birla Cements Satna": ["BirlaT40I"], 
-            "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"],
-            "KIRANDUL": ["NMDCT45II"], 
-            "MOIL": ["GanpatiT40I"]
-        };
-
-        const partsData = {
-    "Lubricant": { 
-        "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "High Temp Hydraulic Oil"], 
-        "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube"], 
-        "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40"],
-        "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100"],
-        "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90"],
-        "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"]
-    },
-    "Parts": { 
-        "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], 
-        "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"],
-        "COP-DHR": ["Seal Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"],
-        "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"],
-        "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"],
-        "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], // Updated from placeholders
-        "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] 
-    },
-    "RockTool": { 
-        "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], 
-        "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"],
-        "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"],
-        "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"],
-        "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"]
-    },
-    "Hoses": { 
-        "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], 
-        "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"],
-        "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"],
-        "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"],
-        "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"],
-        "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"]
-    }
-};
-
-        const groupToReasons = {
-            "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"],
-            "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"],
-            "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Thread Worn","Dropped in Hole","Jam in hole","shank crack"],
-            "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"]
-        };
-
-        // 2. INITIALIZATION
-        window.onload = function() {
-            const custSelect = document.getElementById('customerSelect');
-            Object.keys(customerToSites).sort().forEach(c => {
-                let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
+    function updateSites() {
+        const customer = document.getElementById('customerSelect').value;
+        const siteSelect = document.getElementById('workSiteSelect');
+        siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
+        if (customerToSites[customer]) {
+            customerToSites[customer].forEach(s => {
+                let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
             });
-        };
-
-        // --- 3. DROPDOWN CASCADING LOGIC ---
-function updateSites() {
-    const customer = document.getElementById('customerSelect').value;
-    const siteSelect = document.getElementById('workSiteSelect');
-    const fleetSelect = document.getElementById('fleetSelect');
-    siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
-    fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
-    if (customerToSites[customer]) {
-        customerToSites[customer].forEach(s => {
-            let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
-        });
-    }
-    checkValidation();
-}
-
-function updateFleet() {
-    const site = document.getElementById('workSiteSelect').value;
-    const fleetSelect = document.getElementById('fleetSelect');
-    fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
-    if (siteToFleet[site]) {
-        siteToFleet[site].forEach(f => {
-            let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
-        });
-    }
-    checkValidation();
-}
-
-function updatePartTypes() {
-    const group = document.getElementById('valGroup').value;
-    const typeSelect = document.getElementById('typeSelect');
-    const descSelect = document.getElementById('descSelect');
-    typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
-    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
-    if (partsData[group]) {
-        Object.keys(partsData[group]).forEach(type => {
-            let opt = document.createElement('option'); opt.value = opt.text = type; typeSelect.add(opt);
-        });
-    }
-    updateReasons();
-    checkValidation();
-}
-
-function updatePartDescriptions() {
-    const group = document.getElementById('valGroup').value;
-    const type = document.getElementById('typeSelect').value;
-    const descSelect = document.getElementById('descSelect');
-    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
-    if (partsData[group] && partsData[group][type]) {
-        partsData[group][type].forEach(desc => {
-            let opt = document.createElement('option'); opt.value = opt.text = desc; descSelect.add(opt);
-        });
-    }
-    checkValidation();
-}
-
-function updateReasons() {
-    const group = document.getElementById('valGroup').value;
-    const reasonSelect = document.getElementById('reasonSelect');
-    reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
-    if (groupToReasons[group]) {
-        groupToReasons[group].forEach(r => {
-            let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
-        });
-    }
-}
-
-// --- 4. VALIDATION & ACTIVE ACCESS ---
-
-// SINGLE definition of checkValidation to prevent freezing
-function checkValidation() {
-    const req = [
-        'customerSelect', 'valDate', 'valTech', 'valGroup', 
-        'typeSelect', 'descSelect', 'reasonSelect', 'valQty', 'valHours'
-    ];
-    
-    const isInvalid = req.some(id => {
-        const el = document.getElementById(id);
-        return !el || !el.value || el.value.trim() === "";
-    });
-
-    const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
-        submitBtn.disabled = isInvalid;
-    }
-}
-
-function verifyCredentials() {
-    const userEl = document.getElementById('valTech');
-    const passEl = document.getElementById('passInput');
-    const btn = document.getElementById('verifyBtn');
-    const status = document.getElementById('statusLabel');
-
-    const user = userEl.value.trim();
-    const pass = passEl.value.trim();
-
-    if (user.length < 3 || pass.length < 4) {
-        alert("Please enter a valid Username and Password first.");
-        return;
-    }
-
-    btn.innerText = "Verifying with Cloud...";
-    btn.disabled = true;
-
-    fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
-    .then(response => response.text())
-    .then(text => {
-        if (text.startsWith("success")) {
-            const siteName = text.split(":")[1] || "Authorized";
-            document.getElementById('protectedContent').classList.remove('hidden');
-            document.getElementById('formButtons').classList.remove('hidden');
-            status.innerText = "✅ Access Granted: " + siteName;
-            status.className = "status-tag unlocked";
-            btn.style.display = "none";
-            userEl.readOnly = true;
-            passEl.readOnly = true;
-        } else {
-            alert("❌ LOGIN FAILED: Incorrect Username or Password.");
-            status.innerText = "Access Denied";
-            status.className = "status-tag locked";
-            btn.innerText = "Verify & Unlock Form";
-            btn.disabled = false;
         }
-    })
-    .catch(err => {
-        alert("Connection Error. Check internet.");
-        btn.disabled = false;
-    });
-}
-
-// --- 5. SECURE FORM SUBMISSION (Stay Logged In Version) ---
-document.getElementById('consumptionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const btn = document.getElementById('submitBtn');
-    
-    // 1. Capture the session info before we reset the form
-    const currentTech = document.getElementById('valTech').value;
-    const currentPass = document.getElementById('passInput').value;
-    const currentDate = document.getElementById('valDate').value;
-    const currentCustomer = document.getElementById('customerSelect').value;
-
-    btn.innerText = "Syncing Record..."; 
-    btn.disabled = true;
-
-    const formData = new FormData(this);
-    formData.append('Unlock_Password', currentPass);
-
-    fetch(scriptURL, {
-        method: 'POST',
-        mode: 'no-cors', 
-        body: formData
-    })
-    .then(() => {
-        // SUCCESS: Show a quick notification instead of a blocking alert
-        console.log("Data Synced Successfully");
-        
-        // 2. Reset the form to clear Part Details (Group, Type, Qty, Hours)
-        this.reset(); 
-
-        // 3. Restore the Session Info immediately
-        document.getElementById('valTech').value = currentTech;
-        document.getElementById('passInput').value = currentPass;
-        document.getElementById('valDate').value = currentDate;
-        document.getElementById('customerSelect').value = currentCustomer;
-        
-        // Ensure credentials remain Read-Only
-        document.getElementById('valTech').readOnly = true;
-        document.getElementById('passInput').readOnly = true;
-
-        // 4. Keep the form visible
-        document.getElementById('protectedContent').classList.remove('hidden');
-        document.getElementById('formButtons').classList.remove('hidden');
-        
-        // 5. Update the UI for the next entry
-        btn.innerText = "Submit Next Part";
-        
-        // Re-run the dropdown logic to ensure the site/fleet stays populated if needed
-        // or let the user pick a new fleet for the same site.
-        alert("✅ Success! Part recorded. Form ready for next entry.");
-        
-        checkValidation();
-    })
-    .catch((err) => {
-        alert("CONNECTION ERROR: Data not saved.");
-        btn.disabled = false; 
-        btn.innerText = "Retry Submission";
-    });
-});
-        function logoutSession() {
-    if (confirm("Are you sure you want to sign out? Any unsaved data will be lost.")) {
-        // 1. Clear all inputs
-        document.getElementById('consumptionForm').reset();
-        
-        // 2. Remove Read-Only status from login fields
-        document.getElementById('valTech').readOnly = false;
-        document.getElementById('passInput').readOnly = false;
-        
-        // 3. Hide the protected content and buttons
-        document.getElementById('protectedContent').classList.add('hidden');
-        document.getElementById('formButtons').classList.add('hidden');
-        
-        // 4. Reset the Status Label and Verify Button
-        const status = document.getElementById('statusLabel');
-        status.innerText = "Locked - Session Ended";
-        status.className = "status-tag locked";
-        
-        const verifyBtn = document.getElementById('verifyBtn');
-        verifyBtn.style.display = "inline-block";
-        verifyBtn.innerText = "Verify & Unlock Form";
-        verifyBtn.disabled = false;
-
-        // 5. Optional: Refresh the page to be 100% sure memory is wiped
-        location.reload();
+        updateFleet();
     }
-}
+
+    function updateFleet() {
+        const site = document.getElementById('workSiteSelect').value;
+        const fleetSelect = document.getElementById('fleetSelect');
+        fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
+        if (siteToFleet[site]) {
+            siteToFleet[site].forEach(f => {
+                let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
+            });
+        }
+    }
+
+    // --- MULTI-PART CASCADING LOGIC ---
+    function updateRowCascades(el) {
+        const block = el.closest('.part-block');
+        const group = el.value;
+        const typeSelect = block.querySelector('.type-sel');
+        const reasonSelect = block.querySelector('.reason-sel');
+        
+        typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+        reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
+
+        if (partsData[group]) {
+            Object.keys(partsData[group]).forEach(t => {
+                let opt = document.createElement('option'); opt.value = opt.text = t; typeSelect.add(opt);
+            });
+        }
+        if (groupToReasons[group]) {
+            groupToReasons[group].forEach(r => {
+                let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
+            });
+        }
+        updateRowDesc(typeSelect);
+    }
+
+    function updateRowDesc(el) {
+        const block = el.closest('.part-block');
+        const group = block.querySelector('.group-sel').value;
+        const type = el.value;
+        const descSelect = block.querySelector('.desc-sel');
+        
+        descSelect.innerHTML = '<option value="">-- Select Description --</option>';
+        if (partsData[group] && partsData[group][type]) {
+            partsData[group][type].forEach(d => {
+                let opt = document.createElement('option'); opt.value = opt.text = d; descSelect.add(opt);
+            });
+        }
+    }
+
+    function addPartLine() {
+        if (partCount >= 10) return alert("Max 10 lines reached.");
+        partCount++;
+        const container = document.getElementById('partsContainer');
+        const original = document.getElementById('part-row-1');
+        const clone = original.cloneNode(true);
+        
+        clone.id = "part-row-" + partCount;
+        clone.querySelector('.label-cell').innerText = "Part Group #" + partCount;
+        
+        // Clear values
+        clone.querySelectorAll('select, input').forEach(i => i.value = (i.name === "qty[]" ? 1 : ""));
+        clone.querySelector('.type-sel').innerHTML = '<option value="">-- Select Type --</option>';
+        clone.querySelector('.desc-sel').innerHTML = '<option value="">-- Select Description --</option>';
+
+        // Add Remove Button
+        const removeBtn = document.createElement('button');
+        removeBtn.type = "button"; removeBtn.className = "btn-remove"; removeBtn.innerText = "Remove Line";
+        removeBtn.style.margin = "10px";
+        removeBtn.onclick = function() { clone.remove(); partCount--; updateCounterText(); checkValidation(); };
+        clone.appendChild(removeBtn);
+
+        container.appendChild(clone);
+        updateCounterText();
+        checkValidation();
+    }
+
+    function updateCounterText() {
+        document.getElementById('lineCountText').innerText = "(" + partCount + "/10)";
+    }
+
+    function checkValidation() {
+        const req = ['customerSelect', 'valDate', 'valTech', 'valHours', 'valQty'];
+        let isInvalid = req.some(id => {
+            const el = document.getElementById(id);
+            return !el || !el.value.trim();
+        });
+        
+        // Also check if Part Groups are selected for all added lines
+        document.querySelectorAll('.group-sel').forEach(sel => {
+            if (!sel.value) isInvalid = true;
+        });
+
+        document.getElementById('submitBtn').disabled = isInvalid;
+    }
+
+    function verifyCredentials() {
+        const user = document.getElementById('valTech').value.trim();
+        const pass = document.getElementById('passInput').value.trim();
+        const btn = document.getElementById('verifyBtn');
+        const status = document.getElementById('statusLabel');
+
+        if (!user || !pass) return alert("Enter credentials.");
+        btn.innerText = "Verifying..."; btn.disabled = true;
+
+        fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
+        .then(r => r.text())
+        .then(text => {
+            if (text.startsWith("success")) {
+                document.getElementById('protectedContent').classList.remove('hidden');
+                document.getElementById('formButtons').classList.remove('hidden');
+                status.innerText = "✅ Access Granted: " + (text.split(":")[1] || "Authorized");
+                status.className = "status-tag unlocked";
+                btn.style.display = "none";
+                document.getElementById('valTech').readOnly = true;
+                document.getElementById('passInput').readOnly = true;
+            } else {
+                alert("Login Failed.");
+                btn.innerText = "Verify & Unlock Form"; btn.disabled = false;
+            }
+        });
+    }
+
+    document.getElementById('consumptionForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "Syncing All Parts..."; btn.disabled = true;
+
+        const formData = new FormData(this);
+        formData.append('Unlock_Password', document.getElementById('passInput').value);
+
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: formData })
+        .then(() => {
+            alert("✅ SUCCESS! " + partCount + " parts recorded.");
+            location.reload(); 
+        })
+        .catch(() => {
+            alert("Error saving.");
+            btn.disabled = false;
+        });
+    });
+
+    function logoutSession() { if(confirm("Sign out?")) location.reload(); }
 </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
