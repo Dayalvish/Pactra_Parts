@@ -87,43 +87,30 @@
                 </tr>
                 <tr>
                     <td colspan="2" id="partsContainer">
-                        <div class="part-block" id="part-row-1">
-                            <table style="width:100%; border:none;">
-                                <tr class="row-odd">
-                                    <td class="label-cell">Part Group #1 <span class="required-star">*</span></td>
-                                    <td>
-                                        <select name="part_group[]" class="group-sel" onchange="updateRowCascades(this); checkValidation();" required>
-                                            <option value="">-- Select Group --</option>
-                                            <option value="Lubricant">Lubricant</option>
-                                            <option value="Parts">Parts</option>
-                                            <option value="RockTool">RockTool</option>
-                                            <option value="Hoses">Hoses</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <tr class="row-even">
-                                    <td class="label-cell">Part Type <span class="required-star">*</span></td>
-                                    <td><select name="part_type[]" class="type-sel" onchange="updateRowDesc(this); checkValidation();" required><option value="">-- Select Type --</option></select></td>
-                                </tr>
-                                <tr class="row-odd">
-                                    <td class="label-cell">Description <span class="required-star">*</span></td>
-                                    <td><select name="part_desc[]" class="desc-sel" onchange="checkValidation()" required><option value="">-- Select Description --</option></select></td>
-                                </tr>
-                                <tr class="row-even">
-                                    <td class="label-cell">Reason <span class="required-star">*</span></td>
-                                    <td><select name="reason[]" class="reason-sel" onchange="checkValidation()" required><option value="">-- Select Reason --</option></select></td>
-                                </tr>
-                                <tr class="row-odd">
-                                    <td class="label-cell">Part Number</td>
-                                    <td><input type="text" name="part_no[]"></td>
-                                </tr>
-                                <tr class="row-even">
-                                    <td class="label-cell">Quantity <span class="required-star">*</span></td>
-                                    <td><input type="number" name="qty[]" value="1" oninput="checkValidation()" required></td>
-                                </tr>
-                            </table>
-                        </div>
-                    </td>
+                       <div class="part-block" id="part-row-1" style="border: 2px solid #15222F; margin: 10px; border-radius: 5px;">
+    <table style="width:100%; border:none;">
+        <tr class="row-odd">
+            <td class="label-cell">Part Group <span class="required-star">*</span></td>
+            <td>
+                <select name="part_group[]" class="group-sel" onchange="updateRowCascades(this); checkValidation();" required>
+                    <option value="">-- Select Group --</option>
+                    <option value="Lubricant">Lubricant</option>
+                    <option value="Parts">Parts</option>
+                    <option value="RockTool">RockTool</option>
+                    <option value="Hoses">Hoses</option>
+                </select>
+            </td>
+        </tr>
+        <tr class="row-even">
+            <td class="label-cell">Quantity <span class="required-star">*</span></td>
+            <td><input type="number" name="qty[]" value="1" oninput="checkValidation()" required></td>
+        </tr>
+        <tr class="row-odd">
+            <td class="label-cell">Unit Price</td>
+            <td><input type="number" step="any" name="unit_price[]" placeholder="0.00"></td>
+        </tr>
+    </table>
+</div>                    </td>
                 </tr>
                 <tr>
                     <td colspan="2" style="text-align: center; background: #eee;">
@@ -151,101 +138,88 @@
     const partsData = { "Lubricant": { "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "High Temp Hydraulic Oil"], "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube"], "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40"], "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100"], "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90"], "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"] }, "Parts": { "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"], "COP-DHR": ["Seal Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"], "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"], "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"], "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] }, "RockTool": { "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"], "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"], "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"], "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"] }, "Hoses": { "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"], "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"], "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"], "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"], "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"] } };
     const groupToReasons = { "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"], "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"], "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Thread Worn","Dropped in Hole","Jam in hole","shank crack"], "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"] };
 
-    let partCount = 1;
+   let partCount = 1;
 
-    window.onload = function() {
-        const custSelect = document.getElementById('customerSelect');
-        Object.keys(customerToSites).sort().forEach(c => {
-            let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
+window.onload = function() {
+    const custSelect = document.getElementById('customerSelect');
+    Object.keys(customerToSites).sort().forEach(c => {
+        let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
+    });
+};
+
+// --- NEW MULTI-PART CASCADING LOGIC ---
+function updateRowCascades(el) {
+    const block = el.closest('.part-block'); 
+    const group = el.value;
+    
+    const typeSelect = block.querySelector('.type-sel');
+    const reasonSelect = block.querySelector('.reason-sel');
+    const descSelect = block.querySelector('.desc-sel');
+    
+    typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
+    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
+    reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
+
+    if (partsData[group]) {
+        Object.keys(partsData[group]).forEach(t => {
+            let opt = document.createElement('option'); opt.value = opt.text = t; typeSelect.add(opt);
         });
-    };
-
-    function updateSites() {
-        const customer = document.getElementById('customerSelect').value;
-        const siteSelect = document.getElementById('workSiteSelect');
-        siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
-        if (customerToSites[customer]) {
-            customerToSites[customer].forEach(s => {
-                let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
-            });
-        }
-        updateFleet();
     }
-
-    function updateFleet() {
-        const site = document.getElementById('workSiteSelect').value;
-        const fleetSelect = document.getElementById('fleetSelect');
-        fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
-        if (siteToFleet[site]) {
-            siteToFleet[site].forEach(f => {
-                let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
-            });
-        }
+    if (groupToReasons[group]) {
+        groupToReasons[group].forEach(r => {
+            let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
+        });
     }
+    checkValidation();
+}
 
-    // --- MULTI-PART CASCADING LOGIC ---
-    function updateRowCascades(el) {
-        const block = el.closest('.part-block');
-        const group = el.value;
-        const typeSelect = block.querySelector('.type-sel');
-        const reasonSelect = block.querySelector('.reason-sel');
-        
-        typeSelect.innerHTML = '<option value="">-- Select Type --</option>';
-        reasonSelect.innerHTML = '<option value="">-- Select Reason --</option>';
-
-        if (partsData[group]) {
-            Object.keys(partsData[group]).forEach(t => {
-                let opt = document.createElement('option'); opt.value = opt.text = t; typeSelect.add(opt);
-            });
-        }
-        if (groupToReasons[group]) {
-            groupToReasons[group].forEach(r => {
-                let opt = document.createElement('option'); opt.value = opt.text = r; reasonSelect.add(opt);
-            });
-        }
-        updateRowDesc(typeSelect);
+function updateRowDesc(el) {
+    const block = el.closest('.part-block');
+    const group = block.querySelector('.group-sel').value;
+    const type = el.value;
+    const descSelect = block.querySelector('.desc-sel');
+    
+    descSelect.innerHTML = '<option value="">-- Select Description --</option>';
+    if (partsData[group] && partsData[group][type]) {
+        partsData[group][type].forEach(d => {
+            let opt = document.createElement('option'); opt.value = opt.text = d; descSelect.add(opt);
+        });
     }
+    checkValidation();
+}
 
-    function updateRowDesc(el) {
-        const block = el.closest('.part-block');
-        const group = block.querySelector('.group-sel').value;
-        const type = el.value;
-        const descSelect = block.querySelector('.desc-sel');
-        
-        descSelect.innerHTML = '<option value="">-- Select Description --</option>';
-        if (partsData[group] && partsData[group][type]) {
-            partsData[group][type].forEach(d => {
-                let opt = document.createElement('option'); opt.value = opt.text = d; descSelect.add(opt);
-            });
-        }
-    }
+// --- ADD NEW LINE FUNCTION ---
+function addPartLine() {
+    if (partCount >= 10) return alert("Maximum 10 lines allowed.");
+    partCount++;
+    
+    const container = document.getElementById('partsContainer');
+    const original = document.querySelector('.part-block');
+    const clone = original.cloneNode(true);
+    
+    clone.id = "part-row-" + partCount;
+    
+    // Clear values in the clone
+    clone.querySelectorAll('select, input').forEach(input => {
+        if (input.name === "qty[]") input.value = 1;
+        else input.value = "";
+    });
 
-    function addPartLine() {
-        if (partCount >= 10) return alert("Max 10 lines reached.");
-        partCount++;
-        const container = document.getElementById('partsContainer');
-        const original = document.getElementById('part-row-1');
-        const clone = original.cloneNode(true);
-        
-        clone.id = "part-row-" + partCount;
-        clone.querySelector('.label-cell').innerText = "Part Group #" + partCount;
-        
-        // Clear values
-        clone.querySelectorAll('select, input').forEach(i => i.value = (i.name === "qty[]" ? 1 : ""));
-        clone.querySelector('.type-sel').innerHTML = '<option value="">-- Select Type --</option>';
-        clone.querySelector('.desc-sel').innerHTML = '<option value="">-- Select Description --</option>';
+    // Reset the cascades for the new row
+    clone.querySelector('.type-sel').innerHTML = '<option value="">-- Select Type --</option>';
+    clone.querySelector('.desc-sel').innerHTML = '<option value="">-- Select Description --</option>';
 
-        // Add Remove Button
-        const removeBtn = document.createElement('button');
-        removeBtn.type = "button"; removeBtn.className = "btn-remove"; removeBtn.innerText = "Remove Line";
-        removeBtn.style.margin = "10px";
-        removeBtn.onclick = function() { clone.remove(); partCount--; updateCounterText(); checkValidation(); };
-        clone.appendChild(removeBtn);
+    // Add a Remove Button (Optional but recommended)
+    const removeBtn = document.createElement('button');
+    removeBtn.type = "button";
+    removeBtn.innerText = "✖ Remove Line " + partCount;
+    removeBtn.style = "background:#dc3545; color:white; margin:10px; font-size:12px; padding:5px;";
+    removeBtn.onclick = function() { clone.remove(); partCount--; checkValidation(); };
+    clone.appendChild(removeBtn);
 
-        container.appendChild(clone);
-        updateCounterText();
-        checkValidation();
-    }
+    container.appendChild(clone);
+    checkValidation();
+}
 
     function updateCounterText() {
         document.getElementById('lineCountText').innerText = "(" + partCount + "/10)";
@@ -316,3 +290,4 @@
 </script>
 </body>
 </html>
+
