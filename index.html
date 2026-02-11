@@ -117,10 +117,91 @@
 <script>
     const scriptURL = "https://script.google.com/macros/s/AKfycbxsgUqAbSSl33B_oRhJpkMfYDl9Krf03GObL7hBeTXYrWHC4NOZuwxtvGEkZR8pe1lS/exec";
 
-    const customerToSites = { "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines"], "ULTRATECH LTD": ["Rajshree Cements", "Kotputli Cement Works", "Manikgarh Cement Works", "Bela Cement Works", "Awarpur", "Kukurdih Cement Works", "Nathwara Cement Works", "Tadipatri Cement Works", "Rawan Cement Works", "Maihar Cement Works"], "AMBUJA CEMENTS LTD": ["Ambuja Darlaghat", "Rabriyawas Cement Works"], "LAFARGE": ["Shella Lime Stone Quarry"], "ACC LTD": ["Wadi Cement Works", "Gagal Cement Works", "Kymore Cement Works"], "ADANI ENTERPRISES": ["Parsa Kenta Coal Mines"], "NMDC LTD": ["BACHELI", "KIRANDUL"], "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines"], "BIRLA CORPORATION LIMITED": ["Birla Cements Satna"], "GANPATI METAL MINING": ["MOIL"] };
-    const siteToFleet = { "Ambuja Darlaghat": ["DarlaT40"], "Wadi Cement Works": ["WadiSRD50", "WadiFRD50"], "Rabriyawas Cement Works": ["RbwsD50I", "RbwsD50II"], "Rajshree Cements": ["RjshreeROCL6", "RjshreeFRD50"], "Noamundi Iron Ore Mines": ["NoaD65I", "NoaD65II", "NoaD65III", "KTMD65I", "KTMD65II"], "Kotputli Cement Works": ["KotputliT40I", "KotputliT40II", "KotputliT40III"], "Manikgarh Cement Works": ["ManikgarhT40"], "Khondbond Iron Ore Mines": ["KhondbondD65", "KhondbondL8"], "Shella Lime Stone Quarry": ["LafargeD60", "LafargeT40"], "Bela Cement Works": ["BelaFRD50"], "Joda Iron Ore Mines": ["JodaD65I", "JodaD65II"], "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"], "Nuagaon Iron Ore Mines": ["NuagaonT45III"], "TSL West Bokaro Q-SE": ["BokaroD65I", "BokaroPRD50", "QSE-DM14", "QSE-DM15"], "TSL West Bokaro Q-AB": ["QAB-DM2K10", "QAB-DM2K11"], "Gagal Cement Works": ["GagalFRD50", "GagalT40"], "Kymore Cement Works": ["KymoreT40", "KymoreMGMFRD50", "KymoreBMGFRD50"], "Awarpur": ["AwarpurD50I"], "Kukurdih Cement Works": ["KukurdihT45I"], "Nathwara Cement Works": ["NathwaraT40I", "NathwaraT40II"], "Tadipatri Cement Works": ["TadipatriT45I"], "Rawan Cement Works": ["RawanD50I"], "Maihar Cement Works": ["MaiharT40I"], "Parsa Kenta Coal Mines": ["US091130"], "Birla Cements Satna": ["BirlaT40I"], "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"], "KIRANDUL": ["NMDCT45II"], "MOIL": ["GanpatiT40I"] };
-    const partsData = { "Lubricant": { "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "High Temp Hydraulic Oil"], "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube"], "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40"], "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100"], "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90"], "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"] }, "Parts": { "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"], "COP-DHR": ["Seal Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"], "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"], "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"], "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] }, "RockTool": { "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"], "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"], "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"], "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"] }, "Hoses": { "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"], "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"], "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"], "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"], "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"] } };
-    const groupToReasons = { "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"], "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"], "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Dropped in Hole","shank crack"], "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing", "End-of-Life Replacement"] };
+    const customerToSites = {
+            "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines"],
+            "ULTRATECH LTD": ["Rajshree Cements", "Kotputli Cement Works", "Manikgarh Cement Works", "Bela Cement Works", "Awarpur", "Kukurdih Cement Works", "Nathwara Cement Works", "Tadipatri Cement Works", "Rawan Cement Works", "Maihar Cement Works"],
+            "AMBUJA CEMENTS LTD": ["Ambuja Darlaghat", "Rabriyawas Cement Works"],
+            "LAFARGE": ["Shella Lime Stone Quarry"], 
+            "ACC LTD": ["Wadi Cement Works", "Gagal Cement Works", "Kymore Cement Works"],
+            "ADANI ENTERPRISES": ["Parsa Kenta Coal Mines"], 
+            "NMDC LTD": ["BACHELI", "KIRANDUL"],
+            "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines"], 
+            "BIRLA CORPORATION LIMITED": ["Birla Cements Satna"],
+            "GANPATI METAL MINING": ["MOIL"]
+        };
+
+        const siteToFleet = {
+            "Ambuja Darlaghat": ["DarlaT40"], 
+            "Wadi Cement Works": ["WadiSRD50", "WadiFRD50"],
+            "Rabriyawas Cement Works": ["RbwsD50I", "RbwsD50II"], 
+            "Rajshree Cements": ["RjshreeROCL6", "RjshreeFRD50"],
+            "Noamundi Iron Ore Mines": ["NoaD65I", "NoaD65II", "NoaD65III", "KTMD65I", "KTMD65II"],
+            "Kotputli Cement Works": ["KotputliT40I", "KotputliT40II", "KotputliT40III"], 
+            "Manikgarh Cement Works": ["ManikgarhT40"],
+            "Khondbond Iron Ore Mines": ["KhondbondD65", "KhondbondL8"], 
+            "Shella Lime Stone Quarry": ["LafargeD60", "LafargeT40"],
+            "Bela Cement Works": ["BelaFRD50"], 
+            "Joda Iron Ore Mines": ["JodaD65I", "JodaD65II"],
+            "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"], 
+            "Nuagaon Iron Ore Mines": ["NuagaonT45III"],
+            "TSL West Bokaro Q-SE": ["BokaroD65I", "BokaroPRD50", "QSE-DM14", "QSE-DM15"], 
+            "TSL West Bokaro Q-AB": ["QAB-DM2K10", "QAB-DM2K11"],
+            "Gagal Cement Works": ["GagalFRD50", "GagalT40"], 
+            "Kymore Cement Works": ["KymoreT40", "KymoreMGMFRD50", "KymoreBMGFRD50"],
+            "Awarpur": ["AwarpurD50I"], 
+            "Kukurdih Cement Works": ["KukurdihT45I"], 
+            "Nathwara Cement Works": ["NathwaraT40I", "NathwaraT40II"],
+            "Tadipatri Cement Works": ["TadipatriT45I"], 
+            "Rawan Cement Works": ["RawanD50I"], 
+            "Maihar Cement Works": ["MaiharT40I"],
+            "Parsa Kenta Coal Mines": ["US091130"], 
+            "Birla Cements Satna": ["BirlaT40I"], 
+            "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"],
+            "KIRANDUL": ["NMDCT45II"], 
+            "MOIL": ["GanpatiT40I"]
+        };
+
+        const partsData = {
+    "Lubricant": { 
+        "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "High Temp Hydraulic Oil"], 
+        "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube"], 
+        "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40"],
+        "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100"],
+        "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90"],
+        "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"]
+    },
+    "Parts": { 
+        "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], 
+        "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"],
+        "COP-DHR": ["Seal Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"],
+        "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"],
+        "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"],
+        "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], // Updated from placeholders
+        "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] 
+    },
+    "RockTool": { 
+        "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], 
+        "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"],
+        "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"],
+        "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"],
+        "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"]
+    },
+    "Hoses": { 
+        "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], 
+        "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"],
+        "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"],
+        "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"],
+        "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"],
+        "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"]
+    }
+};
+
+        const groupToReasons = {
+            "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"],
+            "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"],
+            "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Thread Worn","Dropped in Hole","Jam in hole","shank crack"],
+            "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"]
+        };
 
     let partCount = 1;
 
@@ -242,3 +323,4 @@
 </script>
 </body>
 </html>
+
