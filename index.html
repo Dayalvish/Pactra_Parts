@@ -118,48 +118,53 @@
     const scriptURL = "https://script.google.com/macros/s/AKfycbxsgUqAbSSl33B_oRhJpkMfYDl9Krf03GObL7hBeTXYrWHC4NOZuwxtvGEkZR8pe1lS/exec";
 
     const customerToSites = {
-            "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines"],
-            "ULTRATECH LTD": ["Rajshree Cements", "Kotputli Cement Works", "Manikgarh Cement Works", "Bela Cement Works", "Awarpur", "Kukurdih Cement Works", "Nathwara Cement Works", "Tadipatri Cement Works", "Rawan Cement Works", "Maihar Cement Works"],
-            "AMBUJA CEMENTS LTD": ["Ambuja Darlaghat", "Rabriyawas Cement Works"],
-            "LAFARGE": ["Shella Lime Stone Quarry"], 
-            "ACC LTD": ["Wadi Cement Works", "Gagal Cement Works", "Kymore Cement Works"],
-            "ADANI ENTERPRISES": ["Parsa Kenta Coal Mines"], 
-            "NMDC LTD": ["BACHELI", "KIRANDUL"],
-            "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines"], 
-            "BIRLA CORPORATION LIMITED": ["Birla Cements Satna"],
-            "GANPATI METAL MINING": ["MOIL"]
-        };
+        "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines", "TSL Khandband"],
+        "ULTRATECH CEMENT LIMITED": ["Manikgarh Cement Works", "Awarpur Cement Works", "Kukurdih Cement Works", "Kotputli Cement Works", "Nathwara Cement Works", "UTCL Bela", "UTCL Rewan", "UTCL Maihar", "Rajshree Cements", "Tadipatri Cement Works"],
+        "ADANI CEMENTS LTD": ["ACC Kymore Cement Works", "ACC Gagal Cement Works", "Ambuja Darlaghat Cement Works", "Ambuja Cement Ltd. Rabriyawas", "ACC Wadi"],
+        "ADANI ENTERPRISES": ["Adani Coalfields Parsa", "Parsa Kenta Coal Mines"],
+        "NMDC LIMITED": ["NMDC Donimalai", "NMDC Bacheli", "NMDC Kirandul", "NMDC Panna", "BACHELI", "KIRANDUL"],
+        "MEGHA ENGINEERING AND INFRASTRUCTURE": ["Megha - PKG 88", "Megha Tatile (B&R)"],
+        "MAX INFRA": ["Max Infra - PKG 1", "Max Infra - PKG 3", "Max Bilaspur"],
+        "NAVYUGA ENGINEERING CO. LTD.": ["Navyuga - PKG 3"],
+        "PATEL ENGINEERING LTD.": ["Patel Engineering Ltd - Kawa"],
+        "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines", "Jajang Iron Ore Mines"],
+        "SMS LIMITED": ["SMS Thummalapalli", "SMS Thumalapali"],
+        "DILIP BUILDCON LTD": ["DBL Coal - Siarmal"],
+        "SUSHEE INFRA & MINING LIMITED": ["Sushee Infra - SIML Dimapur"],
+        "LAFARGE UM UM MINING PRIVATE LTD": ["Lafarge Umiam Mining, Sheila"],
+        "CDCL KHOLONGCHU HEP": ["UGEN EARTHMOVERS - CDCL"],
+        "GANPATI METAL MINING": ["MOIL"]
+    };
 
-        const siteToFleet = {
-            "Ambuja Darlaghat": ["DarlaT40"], 
-            "Wadi Cement Works": ["WadiSRD50", "WadiFRD50"],
-            "Rabriyawas Cement Works": ["RbwsD50I", "RbwsD50II"], 
-            "Rajshree Cements": ["RjshreeROCL6", "RjshreeFRD50"],
-            "Noamundi Iron Ore Mines": ["NoaD65I", "NoaD65II", "NoaD65III", "KTMD65I", "KTMD65II"],
-            "Kotputli Cement Works": ["KotputliT40I", "KotputliT40II", "KotputliT40III"], 
-            "Manikgarh Cement Works": ["ManikgarhT40"],
-            "Khondbond Iron Ore Mines": ["KhondbondD65", "KhondbondL8"], 
-            "Shella Lime Stone Quarry": ["LafargeD60", "LafargeT40"],
-            "Bela Cement Works": ["BelaFRD50"], 
-            "Joda Iron Ore Mines": ["JodaD65I", "JodaD65II"],
-            "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"], 
-            "Nuagaon Iron Ore Mines": ["NuagaonT45III"],
-            "TSL West Bokaro Q-SE": ["BokaroD65I", "BokaroPRD50", "QSE-DM14", "QSE-DM15"], 
-            "TSL West Bokaro Q-AB": ["QAB-DM2K10", "QAB-DM2K11"],
-            "Gagal Cement Works": ["GagalFRD50", "GagalT40"], 
-            "Kymore Cement Works": ["KymoreT40", "KymoreMGMFRD50", "KymoreBMGFRD50"],
-            "Awarpur": ["AwarpurD50I"], 
-            "Kukurdih Cement Works": ["KukurdihT45I"], 
-            "Nathwara Cement Works": ["NathwaraT40I", "NathwaraT40II"],
-            "Tadipatri Cement Works": ["TadipatriT45I"], 
-            "Rawan Cement Works": ["RawanD50I"], 
-            "Maihar Cement Works": ["MaiharT40I"],
-            "Parsa Kenta Coal Mines": ["US091130"], 
-            "Birla Cements Satna": ["BirlaT40I"], 
-            "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"],
-            "KIRANDUL": ["NMDCT45II"], 
-            "MOIL": ["GanpatiT40I"]
-        };
+    // 2. FULL SITE TO FLEET MAPPING (EXACT COLUMN 3 VALUES)
+    const siteToFleet = {
+        "Noamundi Iron Ore Mines": ["SRD65_24005_TSLNIM", "SRD65_24007_TSLNIM", "SRD65_24008_TSLNIM", "SRD65_24010_TSLNIM", "SRD65_24011_TSLNIM", "IDM45_068_TSLNIM"],
+        "Khondbond Iron Ore Mines": ["SRD65_24007_TSLNIM", "IDM45_068_TSLKM"],
+        "TSL West Bokaro Q-SE": ["SRD65_DM10_TSLWB", "SRD65_DM11_TSLWB", "SRD65_2410_TSLWB", "QSE_DM14", "QSE_DM15"],
+        "TSL West Bokaro Q-AB": ["SRD65_DM15_TSLWB", "SRD65_2411_TSLWB", "QAB_DM2K10", "QAB_DM2K11"],
+        "Ambuja Cement Ltd. Rabriyawas": ["FRD50_659_AMBUJA_RBW", "FRD50_660_AMBUJA_RBW"],
+        "Megha - PKG 88": ["L2SMART_058_MEGHA88", "L2SMART_031_MEGHA88", "L2SMART_043_MEGHA88", "BOOMER2_198_MEGHA88", "BOOMER2_216_MEGHA88", "10HR_491_MEGHA88", "10HR_443_MEGHA88", "10HR_482_MEGHA88", "UNIGROUTSM2_112_MEGHA88", "UNIGROUTSM2_111_MEGHA88", "UNIGROUTSM3_370_MEGHA88"],
+        "Max Bilaspur": ["BOOMER2C_175_BILASPUR", "L2SMART_009_BILASPUR", "BOOMERL2D_062_BILASPUR", "BOOMERL2D_151_BILASPUR", "BOOMERL2D_152_BILASPUR", "BOOMERL2D_035_BILASPUR", "BOOMERL2D_038_BILASPUR", "10HR_092_BILASPUR", "10HR_261_BILASPUR", "10HR_409_BILASPUR"],
+        "Navyuga - PKG 3": ["BOOMERL2_035_MDC3", "BOOMERL2_038_MDC3", "20HR_250_MEC3", "20HR_350_MEC3", "20HR_287_MEC3"],
+        "SMS Thumalapali": ["MT2200_20_SMSTMPL", "MT2200_21_SMSTMPL", "MT2200_22_SMSTMPL", "MT2200_23_SMSTMPL", "MT2200_24_SMSTMPL", "MT2200_25_SMSTMPL", "MT2200_26_SMSTMPL", "MT2200_27_SMSTMPL", "MT2200_28_SMSTMPL", "MT2200_29_SMSTMPL", "ST1030_16_SMSTMPL", "ST1030_17_SMSTMPL"],
+        "NMDC Bacheli": ["NMDCCT41I", "NMDCCT41III", "NMDCT41IV"],
+        "NMDC Kirandul": ["T45MAS-11F-02", "NMDCT45V"],
+        "BACHELI": ["NMDCT45I", "NMDCT45III", "NMDCT45IV"],
+        "KIRANDUL": ["NMDCT45II"],
+        "Jajang Iron Ore Mines": ["JajangD65I", "JajangD65II"],
+        "Narayanposhi Iron Ore Mines": ["NposhiT45I", "NposhiT45II"],
+        "Nuagaon Iron Ore Mines": ["NuagaonT45III"],
+        "Patel Engineering Ltd - Kawa": ["L2D_EM0376_PATIL", "L2D_EM0454_PATIL", "L2D_EM0889_PATIL", "L2D_EM0524_PATIL"],
+        "ACC Wadi": ["FRD50_132_ACCWADI", "SRD50_134_ACCWADI"],
+        "Manikgarh Cement Works": ["SRT40_136_UTCLMANIK", "SRT40_137_UTCLMANIK"],
+        "Awarpur Cement Works": ["FRD50_376_UTCLAWAR", "FRD50_377_UTCLAWAR"],
+        "Ambuja Darlaghat": ["DarlaT40"],
+        "DBL Coal - Siarmal": ["D65_DBL_SIARMAL"],
+        "Sushee Infra - SIML Dimapur": ["L2D_SIML_DIMAPUR"],
+        "UGEN EARTHMOVERS - CDCL": ["L2D_CDCL_BHUTAN"],
+        "Lafarge Umiam Mining, Sheila": ["KM200_LAFARGE", "FRD60_LAFARGE"],
+        "MOIL": ["GanpatiT40I"]
+    };
 
         const partsData = {
     "Lubricant": { 
@@ -323,4 +328,5 @@
 </script>
 </body>
 </html>
+
 
