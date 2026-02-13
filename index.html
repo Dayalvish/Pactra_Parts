@@ -371,7 +371,7 @@ function downloadCSVTemplate() {
     document.body.removeChild(link);
 }
 
-// --- 2. BULK UPLOAD & VALIDATION HANDLER (Updated for 12 CSV Columns) ---
+// --- 2. BULK UPLOAD & VALIDATION HANDLER (Fully Updated) ---
 function handleBulkUpload() {
     const fileInput = document.getElementById('csvFileInput');
     const file = fileInput.files[0];
@@ -381,21 +381,22 @@ function handleBulkUpload() {
     reader.onload = function(e) {
         const text = e.target.result;
         const rows = text.split(/\r?\n/);
-        const dataRows = rows.slice(1); // Skips header row
+        const dataRows = rows.slice(1); // Skips the CSV Header
         
         let bulkPayload = [];
         let errors = [];
 
         dataRows.forEach((row, index) => {
+            if (!row.trim()) return; // Skip empty rows
             const cols = row.split(',');
-            // Validates that we have all 12 necessary columns (A to L)
+            
+            // Checking for 12 columns in the CSV
             if (cols.length >= 12 && cols[0].trim() !== "") {
                 const csvCustomer = cols[0].trim();
-                // FIX: Removes underscores to match master list
-                const csvSite = cols[1].trim().replace(/_/g, ' '); 
+                const csvSite = cols[1].trim().replace(/_/g, ' '); // Standardize site name
                 const price = cols[10].trim();
 
-                // Master List Validation
+                // 1. Validate Customer
                 const masterCustomer = Object.keys(customerToSites).find(
                     k => k.toLowerCase() === csvCustomer.toLowerCase()
                 );
@@ -405,54 +406,60 @@ function handleBulkUpload() {
                     return;
                 }
 
+                // 2. Validate Site
                 const masterSite = customerToSites[masterCustomer].find(
                     s => s.toLowerCase() === csvSite.toLowerCase()
                 );
                 
                 if (!masterSite) {
-                    errors.push(`Row ${index + 2}: Site "${csvSite}" mismatch.`);
+                    errors.push(`Row ${index + 2}: Site "${csvSite}" mismatch for ${masterCustomer}.`);
                     return;
                 }
 
+                // 3. Map CSV to Payload Object
                 bulkPayload.push({
                     customer: masterCustomer,
                     site: masterSite,
-                    fleet: cols[2].trim(),
-                    entryDate: cols[3].trim(),   // Col E
-                    engineHours: cols[4].trim(), // Col F
-                    group: cols[5].trim(),       // Col G
-                    type: cols[6].trim(),        // Col H
-                    desc: cols[7].trim(),        // Col I
-                    partNo: cols[8].trim(),      // Col J
-                    qty: cols[9].trim(),         // Col K
-                    price: price,                // Col L
-                    reason: cols[11].trim()      // Col M
+                    fleet: cols[2].trim(),       // Col C
+                    entryDate: cols[3].trim(),   // Col D (CSV) -> Col E (Sheet)
+                    engineHours: cols[4].trim(), // Col E (CSV) -> Col F (Sheet)
+                    group: cols[5].trim(),       // Col F (CSV) -> Col G (Sheet)
+                    type: cols[6].trim(),        // Col G (CSV) -> Col H (Sheet)
+                    desc: cols[7].trim(),        // Col H (CSV) -> Col I (Sheet)
+                    partNo: cols[8].trim(),      // Col I (CSV) -> Col J (Sheet)
+                    qty: cols[9].trim(),         // Col J (CSV) -> Col K (Sheet)
+                    price: price,                // Col K (CSV) -> Col L (Sheet)
+                    reason: cols[11].trim()      // Col L (CSV) -> Col M (Sheet)
                 });
             }
         });
 
         if (errors.length > 0) {
-            alert("Validation Failed:\n" + errors.slice(0, 5).join("\n"));
+            alert("⚠️ Validation Failed:\n" + errors.slice(0, 5).join("\n") + (errors.length > 5 ? "\n...and more." : ""));
             return;
         }
 
         if (bulkPayload.length > 0) {
-            if(confirm(`Ready to upload ${bulkPayload.length} rows to PACTRA360?`)) {
+            if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
                 google.script.run
                     .withSuccessHandler((msg) => {
                         alert(msg);
-                        if(msg.includes("Success")) fileInput.value = ""; 
+                        if(msg.includes("Success")) {
+                            fileInput.value = ""; 
+                        }
                     })
-                    .withFailureHandler((err) => alert("Connection Error: " + err))
+                    .withFailureHandler((err) => {
+                        alert("❌ System Error: " + err);
+                    })
                     .processBulkData(bulkPayload);
             }
         }
     };
     reader.readAsText(file);
-}
-</script>
+}</script>
 </body>
 </html>
+
 
 
 
