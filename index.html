@@ -381,78 +381,58 @@ function handleBulkUpload() {
     reader.onload = function(e) {
         const text = e.target.result;
         const rows = text.split(/\r?\n/);
-        const dataRows = rows.slice(1); 
+        const dataRows = rows.slice(1); // Skips header row
         
         let bulkPayload = [];
         let errors = [];
 
-        // Your Customer Master Data integrated for validation
-        const customerToSites = {
-            "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines", "TSL Khandband"],
-            "ULTRATECH CEMENT LIMITED": ["Manikgarh Cement Works", "Awarpur Cement Works", "Kukurdih Cement Works", "Kotputli Cement Works", "Nathwara Cement Works", "UTCL Bela", "UTCL Rewan", "UTCL Maihar", "Rajshree Cements", "Tadipatri Cement Works"],
-            "ADANI CEMENTS LTD": ["ACC Kymore Cement Works", "ACC Gagal Cement Works", "Ambuja Darlaghat Cement Works", "Ambuja Cement Ltd. Rabriyawas", "ACC Wadi"],
-            "ADANI ENTERPRISES": ["Adani Coalfields Parsa", "Parsa Kenta Coal Mines"],
-            "NMDC LIMITED": ["NMDC Donimalai", "NMDC Bacheli", "NMDC Kirandul", "NMDC Panna", "BACHELI", "KIRANDUL"],
-            "MEGHA ENGINEERING AND INFRASTRUCTURE": ["Megha - PKG 88", "Megha Tatile (B&R)"],
-            "MAX INFRA": ["Max Infra - PKG 1", "Max Infra - PKG 3", "Max Bilaspur"],
-            "NAVYUGA ENGINEERING CO. LTD.": ["Navyuga - PKG 3"],
-            "PATEL ENGINEERING LTD.": ["Patel Engineering Ltd - Kawa"],
-            "JSW LTD": ["Nuagaon Iron Ore Mines", "Narayanposhi Iron Ore Mines", "Jajang Iron Ore Mines"],
-            "SMS LIMITED": ["SMS Thummalapalli", "SMS Thumalapali"],
-            "DILIP BUILDCON LTD": ["DBL Coal - Siarmal"],
-            "SUSHEE INFRA & MINING LIMITED": ["Sushee Infra - SIML Dimapur"],
-            "LAFARGE UM UM MINING PRIVATE LTD": ["Lafarge Umiam Mining, Sheila"],
-            "CDCL KHOLONGCHU HEP": ["UGEN EARTHMOVERS - CDCL"],
-            "GANPATI METAL MINING": ["MOIL"]
-        };
-
         dataRows.forEach((row, index) => {
             const cols = row.split(',');
-            // We expect 12 columns in the CSV
+            // Validates that we have all 12 necessary columns (A to L)
             if (cols.length >= 12 && cols[0].trim() !== "") {
                 const csvCustomer = cols[0].trim();
-                const csvSite = cols[1].trim().replace(/_/g, ' '); // Replace underscores with spaces
+                // FIX: Removes underscores to match master list
+                const csvSite = cols[1].trim().replace(/_/g, ' '); 
                 const price = cols[10].trim();
 
-                // Advanced Validation: Case-Insensitive check
-                const validCustomer = Object.keys(customerToSites).find(k => k.toLowerCase() === csvCustomer.toLowerCase());
+                // Master List Validation
+                const masterCustomer = Object.keys(customerToSites).find(
+                    k => k.toLowerCase() === csvCustomer.toLowerCase()
+                );
                 
-                if (!validCustomer) {
-                    errors.push(`Row ${index + 2}: Customer "${csvCustomer}" not found.`);
+                if (!masterCustomer) {
+                    errors.push(`Row ${index + 2}: Customer "${csvCustomer}" invalid.`);
                     return;
                 }
 
-                const validSite = customerToSites[validCustomer].find(s => s.toLowerCase() === csvSite.toLowerCase());
+                const masterSite = customerToSites[masterCustomer].find(
+                    s => s.toLowerCase() === csvSite.toLowerCase()
+                );
                 
-                if (!validSite) {
-                    errors.push(`Row ${index + 2}: Site "${csvSite}" does not belong to ${validCustomer}.`);
-                    return;
-                }
-
-                if (isNaN(price) || price === "") {
-                    errors.push(`Row ${index + 2}: Price must be a number.`);
+                if (!masterSite) {
+                    errors.push(`Row ${index + 2}: Site "${csvSite}" mismatch.`);
                     return;
                 }
 
                 bulkPayload.push({
-                    customer: validCustomer, // Uses the correctly cased name from master
-                    site: validSite,         // Uses the correctly cased name from master
+                    customer: masterCustomer,
+                    site: masterSite,
                     fleet: cols[2].trim(),
-                    entryDate: cols[3].trim(),
-                    engineHours: cols[4].trim(),
-                    group: cols[5].trim(),
-                    type: cols[6].trim(),
-                    desc: cols[7].trim(),
-                    partNo: cols[8].trim(),
-                    qty: cols[9].trim(),
-                    price: price,
-                    reason: cols[11].trim()
+                    entryDate: cols[3].trim(),   // Col E
+                    engineHours: cols[4].trim(), // Col F
+                    group: cols[5].trim(),       // Col G
+                    type: cols[6].trim(),        // Col H
+                    desc: cols[7].trim(),        // Col I
+                    partNo: cols[8].trim(),      // Col J
+                    qty: cols[9].trim(),         // Col K
+                    price: price,                // Col L
+                    reason: cols[11].trim()      // Col M
                 });
             }
         });
 
         if (errors.length > 0) {
-            alert("⚠️ Validation Failed:\n" + errors.slice(0, 5).join("\n") + (errors.length > 5 ? "\n...and more." : ""));
+            alert("Validation Failed:\n" + errors.slice(0, 5).join("\n"));
             return;
         }
 
@@ -461,7 +441,7 @@ function handleBulkUpload() {
                 google.script.run
                     .withSuccessHandler((msg) => {
                         alert(msg);
-                        fileInput.value = ""; 
+                        if(msg.includes("Success")) fileInput.value = ""; 
                     })
                     .withFailureHandler((err) => alert("Connection Error: " + err))
                     .processBulkData(bulkPayload);
@@ -473,6 +453,7 @@ function handleBulkUpload() {
 </script>
 </body>
 </html>
+
 
 
 
