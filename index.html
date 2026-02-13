@@ -344,102 +344,94 @@
         .then(() => { alert("Success! Records saved."); location.reload(); })
         .catch(() => { alert("Error saving data."); btn.disabled = false; });
     });
-    // 1. THE TEMPLATE GENERATOR
-function downloadCSVTemplate() {
-    const headers = ["Customer_Name", "Work_Site", "Fleet_ID", "Part_Group", "Part_Type", "Part_Description", "Quantity"];
-    const sample = ["TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", "Parts", "Filter", "Oil Filter Element", "2"];
-    
-    const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "PACTRA360_Bulk_Upload_Template.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// 2. THE BULK UPLOAD HANDLER WITH VALIDATION (Updated for Unit Price)
-function handleBulkUpload() {
-    const fileInput = document.getElementById('csvFileInput');
-    const file = fileInput.files[0];
-    if (!file) { alert("Please select a file!"); return; }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const rows = text.split(/\r?\n/); // Split by newline
-        const dataRows = rows.slice(1); // Skip Header row
+    // --- 1. DOWNLOAD TEMPLATE FUNCTION ---
+    function downloadCSVTemplate() {
+        const headers = ["Customer_Name", "Work_Site", "Fleet_ID", "Part_Group", "Part_Type", "Part_Description", "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"];
+        const sample = ["TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", "Maintenance", "Filter", "Oil Filter", "EF-100", "2", "550.50", "Routine Service"];
         
-        let bulkPayload = [];
-        let errors = [];
+        const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", "PACTRA360_Bulk_Template.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
 
-        dataRows.forEach((row, index) => {
-            const cols = row.split(',');
-            // Check for at least 8 columns now (Customer to Unit Price)
-            if (cols.length >= 8 && cols[0].trim() !== "") {
-                const customer = cols[0].trim();
-                const site = cols[1].trim();
-                const fleet = cols[2].trim();
-                const unitPrice = cols[7].trim();
+    // --- 2. BULK UPLOAD & VALIDATION HANDLER ---
+    function handleBulkUpload() {
+        const fileInput = document.getElementById('csvFileInput');
+        const file = fileInput.files[0];
+        if (!file) { alert("Please select a file!"); return; }
 
-                // --- VALIDATION LOGIC ---
-                // 1. Check if Customer exists
-                if (!customerToSites[customer]) {
-                    errors.push(`Row ${index + 2}: Customer "${customer}" not in Master List.`);
-                    return;
-                }
-                // 2. Check if Site belongs to that Customer
-                if (!customerToSites[customer].includes(site)) {
-                    errors.push(`Row ${index + 2}: Site "${site}" is not mapped to ${customer}.`);
-                    return;
-                }
-                // 3. Check if Fleet is valid for that Site
-                if (!siteToFleet[site] || !siteToFleet[site].includes(fleet)) {
-                    errors.push(`Row ${index + 2}: Fleet ID "${fleet}" is not valid for site ${site}.`);
-                    return;
-                }
-                // 4. Check if Unit Price is a valid number
-                if (isNaN(unitPrice) || unitPrice === "") {
-                    errors.push(`Row ${index + 2}: Unit Price "${unitPrice}" must be a number.`);
-                    return;
-                }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const rows = e.target.result.split(/\r?\n/);
+            const dataRows = rows.slice(1); 
+            
+            let bulkPayload = [];
+            let errors = [];
 
-                bulkPayload.push({
-                    customer: customer,
-                    site: site,
-                    fleet: fleet,
-                    group: cols[3].trim(),
-                    type: cols[4].trim(),
-                    desc: cols[5].trim(),
-                    qty: cols[6].trim(),
-                    price: unitPrice // Captured Unit Price
-                });
+            dataRows.forEach((row, index) => {
+                const cols = row.split(',');
+                if (cols.length >= 10 && cols[0].trim() !== "") {
+                    const customer = cols[0].trim();
+                    const site = cols[1].trim();
+                    const fleet = cols[2].trim();
+                    const price = cols[8].trim();
+
+                    // Validation Logic
+                    if (!customerToSites[customer]) {
+                        errors.push(`Row ${index + 2}: Customer "${customer}" invalid.`);
+                        return;
+                    }
+                    if (!customerToSites[customer].includes(site)) {
+                        errors.push(`Row ${index + 2}: Site "${site}" mismatch.`);
+                        return;
+                    }
+                    if (isNaN(price) || price === "") {
+                        errors.push(`Row ${index + 2}: Unit Price must be numeric.`);
+                        return;
+                    }
+
+                    bulkPayload.push({
+                        customer: customer,
+                        site: site,
+                        fleet: fleet,
+                        group: cols[3].trim(),
+                        type: cols[4].trim(),
+                        desc: cols[5].trim(),
+                        partNo: cols[6].trim(),
+                        qty: cols[7].trim(),
+                        price: price,
+                        reason: cols[9].trim()
+                    });
+                }
+            });
+
+            if (errors.length > 0) {
+                alert("Validation Failed:\n" + errors.slice(0, 5).join("\n"));
+                return;
             }
-        });
 
-        // --- ERROR HANDLING ---
-        if (errors.length > 0) {
-            alert("Validation Failed:\n" + errors.slice(0, 5).join("\n") + (errors.length > 5 ? "\n...and more." : ""));
-            return; // Stop the upload if there are errors
-        }
-
-        if (bulkPayload.length > 0) {
-            if(confirm(`Validation Success! Upload ${bulkPayload.length} rows with pricing to PACTRA360?`)) {
-                google.script.run
-                    .withSuccessHandler(() => {
-                        alert("Success! Bulk upload with pricing completed.");
-                        fileInput.value = ""; // Clear file input
-                    })
-                    .processBulkData(bulkPayload);
+            if (bulkPayload.length > 0) {
+                if(confirm(`Upload ${bulkPayload.length} rows to PACTRA360?`)) {
+                    google.script.run
+                        .withSuccessHandler(() => {
+                            alert("Success! Bulk upload completed.");
+                            fileInput.value = ""; 
+                        })
+                        .processBulkData(bulkPayload);
+                }
             }
-        }
-    };
-    reader.readAsText(file);
-}
+        };
+        reader.readAsText(file);
+    }
 </script>
 </body>
 </html>
+
 
 
 
