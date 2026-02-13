@@ -58,7 +58,26 @@
                 <tr class="row-even"><td class="label-cell">Fleet ID *</td><td><select id="fleetSelect" name="Fleet_ID" onchange="checkValidation()"><option value="">-- Select Fleet --</option></select></td></tr>
                 <tr class="row-odd"><td class="label-cell">Engine Hours *</td><td><input type="number" name="Engine_Hours" id="valHours" oninput="checkValidation()" required></td></tr>
                 <tr class="row-even"><td class="label-cell">Remarks</td><td><textarea name="Remarks" rows="2"></textarea></td></tr>
-                
+                <tr>
+    <td colspan="2">
+       <div id="bulkSection" style="margin: 20px; padding: 15px; border: 2px dashed #007bff; border-radius: 8px; background-color: #f8f9fa;">
+    <h4 style="color: #007bff;">🚀 Bulk Parts Entry</h4>
+    <p style="font-size: 13px; color: #555;">For large entries (50+ rows), please use the CSV template.</p>
+    
+    <button type="button" onclick="downloadCSVTemplate()" style="background-color: #6c757d; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; font-size: 14px;">
+        📥 Download CSV Template
+    </button>
+
+    <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
+        <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 10px; font-size: 12px;">
+        <br>
+        <button type="button" onclick="handleBulkUpload()" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+            Upload & Process Bulk Data
+        </button>
+    </div>
+</div>
+
+<tr><td colspan="2" id="partsContainer">
                 <tr><td colspan="2" id="partsContainer">
                     <div class="part-block" id="part-row-1">
                         <div class="part-header">PART ENTRY #1</div>
@@ -325,9 +344,95 @@
         .then(() => { alert("Success! Records saved."); location.reload(); })
         .catch(() => { alert("Error saving data."); btn.disabled = false; });
     });
+    // 1. THE TEMPLATE GENERATOR
+function downloadCSVTemplate() {
+    const headers = ["Customer_Name", "Work_Site", "Fleet_ID", "Part_Group", "Part_Type", "Part_Description", "Quantity"];
+    const sample = ["TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", "Parts", "Filter", "Oil Filter Element", "2"];
+    
+    const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "PACTRA360_Bulk_Upload_Template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// 2. THE BULK UPLOAD HANDLER WITH VALIDATION
+function handleBulkUpload() {
+    const fileInput = document.getElementById('csvFileInput');
+    const file = fileInput.files[0];
+    if (!file) { alert("Please select a file!"); return; }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const rows = text.split(/\r?\n/); // Split by newline
+        const dataRows = rows.slice(1); // Skip Header
+        
+        let bulkPayload = [];
+        let errors = [];
+
+        dataRows.forEach((row, index) => {
+            const cols = row.split(',');
+            if (cols.length >= 7 && cols[0].trim() !== "") {
+                const customer = cols[0].trim();
+                const site = cols[1].trim();
+                const fleet = cols[2].trim();
+
+                // --- VALIDATION LOGIC ---
+                // Check if Customer exists
+                if (!customerToSites[customer]) {
+                    errors.push(`Row ${index + 2}: Customer "${customer}" not in Master List.`);
+                    return;
+                }
+                // Check if Site belongs to that Customer
+                if (!customerToSites[customer].includes(site)) {
+                    errors.push(`Row ${index + 2}: Site "${site}" is not mapped to ${customer}.`);
+                    return;
+                }
+                // Check if Fleet is valid for that Site
+                if (!siteToFleet[site] || !siteToFleet[site].includes(fleet)) {
+                    errors.push(`Row ${index + 2}: Fleet ID "${fleet}" is not valid for site ${site}.`);
+                    return;
+                }
+
+                bulkPayload.push({
+                    customer: customer,
+                    site: site,
+                    fleet: fleet,
+                    group: cols[3].trim(),
+                    type: cols[4].trim(),
+                    desc: cols[5].trim(),
+                    qty: cols[6].trim()
+                });
+            }
+        });
+
+        // --- ERROR HANDLING ---
+        if (errors.length > 0) {
+            alert("Validation Failed:\n" + errors.slice(0, 5).join("\n") + (errors.length > 5 ? "\n...and more." : ""));
+            return; // Stop the upload if there are errors
+        }
+
+        if (bulkPayload.length > 0) {
+            if(confirm(`Validate Success! Upload ${bulkPayload.length} items to PACTRA360?`)) {
+                google.script.run
+                    .withSuccessHandler(() => {
+                        alert("Success! Bulk upload completed.");
+                        fileInput.value = ""; // Clear file input
+                    })
+                    .processBulkData(bulkPayload);
+            }
+        }
+    };
+    reader.readAsText(file);
+}
 </script>
 </body>
 </html>
+
 
 
 
