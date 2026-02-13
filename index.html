@@ -359,7 +359,7 @@ function downloadCSVTemplate() {
     document.body.removeChild(link);
 }
 
-// 2. THE BULK UPLOAD HANDLER WITH VALIDATION
+// 2. THE BULK UPLOAD HANDLER WITH VALIDATION (Updated for Unit Price)
 function handleBulkUpload() {
     const fileInput = document.getElementById('csvFileInput');
     const file = fileInput.files[0];
@@ -369,32 +369,39 @@ function handleBulkUpload() {
     reader.onload = function(e) {
         const text = e.target.result;
         const rows = text.split(/\r?\n/); // Split by newline
-        const dataRows = rows.slice(1); // Skip Header
+        const dataRows = rows.slice(1); // Skip Header row
         
         let bulkPayload = [];
         let errors = [];
 
         dataRows.forEach((row, index) => {
             const cols = row.split(',');
-            if (cols.length >= 7 && cols[0].trim() !== "") {
+            // Check for at least 8 columns now (Customer to Unit Price)
+            if (cols.length >= 8 && cols[0].trim() !== "") {
                 const customer = cols[0].trim();
                 const site = cols[1].trim();
                 const fleet = cols[2].trim();
+                const unitPrice = cols[7].trim();
 
                 // --- VALIDATION LOGIC ---
-                // Check if Customer exists
+                // 1. Check if Customer exists
                 if (!customerToSites[customer]) {
                     errors.push(`Row ${index + 2}: Customer "${customer}" not in Master List.`);
                     return;
                 }
-                // Check if Site belongs to that Customer
+                // 2. Check if Site belongs to that Customer
                 if (!customerToSites[customer].includes(site)) {
                     errors.push(`Row ${index + 2}: Site "${site}" is not mapped to ${customer}.`);
                     return;
                 }
-                // Check if Fleet is valid for that Site
+                // 3. Check if Fleet is valid for that Site
                 if (!siteToFleet[site] || !siteToFleet[site].includes(fleet)) {
                     errors.push(`Row ${index + 2}: Fleet ID "${fleet}" is not valid for site ${site}.`);
+                    return;
+                }
+                // 4. Check if Unit Price is a valid number
+                if (isNaN(unitPrice) || unitPrice === "") {
+                    errors.push(`Row ${index + 2}: Unit Price "${unitPrice}" must be a number.`);
                     return;
                 }
 
@@ -405,7 +412,8 @@ function handleBulkUpload() {
                     group: cols[3].trim(),
                     type: cols[4].trim(),
                     desc: cols[5].trim(),
-                    qty: cols[6].trim()
+                    qty: cols[6].trim(),
+                    price: unitPrice // Captured Unit Price
                 });
             }
         });
@@ -417,10 +425,10 @@ function handleBulkUpload() {
         }
 
         if (bulkPayload.length > 0) {
-            if(confirm(`Validate Success! Upload ${bulkPayload.length} items to PACTRA360?`)) {
+            if(confirm(`Validation Success! Upload ${bulkPayload.length} rows with pricing to PACTRA360?`)) {
                 google.script.run
                     .withSuccessHandler(() => {
-                        alert("Success! Bulk upload completed.");
+                        alert("Success! Bulk upload with pricing completed.");
                         fileInput.value = ""; // Clear file input
                     })
                     .processBulkData(bulkPayload);
@@ -432,6 +440,7 @@ function handleBulkUpload() {
 </script>
 </body>
 </html>
+
 
 
 
