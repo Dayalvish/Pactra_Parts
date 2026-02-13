@@ -134,7 +134,7 @@
 </form>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxsgUqAbSSl33B_oRhJpkMfYDl9Krf03GObL7hBeTXYrWHC4NOZuwxtvGEkZR8pe1lS/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbws-tKJHiB2KgfBVsLOYlRzYcVNLFhZa3Fdq2Nyd_ASoscPyVFuuQmSI6_iolFmW8bc/exec";
 
     const customerToSites = {
         "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines", "TSL Khandband"],
@@ -344,93 +344,112 @@
         .then(() => { alert("Success! Records saved."); location.reload(); })
         .catch(() => { alert("Error saving data."); btn.disabled = false; });
     });
-    // --- 1. DOWNLOAD TEMPLATE FUNCTION ---
-    function downloadCSVTemplate() {
-        const headers = ["Customer_Name", "Work_Site", "Fleet_ID", "Part_Group", "Part_Type", "Part_Description", "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"];
-        const sample = ["TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", "Maintenance", "Filter", "Oil Filter", "EF-100", "2", "550.50", "Routine Service"];
+    // --- 1. DOWNLOAD TEMPLATE FUNCTION (Updated for 12 Columns + jumped columns) ---
+function downloadCSVTemplate() {
+    // Headers include Entry_Date and Engine_Hours (Columns E & F in Sheet)
+    const headers = [
+        "Customer_Name", "Work_Site", "Fleet_ID", 
+        "Entry_Date", "Engine_Hours", 
+        "Part_Group", "Part_Type", "Part_Description", 
+        "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"
+    ];
+    
+    const sample = [
+        "TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", 
+        "2026-02-14", "4500", 
+        "Maintenance", "Filter", "Oil Filter", 
+        "EF-100", "2", "550.50", "Routine Service"
+    ];
+    
+    const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "PACTRA360_Bulk_Template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// --- 2. BULK UPLOAD & VALIDATION HANDLER (Updated for 12 CSV Columns) ---
+function handleBulkUpload() {
+    const fileInput = document.getElementById('csvFileInput');
+    const file = fileInput.files[0];
+    if (!file) { alert("Please select a file!"); return; }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const rows = e.target.result.split(/\r?\n/);
+        const dataRows = rows.slice(1); 
         
-        const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "PACTRA360_Bulk_Template.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
+        let bulkPayload = [];
+        let errors = [];
 
-    // --- 2. BULK UPLOAD & VALIDATION HANDLER ---
-    function handleBulkUpload() {
-        const fileInput = document.getElementById('csvFileInput');
-        const file = fileInput.files[0];
-        if (!file) { alert("Please select a file!"); return; }
+        dataRows.forEach((row, index) => {
+            const cols = row.split(',');
+            // Now checking for at least 12 columns
+            if (cols.length >= 12 && cols[0].trim() !== "") {
+                const customer = cols[0].trim();
+                const site = cols[1].trim();
+                const fleet = cols[2].trim();
+                const price = cols[10].trim(); // Price is now at index 10
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const rows = e.target.result.split(/\r?\n/);
-            const dataRows = rows.slice(1); 
-            
-            let bulkPayload = [];
-            let errors = [];
-
-            dataRows.forEach((row, index) => {
-                const cols = row.split(',');
-                if (cols.length >= 10 && cols[0].trim() !== "") {
-                    const customer = cols[0].trim();
-                    const site = cols[1].trim();
-                    const fleet = cols[2].trim();
-                    const price = cols[8].trim();
-
-                    // Validation Logic
-                    if (!customerToSites[customer]) {
-                        errors.push(`Row ${index + 2}: Customer "${customer}" invalid.`);
-                        return;
-                    }
-                    if (!customerToSites[customer].includes(site)) {
-                        errors.push(`Row ${index + 2}: Site "${site}" mismatch.`);
-                        return;
-                    }
-                    if (isNaN(price) || price === "") {
-                        errors.push(`Row ${index + 2}: Unit Price must be numeric.`);
-                        return;
-                    }
-
-                    bulkPayload.push({
-                        customer: customer,
-                        site: site,
-                        fleet: fleet,
-                        group: cols[3].trim(),
-                        type: cols[4].trim(),
-                        desc: cols[5].trim(),
-                        partNo: cols[6].trim(),
-                        qty: cols[7].trim(),
-                        price: price,
-                        reason: cols[9].trim()
-                    });
+                // Validation Logic
+                if (!customerToSites[customer]) {
+                    errors.push(`Row ${index + 2}: Customer "${customer}" invalid.`);
+                    return;
                 }
-            });
-
-            if (errors.length > 0) {
-                alert("Validation Failed:\n" + errors.slice(0, 5).join("\n"));
-                return;
-            }
-
-            if (bulkPayload.length > 0) {
-                if(confirm(`Upload ${bulkPayload.length} rows to PACTRA360?`)) {
-                    google.script.run
-                        .withSuccessHandler(() => {
-                            alert("Success! Bulk upload completed.");
-                            fileInput.value = ""; 
-                        })
-                        .processBulkData(bulkPayload);
+                if (!customerToSites[customer].includes(site)) {
+                    errors.push(`Row ${index + 2}: Site "${site}" mismatch.`);
+                    return;
                 }
+                if (isNaN(price) || price === "") {
+                    errors.push(`Row ${index + 2}: Unit Price must be numeric.`);
+                    return;
+                }
+
+                bulkPayload.push({
+                    customer: customer,
+                    site: site,
+                    fleet: fleet,
+                    entryDate: cols[3].trim(),   // Column E
+                    engineHours: cols[4].trim(), // Column F
+                    group: cols[5].trim(),       // Column G
+                    type: cols[6].trim(),        // Column H
+                    desc: cols[7].trim(),        // Column I
+                    partNo: cols[8].trim(),      // Column J
+                    qty: cols[9].trim(),         // Column K
+                    price: price,                // Column L
+                    reason: cols[11].trim()      // Column M
+                });
             }
-        };
-        reader.readAsText(file);
-    }
+        });
+
+        if (errors.length > 0) {
+            alert("Validation Failed:\n" + errors.slice(0, 5).join("\n"));
+            return;
+        }
+
+        if (bulkPayload.length > 0) {
+            if(confirm(`Validation Success! Upload ${bulkPayload.length} rows to Part_Db?`)) {
+                google.script.run
+                    .withSuccessHandler((msg) => {
+                        alert(msg);
+                        fileInput.value = ""; 
+                    })
+                    .withFailureHandler((err) => {
+                        alert("Critical Error: " + err);
+                    })
+                    .processBulkData(bulkPayload);
+            }
+        }
+    };
+    reader.readAsText(file);
+}
 </script>
 </body>
 </html>
+
 
 
 
