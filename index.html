@@ -496,9 +496,61 @@ function handleBulkUpload() {
     };
     reader.readAsText(file);
 }
+    function handleBulkUpload() {
+    const fileInput = document.getElementById('csvFileInput');
+    const file = fileInput.files[0];
+    if (!file) { alert("Please select a file!"); return; }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const rows = e.target.result.split(/\r?\n/).slice(1);
+            let bulkPayload = [];
+
+            rows.forEach((row, index) => {
+                if (!row.trim()) return;
+                const cols = row.split(',');
+                
+                // Ensure exactly 12 columns are read from CSV
+                if (cols.length >= 12) {
+                    bulkPayload.push({
+                        customer: cols[0].trim(),
+                        site: cols[1].trim(), // Ensure this matches Site_Access exactly now!
+                        fleet: cols[2].trim(),
+                        entryDate: cols[3].trim(),
+                        engineHours: cols[4].trim(),
+                        group: cols[5].trim(),
+                        type: cols[6].trim(),
+                        desc: cols[7].trim(),
+                        partNo: cols[8].trim(),
+                        qty: cols[9].trim(),
+                        price: cols[10].trim(),
+                        reason: cols[11].trim()
+                    });
+                }
+            });
+
+            if (bulkPayload.length > 0) {
+                google.script.run
+                    .withSuccessHandler(msg => {
+                        alert(msg);
+                        if(msg.includes("Success")) fileInput.value = "";
+                    })
+                    .withFailureHandler(err => alert("❌ Critical Upload Error: " + err))
+                    .processBulkData(bulkPayload);
+            } else {
+                alert("⚠️ CSV is empty or formatted incorrectly.");
+            }
+        } catch (err) {
+            alert("❌ Browser Reading Error: " + err);
+        }
+    };
+    reader.readAsText(file);
+}
 </script>
 </body>
 </html>
+
 
 
 
