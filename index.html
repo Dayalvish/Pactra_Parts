@@ -544,38 +544,54 @@ function handleBulkUpload() {
 let clickCount = 0;
 let clickTimer = null;
 
+// 1. TRIPLE CLICK LOGIC
 const logo = document.getElementById('logo');
-
 if (logo) {
     logo.addEventListener('click', function (e) {
-        // Increment count
         clickCount++;
-
-        // Reset the timer every time you click
         clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => { clickCount = 0; }, 700);
 
-        // If you don't click again within 700ms, reset the counter to zero
-        clickTimer = setTimeout(() => {
-            clickCount = 0;
-        }, 700);
-
-        // Check if we hit 3 clicks
         if (clickCount === 3) {
-            clickCount = 0; // Reset for next time
+            clickCount = 0;
             devMode = !devMode;
-            
-            if (devMode) {
-                alert("🔓 ADMIN MODE: Developer tools unlocked.");
-                console.log("DevTools: Enabled");
-            } else {
-                alert("🔒 USER MODE: Developer tools locked.");
-                console.log("DevTools: Disabled");
-            }
+            alert(devMode ? "🔓 ADMIN MODE: ON" : "🔒 ADMIN MODE: OFF");
         }
     });
 }
+
+// 2. STRICTOR KEYBOARD LOCK
+// Use 'keydown' on the window level for better priority
+window.addEventListener('keydown', function(e) {
+    if (devMode) return true; // Do nothing if unlocked
+
+    // List of forbidden keys
+    const forbiddenKeys = [
+        123, // F12
+        (e.ctrlKey && e.shiftKey && e.keyCode === 73), // Ctrl+Shift+I
+        (e.ctrlKey && e.shiftKey && e.keyCode === 74), // Ctrl+Shift+J
+        (e.ctrlKey && e.shiftKey && e.keyCode === 67), // Ctrl+Shift+C
+        (e.ctrlKey && e.keyCode === 85)               // Ctrl+U
+    ];
+
+    if (forbiddenKeys.some(condition => condition === true || condition === e.keyCode)) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+}, true); // The 'true' here is 'Capture Mode' - it catches the key before the browser does
+
+// 3. STRICTOR RIGHT-CLICK LOCK
+window.addEventListener('contextmenu', function(e) {
+    if (!devMode) {
+        e.preventDefault();
+        e.stopPropagation();
+        return false;
+    }
+}, true);
 </script>
 </body>
 </html>
+
 
 
