@@ -540,6 +540,45 @@ function handleBulkUpload() {
         alert("❌ Error: " + err.message + "\n\nHint: Check if your dropdown IDs match 'Customer_Name', 'Work_Site', and 'Fleet_ID'.");
     }
 }
+    let devMode = false;
+
+// 1. Triple-Click Logo to Toggle Developer Mode
+const logo = document.getElementById('logo');
+if (logo) {
+    logo.addEventListener('click', function (e) {
+        if (e.detail === 3) { // Detects triple click
+            devMode = !devMode;
+            if (devMode) {
+                alert("🔓 ADMIN MODE: Developer tools unlocked.");
+            } else {
+                alert("🔒 USER MODE: Developer tools locked.");
+            }
+        }
+    });
+}
+
+// 2. Disable Right-Click (Unless devMode is ON)
+document.addEventListener('contextmenu', function(e) {
+    if (!devMode) {
+        e.preventDefault();
+        alert("⚠️ Restricted Area: Use admin credentials to inspect.");
+    }
+});
+
+// 3. Disable F12 and Shortcuts (Unless devMode is ON)
+document.onkeydown = function(e) {
+    if (devMode) return true; // Allow everything in Admin Mode
+
+    // F12 key
+    if (e.keyCode == 123) return false;
+    
+    // Ctrl+Shift+I, J, C (Inspect/Console)
+    if (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) return false;
+    
+    // Ctrl+U (View Source)
+    if (e.ctrlKey && e.keyCode == 85) return false;
+};
 </script>
 </body>
 </html>
+
