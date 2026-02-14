@@ -403,20 +403,22 @@ function downloadCSVTemplate() {
 }
 
 function handleBulkUpload() {
+    // 1. Point to your Google Script
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoHYYbWTFcXbAFVWaFmnKgT7B4qeM3qNovt4323k0HdM_8S-KHhruHbiRNZsijUM2s/exec"; 
 
-    // 1. Grab credentials from the form fields
-    const techName = document.getElementById('Technician_Name').value;
-    const techPass = document.getElementById('Unlock_Password').value;
+    // 2. Grab values using your SPECIFIC HTML IDs (valTech and passInput)
+    const techName = document.getElementById('valTech').value.trim();
+    const techPass = document.getElementById('passInput').value.trim();
 
+    // 3. Simple Check
     if (!techName || !techPass) {
-        alert("Please enter your Technician Name and Password first!");
+        alert("⚠️ Please enter your User Name and Site Access Password first!");
         return;
     }
 
     const fileInput = document.getElementById('csvFileInput');
     const file = fileInput.files[0];
-    if (!file) { alert("Please select a file!"); return; }
+    if (!file) { alert("⚠️ Please select a CSV file first!"); return; }
 
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -430,11 +432,11 @@ function handleBulkUpload() {
                 
                 if (cols.length >= 12) {
                     bulkPayload.push({
-                        // Attach Credentials to every row so Code.gs validates them
+                        // Send these to Code.gs for security validation
                         Technician_Name: techName,
                         Unlock_Password: techPass,
                         
-                        // Map CSV Columns
+                        // Map the CSV data
                         Customer_Name: cols[0].trim(),
                         Work_Site: cols[1].trim(),
                         Fleet_ID: cols[2].trim(),
@@ -452,26 +454,41 @@ function handleBulkUpload() {
             });
 
             if (bulkPayload.length > 0) {
-                if(confirm(`Security Verified. Upload ${bulkPayload.length} rows?`)) {
+                if(confirm(`Security Verified for ${techName}. Upload ${bulkPayload.length} records?`)) {
+                    // Show a status on the button if you like
+                    const btn = document.querySelector("button[onclick='handleBulkUpload()']");
+                    const originalText = btn.innerText;
+                    btn.innerText = "⏳ Processing...";
+                    btn.disabled = true;
+
                     fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
                         body: JSON.stringify(bulkPayload),
                         mode: 'no-cors'
                     })
                     .then(() => {
-                        alert("✅ Success! Data is now being written to the sheet.");
+                        alert("✅ Success! Data sent to the cloud.");
                         fileInput.value = "";
+                        btn.innerText = originalText;
+                        btn.disabled = false;
                     })
-                    .catch(err => alert("❌ Connection Error: " + err));
+                    .catch(err => {
+                        alert("❌ Error: " + err);
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    });
                 }
             }
-        } catch (err) { alert("❌ Error: " + err); }
+        } catch (err) {
+            alert("❌ File Reading Error: " + err);
+        }
     };
     reader.readAsText(file);
 }
 </script>
 </body>
 </html>
+
 
 
 
