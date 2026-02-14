@@ -540,58 +540,10 @@ function handleBulkUpload() {
         alert("❌ Error: " + err.message + "\n\nHint: Check if your dropdown IDs match 'Customer_Name', 'Work_Site', and 'Fleet_ID'.");
     }
 }
-    // 1. Setup the Admin State
-    var isAdmin = false;
-
-    // 2. The Secret Unlock (Ctrl + Alt + Click the badge)
-    document.addEventListener('click', function(e) {
-        // Check if the thing you clicked contains the word "Locked"
-        if (e.target.innerText && e.target.innerText.includes("Locked")) {
-            if (e.ctrlKey && e.altKey) {
-                isAdmin = !isAdmin;
-                e.target.innerText = isAdmin ? "Unlocked - Admin Active" : "Locked - Please Verify";
-                e.target.style.color = isAdmin ? "green" : "red";
-                alert(isAdmin ? "🔓 ADMIN UNLOCKED" : "🔒 ADMIN LOCKED");
-            }
-        }
-    });
-
-    // 3. THE "CAPTURE" LOCK (Prevents F12)
-    window.addEventListener('keydown', function(e) {
-        if (isAdmin) return true; // Do nothing if admin is on
-
-        // Block F12 (123)
-        if (e.keyCode === 123) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return false;
-        }
-
-        // Block Ctrl+Shift+I (73)
-        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return false;
-        }
-
-        // Block Ctrl+U (85)
-        if (e.ctrlKey && e.keyCode === 85) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-            return false;
-        }
-    }, true); // The 'true' is the most important part - it's the "Capture" phase
-
-    // 4. BLOCK RIGHT-CLICK
-    window.addEventListener('contextmenu', function(e) {
-        if (!isAdmin) {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-        }
-    }, true);
 <script>    
 </body>
 </html>
+
 
 
 
