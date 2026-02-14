@@ -544,31 +544,36 @@ function handleBulkUpload() {
     <script>
     let devMode = false;
 
-    // 1. THE SECRET SPOT (Ctrl + Alt + Click the text)
-    const trigger = document.getElementById('admin-trigger');
+    // 1. THE SECRET SPOT (Ctrl + Alt + Click the red badge)
+    // Looking at your image, we need to make sure this ID is on that badge
+    const trigger = document.getElementById('admin-trigger'); 
+    
     if (trigger) {
         trigger.addEventListener('click', function (e) {
+            // Only triggers if holding Ctrl and Alt while clicking the badge
             if (e.ctrlKey && e.altKey) {
                 devMode = !devMode;
                 
-                // Change the text visually so you know it worked
                 if (devMode) {
                     this.innerText = "Unlocked - Admin Active";
-                    this.style.color = "green";
-                    alert("🔓 Developer Tools Enabled");
+                    this.style.backgroundColor = "#d4edda"; // Light green
+                    this.style.color = "#155724";           // Dark green
+                    alert("🔓 Admin Mode: Developer Tools Enabled");
                 } else {
                     this.innerText = "Locked - Please Verify";
-                    this.style.color = "#888";
-                    alert("🔒 Developer Tools Restricted");
+                    this.style.backgroundColor = "#f8d7da"; // Back to red
+                    this.style.color = "#721c24";
+                    alert("🔒 Admin Mode: Developer Tools Blocked");
                 }
             }
         });
     }
 
-    // 2. HARD LOCK (F12, Ctrl+Shift+I, Ctrl+U)
+    // 2. STRICTOR KEYBOARD LOCK
     window.addEventListener('keydown', function(e) {
-        if (devMode) return true;
+        if (devMode) return true; // Let everything work if admin is active
 
+        // Direct block for F12, Ctrl+Shift+I, and Ctrl+U
         if (e.keyCode === 123 || 
            (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
            (e.ctrlKey && e.keyCode === 85)) {
@@ -576,19 +581,18 @@ function handleBulkUpload() {
             e.stopPropagation();
             return false;
         }
-    }, true);
+    }, true); // The 'true' is vital to catch the event before the browser does
 
     // 3. RIGHT-CLICK LOCK
     window.addEventListener('contextmenu', function(e) {
         if (!devMode) {
             e.preventDefault();
-            e.stopPropagation();
             return false;
         }
     }, true);
 </script>
-
 </body> </html>
+
 
 
 
