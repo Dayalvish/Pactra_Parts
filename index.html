@@ -540,58 +540,61 @@ function handleBulkUpload() {
         alert("❌ Error: " + err.message + "\n\nHint: Check if your dropdown IDs match 'Customer_Name', 'Work_Site', and 'Fleet_ID'.");
     }
 }
-   
-    <script>
-    let devMode = false;
+<script>
+    // 1. Setup the Admin State
+    var isAdmin = false;
 
-    // 1. THE SECRET SPOT (Ctrl + Alt + Click the red badge)
-    // Looking at your image, we need to make sure this ID is on that badge
-    const trigger = document.getElementById('admin-trigger'); 
-    
-    if (trigger) {
-        trigger.addEventListener('click', function (e) {
-            // Only triggers if holding Ctrl and Alt while clicking the badge
+    // 2. The Secret Unlock (Ctrl + Alt + Click the badge)
+    document.addEventListener('click', function(e) {
+        // Check if the thing you clicked contains the word "Locked"
+        if (e.target.innerText && e.target.innerText.includes("Locked")) {
             if (e.ctrlKey && e.altKey) {
-                devMode = !devMode;
-                
-                if (devMode) {
-                    this.innerText = "Unlocked - Admin Active";
-                    this.style.backgroundColor = "#d4edda"; // Light green
-                    this.style.color = "#155724";           // Dark green
-                    alert("🔓 Admin Mode: Developer Tools Enabled");
-                } else {
-                    this.innerText = "Locked - Please Verify";
-                    this.style.backgroundColor = "#f8d7da"; // Back to red
-                    this.style.color = "#721c24";
-                    alert("🔒 Admin Mode: Developer Tools Blocked");
-                }
+                isAdmin = !isAdmin;
+                e.target.innerText = isAdmin ? "Unlocked - Admin Active" : "Locked - Please Verify";
+                e.target.style.color = isAdmin ? "green" : "red";
+                alert(isAdmin ? "🔓 ADMIN UNLOCKED" : "🔒 ADMIN LOCKED");
             }
-        });
-    }
+        }
+    });
 
-    // 2. STRICTOR KEYBOARD LOCK
+    // 3. THE "CAPTURE" LOCK (Prevents F12)
     window.addEventListener('keydown', function(e) {
-        if (devMode) return true; // Let everything work if admin is active
+        if (isAdmin) return true; // Do nothing if admin is on
 
-        // Direct block for F12, Ctrl+Shift+I, and Ctrl+U
-        if (e.keyCode === 123 || 
-           (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
-           (e.ctrlKey && e.keyCode === 85)) {
+        // Block F12 (123)
+        if (e.keyCode === 123) {
             e.preventDefault();
-            e.stopPropagation();
+            e.stopImmediatePropagation();
             return false;
         }
-    }, true); // The 'true' is vital to catch the event before the browser does
 
-    // 3. RIGHT-CLICK LOCK
-    window.addEventListener('contextmenu', function(e) {
-        if (!devMode) {
+        // Block Ctrl+Shift+I (73)
+        if (e.ctrlKey && e.shiftKey && e.keyCode === 73) {
             e.preventDefault();
+            e.stopImmediatePropagation();
             return false;
+        }
+
+        // Block Ctrl+U (85)
+        if (e.ctrlKey && e.keyCode === 85) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        }
+    }, true); // The 'true' is the most important part - it's the "Capture" phase
+
+    // 4. BLOCK RIGHT-CLICK
+    window.addEventListener('contextmenu', function(e) {
+        if (!isAdmin) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
         }
     }, true);
-</script>
-</body> </html>
+</script>    
+<script>    
+</body>
+</html>
+
 
 
 
