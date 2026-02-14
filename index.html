@@ -541,57 +541,53 @@ function handleBulkUpload() {
     }
 }
     let devMode = false;
-let clickCount = 0;
-let clickTimer = null;
 
-// 1. TRIPLE CLICK LOGIC
+// 1. SECRET KEY COMBINATION UNLOCK
 const logo = document.getElementById('logo');
 if (logo) {
     logo.addEventListener('click', function (e) {
-        clickCount++;
-        clearTimeout(clickTimer);
-        clickTimer = setTimeout(() => { clickCount = 0; }, 700);
-
-        if (clickCount === 3) {
-            clickCount = 0;
+        // Only triggers if Ctrl and Alt are held down during the click
+        if (e.ctrlKey && e.altKey) {
             devMode = !devMode;
-            alert(devMode ? "🔓 ADMIN MODE: ON" : "🔒 ADMIN MODE: OFF");
+            
+            if (devMode) {
+                alert("🔓 ADMIN MODE: Developer tools unlocked.");
+            } else {
+                alert("🔒 USER MODE: Developer tools locked.");
+            }
         }
     });
 }
 
-// 2. STRICTOR KEYBOARD LOCK
-// Use 'keydown' on the window level for better priority
+// 2. KEYBOARD LOCK (F12, etc.)
 window.addEventListener('keydown', function(e) {
-    if (devMode) return true; // Do nothing if unlocked
+    if (devMode) return true;
 
-    // List of forbidden keys
-    const forbiddenKeys = [
+    const forbidden = [
         123, // F12
         (e.ctrlKey && e.shiftKey && e.keyCode === 73), // Ctrl+Shift+I
         (e.ctrlKey && e.shiftKey && e.keyCode === 74), // Ctrl+Shift+J
-        (e.ctrlKey && e.shiftKey && e.keyCode === 67), // Ctrl+Shift+C
         (e.ctrlKey && e.keyCode === 85)               // Ctrl+U
     ];
 
-    if (forbiddenKeys.some(condition => condition === true || condition === e.keyCode)) {
+    if (forbidden.some(cond => cond === true || cond === e.keyCode)) {
         e.preventDefault();
         e.stopPropagation();
         return false;
     }
-}, true); // The 'true' here is 'Capture Mode' - it catches the key before the browser does
+}, true);
 
-// 3. STRICTOR RIGHT-CLICK LOCK
+// 3. RIGHT-CLICK LOCK
 window.addEventListener('contextmenu', function(e) {
     if (!devMode) {
         e.preventDefault();
-        e.stopPropagation();
         return false;
     }
 }, true);
 </script>
 </body>
 </html>
+
 
 
 
