@@ -403,8 +403,16 @@ function downloadCSVTemplate() {
 }
 
 function handleBulkUpload() {
-    // PASTE YOUR DEPLOYMENT URL HERE
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoHYYbWTFcXbAFVWaFmnKgT7B4qeM3qNovt4323k0HdM_8S-KHhruHbiRNZsijUM2s/exec"; 
+
+    // 1. Grab credentials from the form fields
+    const techName = document.getElementById('Technician_Name').value;
+    const techPass = document.getElementById('Unlock_Password').value;
+
+    if (!techName || !techPass) {
+        alert("Please enter your Technician Name and Password first!");
+        return;
+    }
 
     const fileInput = document.getElementById('csvFileInput');
     const file = fileInput.files[0];
@@ -413,94 +421,58 @@ function handleBulkUpload() {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const text = e.target.result;
-            const rows = text.split(/\r?\n/);
-            const dataRows = rows.slice(1); // Skips CSV Header
-            
+            const rows = e.target.result.split(/\r?\n/).slice(1);
             let bulkPayload = [];
-            let errors = [];
 
-            dataRows.forEach((row, index) => {
-                if (!row.trim()) return; 
+            rows.forEach((row) => {
+                if (!row.trim()) return;
                 const cols = row.split(',');
                 
-                if (cols.length >= 12 && cols[0].trim() !== "") {
-                    const csvCustomer = cols[0].trim();
-                    const csvSite = cols[1].trim().replace(/_/g, ' '); 
-                    const price = cols[10].trim();
-
-                    // 1. Validate Customer
-                    const masterCustomer = Object.keys(customerToSites).find(
-                        k => k.toLowerCase() === csvCustomer.toLowerCase()
-                    );
-                    
-                    if (!masterCustomer) {
-                        errors.push(`Row ${index + 2}: Customer "${csvCustomer}" not found.`);
-                        return;
-                    }
-
-                    // 2. Validate Site
-                    const masterSite = customerToSites[masterCustomer].find(
-                        s => s.toLowerCase() === csvSite.toLowerCase()
-                    );
-                    
-                    if (!masterSite) {
-                        errors.push(`Row ${index + 2}: Site "${csvSite}" mismatch for ${masterCustomer}.`);
-                        return;
-                    }
-
-                    // 3. Build Payload
+                if (cols.length >= 12) {
                     bulkPayload.push({
-                        customer: masterCustomer,
-                        site: masterSite,
-                        fleet: cols[2].trim(),
-                        entryDate: cols[3].trim(),
-                        engineHours: cols[4].trim(),
-                        group: cols[5].trim(),
-                        type: cols[6].trim(),
-                        desc: cols[7].trim(),
-                        partNo: cols[8].trim(),
-                        qty: cols[9].trim(),
-                        price: price,
-                        reason: cols[11].trim()
+                        // Attach Credentials to every row so Code.gs validates them
+                        Technician_Name: techName,
+                        Unlock_Password: techPass,
+                        
+                        // Map CSV Columns
+                        Customer_Name: cols[0].trim(),
+                        Work_Site: cols[1].trim(),
+                        Fleet_ID: cols[2].trim(),
+                        Entry_Date: cols[3].trim(),
+                        Engine_Hours: cols[4].trim(),
+                        Part_Group: cols[5].trim(),
+                        Part_Type: cols[6].trim(),
+                        Part_Description: cols[7].trim(),
+                        Part_Number: cols[8].trim(),
+                        Quantity: cols[9].trim(),
+                        Unit_Price: cols[10].trim(),
+                        Reason_to_Replace: cols[11].trim()
                     });
                 }
             });
 
-            if (errors.length > 0) {
-                alert("⚠️ Validation Failed:\n" + errors.slice(0, 5).join("\n"));
-                return;
-            }
-
             if (bulkPayload.length > 0) {
-                if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
-                    
-                    // --- REPLACED google.script.run WITH fetch ---
+                if(confirm(`Security Verified. Upload ${bulkPayload.length} rows?`)) {
                     fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
                         body: JSON.stringify(bulkPayload),
-                        mode: 'no-cors' // Allows GitHub to talk to Google
+                        mode: 'no-cors'
                     })
                     .then(() => {
-                        alert("✅ Success! Data sent to cloud. Check your Sheet in a few seconds.");
+                        alert("✅ Success! Data is now being written to the sheet.");
                         fileInput.value = "";
                     })
-                    .catch(err => {
-                        alert("❌ System Error: " + err);
-                    });
+                    .catch(err => alert("❌ Connection Error: " + err));
                 }
-            } else {
-                alert("⚠️ CSV is empty or formatted incorrectly.");
             }
-        } catch (err) {
-            alert("❌ Browser Reading Error: " + err);
-        }
+        } catch (err) { alert("❌ Error: " + err); }
     };
     reader.readAsText(file);
 }
 </script>
 </body>
 </html>
+
 
 
 
