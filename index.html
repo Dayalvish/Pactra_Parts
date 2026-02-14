@@ -494,51 +494,65 @@ function handleBulkUpload() {
     reader.readAsText(file);
 }
     function generateDynamicTemplate() {
-    // 1. Get current form selections
-    const customer = document.getElementById('Customer_Name').value;
-    const site = document.getElementById('Work_Site').value;
-    const fleet = document.getElementById('Fleet_ID').value;
+    // 1. Check if the elements actually exist in your HTML
+    const custEl = document.getElementById('Customer_Name');
+    const siteEl = document.getElementById('Work_Site');
+    const fleetEl = document.getElementById('Fleet_ID');
 
-    if (!customer || !site || !fleet) {
-        alert("⚠️ Action Required: Please select Customer, Site, and Fleet from the dropdowns first so I can pre-fill your template!");
+    // DEBUG ALERT: If these show up, your HTML IDs don't match these names
+    if (!custEl) { alert("System Error: Could not find dropdown with ID 'Customer_Name'"); return; }
+    if (!siteEl) { alert("System Error: Could not find dropdown with ID 'Work_Site'"); return; }
+    if (!fleetEl) { alert("System Error: Could not find dropdown with ID 'Fleet_ID'"); return; }
+
+    const customer = custEl.value;
+    const site = siteEl.value;
+    const fleet = fleetEl.value;
+
+    // 2. Ensure the user has actually selected something
+    if (!customer || customer === "" || !site || !fleet) {
+        alert("⚠️ Selection Required: Please select a Customer, Site, and Fleet from the dropdowns first!");
         return;
     }
 
-    // 2. Define standard headers
+    // 3. Create the Template
     const headers = [
         "Customer_Name", "Work_Site", "Fleet_ID", "Entry_Date", 
         "Engine_Hours", "Part_Group", "Part_Type", "Part_Description", 
         "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"
     ];
 
-    // 3. Create pre-filled data row
-    // Note: Dates in CSVs are safer as DD-MM-YYYY strings
     const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    
+    // Wrap names in quotes in case they contain commas
     const sampleRow = [
-        `"${customer}"`, // Use quotes to handle commas in names
+        `"${customer}"`, 
         `"${site}"`, 
         `"${fleet}"`, 
         today,
-        "", "", "", "", "", "", "", "" // User fills these
+        "", "", "", "", "", "", "", ""
     ];
 
     const csvContent = headers.join(",") + "\n" + sampleRow.join(",");
 
-    // 4. Trigger the download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    const url = URL.createObjectURL(blob);
-    
-    link.setAttribute("href", url);
-    link.setAttribute("download", `PACTRA360_${site.replace(/\s/g, '_')}_Template.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // 4. Download Trigger
+    try {
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Template_${site.replace(/\s/g, '_')}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    } catch (err) {
+        alert("❌ Download Failed: " + err.message);
+    }
 }
 </script>
 </body>
 </html>
+
 
 
 
