@@ -337,21 +337,22 @@
     document.getElementById('consumptionForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
-    btn.innerText = "Processing..."; 
+    btn.innerText = "Processing... Please Wait";
     btn.disabled = true;
 
-    // We use google.script.run for the form too for better reliability
+    // Use google.script.run for the 10-line form too
     google.script.run
         .withSuccessHandler(function(msg) {
-            alert("Success! Records saved.");
-            location.reload();
+            alert(msg);
+            if(msg.includes("Success")) location.reload();
+            btn.innerText = "Submit All Records";
+            btn.disabled = false;
         })
         .withFailureHandler(function(err) {
-            alert("Submit Error: " + err);
+            alert("❌ Submit Failed: " + err);
             btn.disabled = false;
-            btn.innerText = "Submit All Records";
         })
-        .processForm(this); // You would need a processForm function in GS to handle this
+        .processForm(this); // Sends the whole form to Code.gs
 });
     // --- 1. DOWNLOAD TEMPLATE FUNCTION (Updated for 12 Columns + jumped columns) ---
 function downloadCSVTemplate() {
@@ -432,6 +433,7 @@ function downloadCSVTemplate() {
 </script>
 </body>
 </html>
+
 
 
 
