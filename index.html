@@ -541,39 +541,55 @@ function handleBulkUpload() {
     }
 }
    
-<img src="Picture1.png" id="logo" alt="Epiroc Logo" style="height: 55px; cursor: pointer;">
-
     <script>
-        let devMode = false;
+    let devMode = false;
 
-        // SECRET KEY COMBINATION UNLOCK (Ctrl + Alt + Click)
-        const logo = document.getElementById('logo');
-        if (logo) {
-            logo.addEventListener('click', function (e) {
-                if (e.ctrlKey && e.altKey) {
-                    devMode = !devMode;
-                    alert(devMode ? "🔓 ADMIN MODE: ON" : "🔒 ADMIN MODE: OFF");
+    // 1. THE SECRET SPOT (Ctrl + Alt + Click the text)
+    const trigger = document.getElementById('admin-trigger');
+    if (trigger) {
+        trigger.addEventListener('click', function (e) {
+            if (e.ctrlKey && e.altKey) {
+                devMode = !devMode;
+                
+                // Change the text visually so you know it worked
+                if (devMode) {
+                    this.innerText = "Unlocked - Admin Active";
+                    this.style.color = "green";
+                    alert("🔓 Developer Tools Enabled");
+                } else {
+                    this.innerText = "Locked - Please Verify";
+                    this.style.color = "#888";
+                    alert("🔒 Developer Tools Restricted");
                 }
-            });
-        }
-
-        // KEYBOARD LOCK
-        window.addEventListener('keydown', function(e) {
-            if (devMode) return true;
-            const forbidden = [123, (e.ctrlKey && e.shiftKey && e.keyCode === 73), (e.ctrlKey && e.keyCode === 85)];
-            if (forbidden.some(cond => cond === true || cond === e.keyCode)) {
-                e.preventDefault();
-                return false;
             }
-        }, true);
+        });
+    }
 
-        // RIGHT-CLICK LOCK
-        window.addEventListener('contextmenu', function(e) {
-            if (!devMode) e.preventDefault();
-        }, true);
-    </script>
+    // 2. HARD LOCK (F12, Ctrl+Shift+I, Ctrl+U)
+    window.addEventListener('keydown', function(e) {
+        if (devMode) return true;
+
+        if (e.keyCode === 123 || 
+           (e.ctrlKey && e.shiftKey && e.keyCode === 73) || 
+           (e.ctrlKey && e.keyCode === 85)) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, true);
+
+    // 3. RIGHT-CLICK LOCK
+    window.addEventListener('contextmenu', function(e) {
+        if (!devMode) {
+            e.preventDefault();
+            e.stopPropagation();
+            return false;
+        }
+    }, true);
+</script>
 
 </body> </html>
+
 
 
 
