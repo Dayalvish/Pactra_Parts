@@ -402,101 +402,10 @@ function downloadCSVTemplate() {
     document.body.removeChild(link);
 }
 
-// --- 2. BULK UPLOAD & VALIDATION HANDLER (Final Optimized) ---
 function handleBulkUpload() {
-    const fileInput = document.getElementById('csvFileInput');
-    const file = fileInput.files[0];
-    if (!file) { alert("Please select a file!"); return; }
+    // PASTE YOUR DEPLOYMENT URL HERE
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoHYYbWTFcXbAFVWaFmnKgT7B4qeM3qNovt4323k0HdM_8S-KHhruHbiRNZsijUM2s/exec"; 
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const text = e.target.result;
-        const rows = text.split(/\r?\n/);
-        const dataRows = rows.slice(1); // Skips CSV Header
-        
-        let bulkPayload = [];
-        let errors = [];
-
-        dataRows.forEach((row, index) => {
-            if (!row.trim()) return; // Skip empty lines
-            const cols = row.split(',');
-            
-            // Validate 12 columns are present
-            if (cols.length >= 12 && cols[0].trim() !== "") {
-                const csvCustomer = cols[0].trim();
-                const csvSite = cols[1].trim().replace(/_/g, ' '); 
-                const price = cols[10].trim();
-
-                // 1. Validate Customer (Case-Insensitive)
-                const masterCustomer = Object.keys(customerToSites).find(
-                    k => k.toLowerCase() === csvCustomer.toLowerCase()
-                );
-                
-                if (!masterCustomer) {
-                    errors.push(`Row ${index + 2}: Customer "${csvCustomer}" not found.`);
-                    return;
-                }
-
-                // 2. Validate Site for that Customer (Case-Insensitive)
-                const masterSite = customerToSites[masterCustomer].find(
-                    s => s.toLowerCase() === csvSite.toLowerCase()
-                );
-                
-                if (!masterSite) {
-                    errors.push(`Row ${index + 2}: Site "${csvSite}" mismatch for ${masterCustomer}.`);
-                    return;
-                }
-
-                // 3. Validate Price numeric
-                if (isNaN(price) || price === "") {
-                    errors.push(`Row ${index + 2}: Unit Price must be numeric.`);
-                    return;
-                }
-
-                // 4. Build the Payload (Keys match what Code.gs expects)
-                bulkPayload.push({
-                    customer: masterCustomer,    // Maps to Col B in Sheet
-                    site: masterSite,            // Maps to Col C
-                    fleet: cols[2].trim(),       // Maps to Col D
-                    entryDate: cols[3].trim(),   // Maps to Col E
-                    engineHours: cols[4].trim(), // Maps to Col F
-                    group: cols[5].trim(),       // Maps to Col G
-                    type: cols[6].trim(),        // Maps to Col H
-                    desc: cols[7].trim(),        // Maps to Col I
-                    partNo: cols[8].trim(),      // Maps to Col J
-                    qty: cols[9].trim(),         // Maps to Col K
-                    price: price,                // Maps to Col L
-                    reason: cols[11].trim()      // Maps to Col M
-                });
-            }
-        });
-
-        // Error Feedback
-        if (errors.length > 0) {
-            alert("⚠️ Validation Failed:\n" + errors.slice(0, 5).join("\n") + (errors.length > 5 ? "\n...and more." : ""));
-            return;
-        }
-
-        // Send to Backend
-        if (bulkPayload.length > 0) {
-            if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
-                google.script.run
-                    .withSuccessHandler((msg) => {
-                        alert(msg); // Shows "✅ Success" alert
-                        if(msg.includes("Success")) {
-                            fileInput.value = ""; 
-                        }
-                    })
-                    .withFailureHandler((err) => {
-                        alert("❌ Critical System Error: " + err);
-                    })
-                    .processBulkData(bulkPayload);
-            }
-        }
-    };
-    reader.readAsText(file);
-}
-    function handleBulkUpload() {
     const fileInput = document.getElementById('csvFileInput');
     const file = fileInput.files[0];
     if (!file) { alert("Please select a file!"); return; }
@@ -504,18 +413,46 @@ function handleBulkUpload() {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const rows = e.target.result.split(/\r?\n/).slice(1);
+            const text = e.target.result;
+            const rows = text.split(/\r?\n/);
+            const dataRows = rows.slice(1); // Skips CSV Header
+            
             let bulkPayload = [];
+            let errors = [];
 
-            rows.forEach((row, index) => {
-                if (!row.trim()) return;
+            dataRows.forEach((row, index) => {
+                if (!row.trim()) return; 
                 const cols = row.split(',');
                 
-                // Ensure exactly 12 columns are read from CSV
-                if (cols.length >= 12) {
+                if (cols.length >= 12 && cols[0].trim() !== "") {
+                    const csvCustomer = cols[0].trim();
+                    const csvSite = cols[1].trim().replace(/_/g, ' '); 
+                    const price = cols[10].trim();
+
+                    // 1. Validate Customer
+                    const masterCustomer = Object.keys(customerToSites).find(
+                        k => k.toLowerCase() === csvCustomer.toLowerCase()
+                    );
+                    
+                    if (!masterCustomer) {
+                        errors.push(`Row ${index + 2}: Customer "${csvCustomer}" not found.`);
+                        return;
+                    }
+
+                    // 2. Validate Site
+                    const masterSite = customerToSites[masterCustomer].find(
+                        s => s.toLowerCase() === csvSite.toLowerCase()
+                    );
+                    
+                    if (!masterSite) {
+                        errors.push(`Row ${index + 2}: Site "${csvSite}" mismatch for ${masterCustomer}.`);
+                        return;
+                    }
+
+                    // 3. Build Payload
                     bulkPayload.push({
-                        customer: cols[0].trim(),
-                        site: cols[1].trim(), // Ensure this matches Site_Access exactly now!
+                        customer: masterCustomer,
+                        site: masterSite,
                         fleet: cols[2].trim(),
                         entryDate: cols[3].trim(),
                         engineHours: cols[4].trim(),
@@ -524,20 +461,34 @@ function handleBulkUpload() {
                         desc: cols[7].trim(),
                         partNo: cols[8].trim(),
                         qty: cols[9].trim(),
-                        price: cols[10].trim(),
+                        price: price,
                         reason: cols[11].trim()
                     });
                 }
             });
 
+            if (errors.length > 0) {
+                alert("⚠️ Validation Failed:\n" + errors.slice(0, 5).join("\n"));
+                return;
+            }
+
             if (bulkPayload.length > 0) {
-                google.script.run
-                    .withSuccessHandler(msg => {
-                        alert(msg);
-                        if(msg.includes("Success")) fileInput.value = "";
+                if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
+                    
+                    // --- REPLACED google.script.run WITH fetch ---
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify(bulkPayload),
+                        mode: 'no-cors' // Allows GitHub to talk to Google
                     })
-                    .withFailureHandler(err => alert("❌ Critical Upload Error: " + err))
-                    .processBulkData(bulkPayload);
+                    .then(() => {
+                        alert("✅ Success! Data sent to cloud. Check your Sheet in a few seconds.");
+                        fileInput.value = "";
+                    })
+                    .catch(err => {
+                        alert("❌ System Error: " + err);
+                    });
+                }
             } else {
                 alert("⚠️ CSV is empty or formatted incorrectly.");
             }
@@ -550,6 +501,7 @@ function handleBulkUpload() {
 </script>
 </body>
 </html>
+
 
 
 
