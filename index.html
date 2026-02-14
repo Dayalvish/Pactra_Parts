@@ -430,9 +430,29 @@ function downloadCSVTemplate() {
         };
         reader.readAsText(file);
     }
+    // PUT THIS AT THE BOTTOM OF INDEX.HTML
+document.getElementById('consumptionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.innerText = "⏳ Pushing to Cloud...";
+    btn.disabled = true;
+
+    // Direct bridge to the processWebForm function above
+    google.script.run
+        .withSuccessHandler(function(msg) {
+            alert(msg); // This shows your Success message!
+            if(msg.includes("Success")) location.reload();
+        })
+        .withFailureHandler(function(err) {
+            alert("❌ Failure: " + err);
+            btn.disabled = false;
+        })
+        .processWebForm(this); 
+});
 </script>
 </body>
 </html>
+
 
 
 
