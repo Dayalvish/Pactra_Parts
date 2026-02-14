@@ -494,64 +494,46 @@ function handleBulkUpload() {
     reader.readAsText(file);
 }
     function generateDynamicTemplate() {
-    // 1. Check if the elements actually exist in your HTML
-    const custEl = document.getElementById('Customer_Name');
-    const siteEl = document.getElementById('Work_Site');
-    const fleetEl = document.getElementById('Fleet_ID');
-
-    // DEBUG ALERT: If these show up, your HTML IDs don't match these names
-    if (!custEl) { alert("System Error: Could not find dropdown with ID 'Customer_Name'"); return; }
-    if (!siteEl) { alert("System Error: Could not find dropdown with ID 'Work_Site'"); return; }
-    if (!fleetEl) { alert("System Error: Could not find dropdown with ID 'Fleet_ID'"); return; }
-
-    const customer = custEl.value;
-    const site = siteEl.value;
-    const fleet = fleetEl.value;
-
-    // 2. Ensure the user has actually selected something
-    if (!customer || customer === "" || !site || !fleet) {
-        alert("⚠️ Selection Required: Please select a Customer, Site, and Fleet from the dropdowns first!");
-        return;
-    }
-
-    // 3. Create the Template
-    const headers = [
-        "Customer_Name", "Work_Site", "Fleet_ID", "Entry_Date", 
-        "Engine_Hours", "Part_Group", "Part_Type", "Part_Description", 
-        "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"
-    ];
-
-    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-    
-    // Wrap names in quotes in case they contain commas
-    const sampleRow = [
-        `"${customer}"`, 
-        `"${site}"`, 
-        `"${fleet}"`, 
-        today,
-        "", "", "", "", "", "", "", ""
-    ];
-
-    const csvContent = headers.join(",") + "\n" + sampleRow.join(",");
-
-    // 4. Download Trigger
     try {
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        const url = URL.createObjectURL(blob);
+        // 1. Get values directly
+        var c = document.getElementById('Customer_Name').value;
+        var s = document.getElementById('Work_Site').value;
+        var f = document.getElementById('Fleet_ID').value;
+
+        if (!c || !s || !f) {
+            alert("Please select Customer, Site, and Fleet first!");
+            return;
+        }
+
+        // 2. Setup CSV content
+        var headers = "Customer_Name,Work_Site,Fleet_ID,Entry_Date,Engine_Hours,Part_Group,Part_Type,Part_Description,Part_Number,Quantity,Unit_Price,Reason_to_Replace";
+        var date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
         
-        link.setAttribute("href", url);
-        link.setAttribute("download", `Template_${site.replace(/\s/g, '_')}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Use quotes to prevent commas in names from breaking the CSV
+        var row = '"' + c + '","' + s + '","' + f + '",' + date + ",,,,,,,,";
+        var csv = headers + "\n" + row;
+
+        // 3. Create Download Link
+        var blob = new Blob([csv], {type: 'text/csv'});
+        var url = window.URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = "Template_" + s.replace(/\s+/g, '_') + ".csv";
+        document.body.appendChild(a);
+        a.click();
+        
+        // Cleanup
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+
     } catch (err) {
-        alert("❌ Download Failed: " + err.message);
+        alert("Error generating file: " + err.message);
     }
 }
 </script>
 </body>
 </html>
+
 
 
 
