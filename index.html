@@ -60,20 +60,27 @@
                 <tr class="row-even"><td class="label-cell">Remarks</td><td><textarea name="Remarks" rows="2"></textarea></td></tr>
                 <tr>
     <td colspan="2">
-       <div id="bulkSection" style="margin: 20px; padding: 15px; border: 2px dashed #007bff; border-radius: 8px; background-color: #f8f9fa;">
-    <h4 style="color: #007bff;">🚀 Bulk Parts Entry</h4>
-    <p style="font-size: 13px; color: #555;">For large entries (50+ rows), please use the CSV template.</p>
+       <div class="bulk-section" style="margin-top: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
+    <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">Bulk Upload Tools</h3>
     
-    <button type="button" onclick="downloadCSVTemplate()" style="background-color: #6c757d; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; margin-bottom: 10px; font-size: 14px;">
-        📥 Download CSV Template
-    </button>
+    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
+        
+        <div style="background: #fff; padding: 10px; border-radius: 5px; border-left: 4px solid #6c757d;">
+            <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #555;"><strong>Step 1:</strong> Select Customer, Site, and Fleet above first, then:</p>
+            <button type="button" onclick="generateDynamicTemplate()" style="width: 100%; background-color: #6c757d; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">
+                📥 Download Pre-filled Template
+            </button>
+        </div>
 
-    <div style="margin-top: 10px; border-top: 1px solid #ddd; padding-top: 10px;">
-        <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 10px; font-size: 12px;">
-        <br>
-        <button type="button" onclick="handleBulkUpload()" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-            Upload & Process Bulk Data
-        </button>
+        <div style="background: #fff; padding: 10px; border-radius: 5px; border-left: 4px solid #007bff;">
+            <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #555;"><strong>Step 2:</strong> Fill the file and upload here:</p>
+            <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 12px; width: 100%; font-size: 0.85em;">
+            
+            <button type="button" onclick="handleBulkUpload()" style="width: 100%; background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                🚀 Upload & Process Bulk Data
+            </button>
+        </div>
+        
     </div>
 </div>
 
@@ -485,9 +492,53 @@ function handleBulkUpload() {
     };
     reader.readAsText(file);
 }
+    function generateDynamicTemplate() {
+    // 1. Get current form selections
+    const customer = document.getElementById('Customer_Name').value;
+    const site = document.getElementById('Work_Site').value;
+    const fleet = document.getElementById('Fleet_ID').value;
+
+    if (!customer || !site || !fleet) {
+        alert("⚠️ Action Required: Please select Customer, Site, and Fleet from the dropdowns first so I can pre-fill your template!");
+        return;
+    }
+
+    // 2. Define standard headers
+    const headers = [
+        "Customer_Name", "Work_Site", "Fleet_ID", "Entry_Date", 
+        "Engine_Hours", "Part_Group", "Part_Type", "Part_Description", 
+        "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"
+    ];
+
+    // 3. Create pre-filled data row
+    // Note: Dates in CSVs are safer as DD-MM-YYYY strings
+    const today = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    const sampleRow = [
+        `"${customer}"`, // Use quotes to handle commas in names
+        `"${site}"`, 
+        `"${fleet}"`, 
+        today,
+        "", "", "", "", "", "", "", "" // User fills these
+    ];
+
+    const csvContent = headers.join(",") + "\n" + sampleRow.join(",");
+
+    // 4. Trigger the download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute("href", url);
+    link.setAttribute("download", `PACTRA360_${site.replace(/\s/g, '_')}_Template.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 </script>
 </body>
 </html>
+
 
 
 
