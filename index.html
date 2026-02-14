@@ -335,136 +335,127 @@
     }
 
     document.getElementById('consumptionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    btn.innerText = "Processing... Please Wait";
-    btn.disabled = true;
-
-    // Use google.script.run for the 10-line form too
-    google.script.run
-        .withSuccessHandler(function(msg) {
-            alert(msg);
-            if(msg.includes("Success")) location.reload();
-            btn.innerText = "Submit All Records";
-            btn.disabled = false;
-        })
-        .withFailureHandler(function(err) {
-            alert("❌ Submit Failed: " + err);
-            btn.disabled = false;
-        })
-        .processForm(this); // Sends the whole form to Code.gs
-});
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "Processing..."; btn.disabled = true;
+        const formData = new FormData(this);
+        formData.append('Unlock_Password', document.getElementById('passInput').value);
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: formData })
+        .then(() => { alert("Success! Records saved."); location.reload(); })
+        .catch(() => { alert("Error saving data."); btn.disabled = false; });
+    });
     // --- 1. DOWNLOAD TEMPLATE FUNCTION (Updated for 12 Columns + jumped columns) ---
 function downloadCSVTemplate() {
-        const headers = [
-            "Customer_Name", "Work_Site", "Fleet_ID", 
-            "Entry_Date", "Engine_Hours", 
-            "Part_Group", "Part_Type", "Part_Description", 
-            "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"
-        ];
-        
-        const sample = [
-            "TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", 
-            "14-02-2026", "4500", 
-            "Maintenance", "Filter", "Oil Filter", 
-            "EF-100", "2", "550.50", "Routine Service"
-        ];
-        
-        const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "PACTRA360_Bulk_Template.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
+    // Headers include Entry_Date and Engine_Hours (Columns E & F in Sheet)
+    const headers = [
+        "Customer_Name", "Work_Site", "Fleet_ID", 
+        "Entry_Date", "Engine_Hours", 
+        "Part_Group", "Part_Type", "Part_Description", 
+        "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"
+    ];
+    
+    const sample = [
+        "TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", 
+        "2026-02-14", "4500", 
+        "Maintenance", "Filter", "Oil Filter", 
+        "EF-100", "2", "550.50", "Routine Service"
+    ];
+    
+    const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute("download", "PACTRA360_Bulk_Template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
-    // 2. THE OMITTED BULK UPLOAD LOGIC (Now in the correct place)
-    function handleBulkUpload() {
-        const fileInput = document.getElementById('csvFileInput');
-        const file = fileInput.files[0];
-        if (!file) { alert("Please select a file!"); return; }
+// --- 2. BULK UPLOAD & VALIDATION HANDLER (Fully Updated) ---
+function handleBulkUpload() {
+    const fileInput = document.getElementById('csvFileInput');
+    const file = fileInput.files[0];
+    if (!file) { alert("Please select a file!"); return; }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const text = e.target.result;
-            const rows = text.split(/\r?\n/);
-            const dataRows = rows.slice(1); // Skips the CSV Header
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const rows = text.split(/\r?\n/);
+        const dataRows = rows.slice(1); // Skips the CSV Header
+        
+        let bulkPayload = [];
+        let errors = [];
+
+        dataRows.forEach((row, index) => {
+            if (!row.trim()) return; // Skip empty rows
+            const cols = row.split(',');
             
-            let bulkPayload = [];
-            dataRows.forEach((row, index) => {
-                if (!row.trim()) return; 
-                const cols = row.split(',');
+            // Checking for 12 columns in the CSV
+            if (cols.length >= 12 && cols[0].trim() !== "") {
+                const csvCustomer = cols[0].trim();
+                const csvSite = cols[1].trim().replace(/_/g, ' '); // Standardize site name
+                const price = cols[10].trim();
+
+                // 1. Validate Customer
+                const masterCustomer = Object.keys(customerToSites).find(
+                    k => k.toLowerCase() === csvCustomer.toLowerCase()
+                );
                 
-                if (cols.length >= 12 && cols[0].trim() !== "") {
-                    bulkPayload.push({
-                        customer: cols[0].trim(),
-                        site: cols[1].trim(),
-                        fleet: cols[2].trim(),
-                        entryDate: cols[3].trim(),
-                        engineHours: cols[4].trim(),
-                        group: cols[5].trim(),
-                        type: cols[6].trim(),
-                        desc: cols[7].trim(),
-                        partNo: cols[8].trim(),
-                        qty: cols[9].trim(),
-                        price: cols[10].trim(),
-                        reason: cols[11].trim()
-                    });
+                if (!masterCustomer) {
+                    errors.push(`Row ${index + 2}: Customer "${csvCustomer}" invalid.`);
+                    return;
                 }
-            });
 
-            if (bulkPayload.length > 0) {
-                if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
-                    // This calls the function in your Code.gs
-                    google.script.run
-                        .withSuccessHandler((msg) => {
-                            alert(msg);
-                            if(msg.includes("Success")) fileInput.value = ""; 
-                        })
-                        .withFailureHandler((err) => alert("❌ System Error: " + err))
-                        .processBulkData(bulkPayload);
+                // 2. Validate Site
+                const masterSite = customerToSites[masterCustomer].find(
+                    s => s.toLowerCase() === csvSite.toLowerCase()
+                );
+                
+                if (!masterSite) {
+                    errors.push(`Row ${index + 2}: Site "${csvSite}" mismatch for ${masterCustomer}.`);
+                    return;
                 }
+
+                // 3. Map CSV to Payload Object
+                bulkPayload.push({
+                    customer: masterCustomer,
+                    site: masterSite,
+                    fleet: cols[2].trim(),       // Col C
+                    entryDate: cols[3].trim(),   // Col D (CSV) -> Col E (Sheet)
+                    engineHours: cols[4].trim(), // Col E (CSV) -> Col F (Sheet)
+                    group: cols[5].trim(),       // Col F (CSV) -> Col G (Sheet)
+                    type: cols[6].trim(),        // Col G (CSV) -> Col H (Sheet)
+                    desc: cols[7].trim(),        // Col H (CSV) -> Col I (Sheet)
+                    partNo: cols[8].trim(),      // Col I (CSV) -> Col J (Sheet)
+                    qty: cols[9].trim(),         // Col J (CSV) -> Col K (Sheet)
+                    price: price,                // Col K (CSV) -> Col L (Sheet)
+                    reason: cols[11].trim()      // Col L (CSV) -> Col M (Sheet)
+                });
             }
-        };
-        reader.readAsText(file);
-    }
-    // PUT THIS AT THE BOTTOM OF INDEX.HTML
-document.getElementById('consumptionForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const btn = document.getElementById('submitBtn');
-    btn.innerText = "⏳ Pushing to Cloud...";
-    btn.disabled = true;
+        });
 
-    // Direct bridge to the processWebForm function above
-    google.script.run
-        .withSuccessHandler(function(msg) {
-            alert(msg); // This shows your Success message!
-            if(msg.includes("Success")) location.reload();
-        })
-        .withFailureHandler(function(err) {
-            alert("❌ Failure: " + err);
-            btn.disabled = false;
-        })
-        .processWebForm(this); 
-});
-</script>
+        if (errors.length > 0) {
+            alert("⚠️ Validation Failed:\n" + errors.slice(0, 5).join("\n") + (errors.length > 5 ? "\n...and more." : ""));
+            return;
+        }
+
+        if (bulkPayload.length > 0) {
+            if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
+                google.script.run
+                    .withSuccessHandler((msg) => {
+                        alert(msg);
+                        if(msg.includes("Success")) {
+                            fileInput.value = ""; 
+                        }
+                    })
+                    .withFailureHandler((err) => {
+                        alert("❌ System Error: " + err);
+                    })
+                    .processBulkData(bulkPayload);
+            }
+        }
+    };
+    reader.readAsText(file);
+}</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
