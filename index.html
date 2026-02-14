@@ -536,13 +536,44 @@ function handleBulkUpload() {
         window.URL.revokeObjectURL(url);
 
     } catch (err) {
-        // If it still fails, this alert will tell us exactly why
-        alert("❌ Error: " + err.message + "\n\nHint: Check if your dropdown IDs match 'Customer_Name', 'Work_Site', and 'Fleet_ID'.");
+        alert("❌ Error: " + err.message);
     }
-}
-<script>    
+} // This closes your generateDynamicTemplate or handleBulkUpload function
+
+</script> <script>
+    var isAdmin = false;
+
+    // Secret Unlock: Ctrl + Alt + Click on any text that says "Locked"
+    document.addEventListener('click', function(e) {
+        if (e.target.innerText && e.target.innerText.includes("Locked")) {
+            if (e.ctrlKey && e.altKey) {
+                isAdmin = !isAdmin;
+                e.target.innerText = isAdmin ? "Unlocked - Admin Active" : "Locked - Please Verify";
+                e.target.style.color = isAdmin ? "green" : "red";
+                alert(isAdmin ? "🔓 ADMIN UNLOCKED" : "🔒 ADMIN LOCKED");
+            }
+        }
+    });
+
+    // Hard F12 Lock
+    window.addEventListener('keydown', function(e) {
+        if (isAdmin) return true;
+        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            return false;
+        }
+    }, true);
+
+    // Right-Click Lock
+    window.addEventListener('contextmenu', function(e) {
+        if (!isAdmin) e.preventDefault();
+    }, true);
+</script>
+
 </body>
 </html>
+
 
 
 
