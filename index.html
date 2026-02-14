@@ -540,53 +540,41 @@ function handleBulkUpload() {
         alert("❌ Error: " + err.message + "\n\nHint: Check if your dropdown IDs match 'Customer_Name', 'Work_Site', and 'Fleet_ID'.");
     }
 }
-    let devMode = false;
+   
+<img src="Picture1.png" id="logo" alt="Epiroc Logo" style="height: 55px; cursor: pointer;">
 
-// 1. SECRET KEY COMBINATION UNLOCK
-const logo = document.getElementById('logo');
-if (logo) {
-    logo.addEventListener('click', function (e) {
-        // Only triggers if Ctrl and Alt are held down during the click
-        if (e.ctrlKey && e.altKey) {
-            devMode = !devMode;
-            
-            if (devMode) {
-                alert("🔓 ADMIN MODE: Developer tools unlocked.");
-            } else {
-                alert("🔒 USER MODE: Developer tools locked.");
-            }
+    <script>
+        let devMode = false;
+
+        // SECRET KEY COMBINATION UNLOCK (Ctrl + Alt + Click)
+        const logo = document.getElementById('logo');
+        if (logo) {
+            logo.addEventListener('click', function (e) {
+                if (e.ctrlKey && e.altKey) {
+                    devMode = !devMode;
+                    alert(devMode ? "🔓 ADMIN MODE: ON" : "🔒 ADMIN MODE: OFF");
+                }
+            });
         }
-    });
-}
 
-// 2. KEYBOARD LOCK (F12, etc.)
-window.addEventListener('keydown', function(e) {
-    if (devMode) return true;
+        // KEYBOARD LOCK
+        window.addEventListener('keydown', function(e) {
+            if (devMode) return true;
+            const forbidden = [123, (e.ctrlKey && e.shiftKey && e.keyCode === 73), (e.ctrlKey && e.keyCode === 85)];
+            if (forbidden.some(cond => cond === true || cond === e.keyCode)) {
+                e.preventDefault();
+                return false;
+            }
+        }, true);
 
-    const forbidden = [
-        123, // F12
-        (e.ctrlKey && e.shiftKey && e.keyCode === 73), // Ctrl+Shift+I
-        (e.ctrlKey && e.shiftKey && e.keyCode === 74), // Ctrl+Shift+J
-        (e.ctrlKey && e.keyCode === 85)               // Ctrl+U
-    ];
+        // RIGHT-CLICK LOCK
+        window.addEventListener('contextmenu', function(e) {
+            if (!devMode) e.preventDefault();
+        }, true);
+    </script>
 
-    if (forbidden.some(cond => cond === true || cond === e.keyCode)) {
-        e.preventDefault();
-        e.stopPropagation();
-        return false;
-    }
-}, true);
+</body> </html>
 
-// 3. RIGHT-CLICK LOCK
-window.addEventListener('contextmenu', function(e) {
-    if (!devMode) {
-        e.preventDefault();
-        return false;
-    }
-}, true);
-</script>
-</body>
-</html>
 
 
 
