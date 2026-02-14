@@ -314,11 +314,35 @@
     }
 
     function checkValidation() {
-        const core = ['customerSelect', 'valDate', 'valTech', 'valHours'];
-        let invalid = core.some(id => !document.getElementById(id).value.trim());
-        document.querySelectorAll('.group-sel').forEach(s => { if(!s.value) invalid = true; });
-        document.getElementById('submitBtn').disabled = invalid;
+    // 1. Define the Core IDs as they appear in your HTML
+    const coreFields = ['Customer_Name', 'Work_Site', 'Fleet_ID', 'Entry_Date', 'Engine_Hours', 'Technician_Name', 'Unlock_Password'];
+    
+    // 2. Check if any core field is empty
+    let isInvalid = coreFields.some(id => {
+        const el = document.getElementById(id);
+        return el ? !el.value.trim() : false;
+    });
+
+    // 3. Check Part Rows: Ensure at least the first part row is filled
+    // or check all visible part rows
+    const partGroups = document.querySelectorAll('select[name="part_group[]"]');
+    partGroups.forEach((sel, index) => {
+        // We only strictly validate rows that have been "started"
+        if (index === 0 && !sel.value) isInvalid = true; 
+    });
+
+    // 4. Update Button State
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+        submitBtn.disabled = isInvalid;
+        // Optional: Change opacity so user sees it is disabled
+        submitBtn.style.opacity = isInvalid ? "0.5" : "1";
     }
+}
+
+// 5. ATTACH LISTENERS: Ensure this runs whenever a user types or selects
+document.addEventListener('input', checkValidation);
+document.addEventListener('change', checkValidation);
 
     function updateSites() {
         const customer = document.getElementById('customerSelect').value;
@@ -351,9 +375,9 @@
         .then(() => { alert("Success! Records saved."); location.reload(); })
         .catch(() => { alert("Error saving data."); btn.disabled = false; });
     });
-    // --- 1. DOWNLOAD TEMPLATE FUNCTION (Updated for 12 Columns + jumped columns) ---
+   // --- 1. DOWNLOAD TEMPLATE FUNCTION (12 Data Columns) ---
 function downloadCSVTemplate() {
-    // Headers include Entry_Date and Engine_Hours (Columns E & F in Sheet)
+    // These 12 headers map to Columns B through M in your Google Sheet
     const headers = [
         "Customer_Name", "Work_Site", "Fleet_ID", 
         "Entry_Date", "Engine_Hours", 
@@ -378,7 +402,7 @@ function downloadCSVTemplate() {
     document.body.removeChild(link);
 }
 
-// --- 2. BULK UPLOAD & VALIDATION HANDLER (Fully Updated) ---
+// --- 2. BULK UPLOAD & VALIDATION HANDLER (Final Optimized) ---
 function handleBulkUpload() {
     const fileInput = document.getElementById('csvFileInput');
     const file = fileInput.files[0];
@@ -388,32 +412,32 @@ function handleBulkUpload() {
     reader.onload = function(e) {
         const text = e.target.result;
         const rows = text.split(/\r?\n/);
-        const dataRows = rows.slice(1); // Skips the CSV Header
+        const dataRows = rows.slice(1); // Skips CSV Header
         
         let bulkPayload = [];
         let errors = [];
 
         dataRows.forEach((row, index) => {
-            if (!row.trim()) return; // Skip empty rows
+            if (!row.trim()) return; // Skip empty lines
             const cols = row.split(',');
             
-            // Checking for 12 columns in the CSV
+            // Validate 12 columns are present
             if (cols.length >= 12 && cols[0].trim() !== "") {
                 const csvCustomer = cols[0].trim();
-                const csvSite = cols[1].trim().replace(/_/g, ' '); // Standardize site name
+                const csvSite = cols[1].trim().replace(/_/g, ' '); 
                 const price = cols[10].trim();
 
-                // 1. Validate Customer
+                // 1. Validate Customer (Case-Insensitive)
                 const masterCustomer = Object.keys(customerToSites).find(
                     k => k.toLowerCase() === csvCustomer.toLowerCase()
                 );
                 
                 if (!masterCustomer) {
-                    errors.push(`Row ${index + 2}: Customer "${csvCustomer}" invalid.`);
+                    errors.push(`Row ${index + 2}: Customer "${csvCustomer}" not found.`);
                     return;
                 }
 
-                // 2. Validate Site
+                // 2. Validate Site for that Customer (Case-Insensitive)
                 const masterSite = customerToSites[masterCustomer].find(
                     s => s.toLowerCase() === csvSite.toLowerCase()
                 );
@@ -423,47 +447,57 @@ function handleBulkUpload() {
                     return;
                 }
 
-                // 3. Map CSV to Payload Object
+                // 3. Validate Price numeric
+                if (isNaN(price) || price === "") {
+                    errors.push(`Row ${index + 2}: Unit Price must be numeric.`);
+                    return;
+                }
+
+                // 4. Build the Payload (Keys match what Code.gs expects)
                 bulkPayload.push({
-                    customer: masterCustomer,
-                    site: masterSite,
-                    fleet: cols[2].trim(),       // Col C
-                    entryDate: cols[3].trim(),   // Col D (CSV) -> Col E (Sheet)
-                    engineHours: cols[4].trim(), // Col E (CSV) -> Col F (Sheet)
-                    group: cols[5].trim(),       // Col F (CSV) -> Col G (Sheet)
-                    type: cols[6].trim(),        // Col G (CSV) -> Col H (Sheet)
-                    desc: cols[7].trim(),        // Col H (CSV) -> Col I (Sheet)
-                    partNo: cols[8].trim(),      // Col I (CSV) -> Col J (Sheet)
-                    qty: cols[9].trim(),         // Col J (CSV) -> Col K (Sheet)
-                    price: price,                // Col K (CSV) -> Col L (Sheet)
-                    reason: cols[11].trim()      // Col L (CSV) -> Col M (Sheet)
+                    customer: masterCustomer,    // Maps to Col B in Sheet
+                    site: masterSite,            // Maps to Col C
+                    fleet: cols[2].trim(),       // Maps to Col D
+                    entryDate: cols[3].trim(),   // Maps to Col E
+                    engineHours: cols[4].trim(), // Maps to Col F
+                    group: cols[5].trim(),       // Maps to Col G
+                    type: cols[6].trim(),        // Maps to Col H
+                    desc: cols[7].trim(),        // Maps to Col I
+                    partNo: cols[8].trim(),      // Maps to Col J
+                    qty: cols[9].trim(),         // Maps to Col K
+                    price: price,                // Maps to Col L
+                    reason: cols[11].trim()      // Maps to Col M
                 });
             }
         });
 
+        // Error Feedback
         if (errors.length > 0) {
             alert("⚠️ Validation Failed:\n" + errors.slice(0, 5).join("\n") + (errors.length > 5 ? "\n...and more." : ""));
             return;
         }
 
+        // Send to Backend
         if (bulkPayload.length > 0) {
             if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
                 google.script.run
                     .withSuccessHandler((msg) => {
-                        alert(msg);
+                        alert(msg); // Shows "✅ Success" alert
                         if(msg.includes("Success")) {
                             fileInput.value = ""; 
                         }
                     })
                     .withFailureHandler((err) => {
-                        alert("❌ System Error: " + err);
+                        alert("❌ Critical System Error: " + err);
                     })
                     .processBulkData(bulkPayload);
             }
         }
     };
     reader.readAsText(file);
-}</script>
+}
+</script>
 </body>
 </html>
+
 
