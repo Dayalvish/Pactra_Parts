@@ -142,7 +142,7 @@
 </form>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbxlGggbzzy3_fxkKZj8cNGS0JComFHJgSSZckc7QXv7dO15CrAxd6Bu6dtjWfNudGk/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzjJrw5hvsXuao24jP8njhDI-taMsXu-tuxeS8VCzZLlGoomtD7hOrHmzX2zHP27fx7/exec";
 
     const customerToSites = {
         "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines", "TSL Khandband"],
@@ -423,7 +423,7 @@ function downloadCSVTemplate() {
 
 function handleBulkUpload() {
     // 1. Point to your Google Script
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlGggbzzy3_fxkKZj8cNGS0JComFHJgSSZckc7QXv7dO15CrAxd6Bu6dtjWfNudGk/exec"; 
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjJrw5hvsXuao24jP8njhDI-taMsXu-tuxeS8VCzZLlGoomtD7hOrHmzX2zHP27fx7/exec"; 
 
     // 2. Grab values using your SPECIFIC HTML IDs (valTech and passInput)
     const techName = document.getElementById('valTech').value.trim();
@@ -580,29 +580,23 @@ function handleBulkUpload() {
     window.addEventListener('contextmenu', function(e) {
         if (!isAdmin) e.preventDefault();
     }, true);
+    // PUT THIS INSIDE YOUR HTML <script> BLOCK
+if (bulkPayload.length > 0) {
+    if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
+        google.script.run
+            .withSuccessHandler((msg) => {
+                alert(msg); 
+                if(msg.includes("Success")) {
+                    fileInput.value = ""; 
+                }
+            })
+            .withFailureHandler((err) => {
+                alert("❌ Critical System Error: " + err);
+            })
+            .processBulkData(bulkPayload); // Calls the function in Code.gs
+    }
+}
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
