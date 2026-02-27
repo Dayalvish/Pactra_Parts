@@ -580,26 +580,46 @@ function handleBulkUpload() {
     window.addEventListener('contextmenu', function(e) {
         if (!isAdmin) e.preventDefault();
     }, true);
-    // PUT THIS INSIDE YOUR HTML <script> BLOCK
-if (bulkPayload.length > 0) {
-    if(confirm(`Ready! Upload ${bulkPayload.length} rows to PACTRA360?`)) {
+    // 1. REPLACING THE OLD UPLOAD LOGIC
+function handleFileUpload() {
+    const fileInput = document.getElementById('csvFileInput'); // Use your actual ID
+    const file = fileInput.files[0];
+    if (!file) return alert("Please select a file first.");
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const rawContent = e.target.result; // This is the RAW STRING for the unique ID
+        const rows = rawContent.split('\n');
+
+        // Step A: Send to Server for Validation (processPartsUpload)
         google.script.run
-            .withSuccessHandler((msg) => {
-                alert(msg); 
-                if(msg.includes("Success")) {
-                    fileInput.value = ""; 
+            .withSuccessHandler((result) => {
+                if (result.success) {
+                    // Step B: Only if validated, ask to push to Part_Db
+                    if(confirm(`Ready! Upload ${result.payload.length} rows to PACTRA360?`)) {
+                        
+                        // Pass both the payload AND the rawContent for the Column P ID
+                        google.script.run
+                            .withSuccessHandler((msg) => {
+                                alert(msg);
+                                if(msg.includes("Success")) fileInput.value = "";
+                            })
+                            .withFailureHandler((err) => alert("❌ Error: " + err))
+                            .processBulkData(result.payload, rawContent); 
+                    }
+                } else {
+                    alert("⚠️ Validation Error:\n" + result.details.join('\n'));
                 }
             })
-            .withFailureHandler((err) => {
-                alert("❌ Critical System Error: " + err);
-            })
-            .processBulkData(bulkPayload); // Calls the function in Code.gs
-    }
-}
-</script>
+            .processPartsUpload(rows);
+    };
+    reader.readAsText(file);
+}</script>
 
 </body>
 </html>
+
 
 
 
