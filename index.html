@@ -592,33 +592,37 @@ function handleFileUpload() {
         const rawContent = e.target.result; // This is the RAW STRING for the unique ID
         const rows = rawContent.split('\n');
 
-        // Step A: Send to Server for Validation (processPartsUpload)
-        google.script.run
-            .withSuccessHandler((result) => {
-                if (result.success) {
-                    // Step B: Only if validated, ask to push to Part_Db
-                    if(confirm(`Ready! Upload ${result.payload.length} rows to PACTRA360?`)) {
-                        
-                        // Pass both the payload AND the rawContent for the Column P ID
-                        google.script.run
-                            .withSuccessHandler((msg) => {
-                                alert(msg);
-                                if(msg.includes("Success")) fileInput.value = "";
-                            })
-                            .withFailureHandler((err) => alert("❌ Error: " + err))
-                            .processBulkData(result.payload, rawContent); 
-                    }
-                } else {
-                    alert("⚠️ Validation Error:\n" + result.details.join('\n'));
+       // INSIDE YOUR HTML FILE
+function handleFileUpload() {
+    const file = document.getElementById('csvFileInput').files[0];
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+        const rawContent = e.target.result; // 🚀 THIS IS THE UNIQUE ID SOURCE
+        const rows = rawContent.split('\n');
+
+        // Step 1: Use the FIRST GS URL for validation (if applicable)
+        google.script.run.withSuccessHandler((result) => {
+            if (result.success) {
+                
+                // Step 2: Use the SECOND GS URL to push data + the Unique ID
+                if(confirm(`Upload ${result.payload.length} rows?`)) {
+                    
+                    // We must pass rawContent here to fill Column P
+                    google.script.run
+                        .withSuccessHandler((msg) => alert(msg))
+                        .processBulkData(result.payload, rawContent); 
                 }
-            })
-            .processPartsUpload(rows);
+            }
+        }).processPartsUpload(rows);
     };
     reader.readAsText(file);
+}
 }</script>
 
 </body>
 </html>
+
 
 
 
