@@ -538,10 +538,12 @@ reader.readAsText(file);
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
 
-    } catch (err) {
+   } catch (err) {
         alert("❌ Error: " + err.message);
     }
-} // This closes your generateDynamicTemplate or handleBulkUpload function
+} // This properly closes your previous function (e.g., generateDynamicTemplate)
+
+</script>
 
 <script>
     // --- 1. ADMIN & SECURITY SECTION ---
@@ -570,22 +572,20 @@ reader.readAsText(file);
         if (!isAdmin) e.preventDefault();
     }, true);
 
-
     // --- 2. THE UPLOAD ENGINE (The Missile Stopper) ---
     function handleFileUpload() {
         const fileInput = document.getElementById('csvFileInput');
-        const file = fileInput.files[0];
-        
-        if (!file) {
+        if (!fileInput || !fileInput.files[0]) {
             alert("Please select a file first.");
             return;
         }
 
+        const file = fileInput.files[0];
         const reader = new FileReader();
 
         reader.onload = function(e) {
             try {
-                const rawContent = e.target.result; // CRITICAL: This is the Fingerprint for Column P
+                const rawContent = e.target.result; // THE FINGERPRINT FOR COLUMN P
                 const rows = rawContent.split(/\r?\n/).slice(1);
                 let bulkPayload = [];
 
@@ -611,13 +611,12 @@ reader.readAsText(file);
                 });
 
                 if (bulkPayload.length > 0) {
-                    if (confirm(`Upload ${bulkPayload.length} records to Part_Db?`)) {
+                    if (confirm(`Ready to upload ${bulkPayload.length} records?`)) {
                         
-                        // Show loading state
                         const btn = document.querySelector("button[onclick='handleFileUpload()']");
-                        if(btn) { btn.innerText = "⏳ Intercepting..."; btn.disabled = true; }
+                        if(btn) { btn.innerText = "⏳ Checking for Duplicates..."; btn.disabled = true; }
 
-                        // 🚀 HIT THE SERVER WITH BOTH DATA AND RAW CONTENT
+                        // SEND BOTH PAYLOAD AND RAW CONTENT
                         google.script.run
                             .withSuccessHandler((msg) => {
                                 alert(msg);
@@ -641,4 +640,5 @@ reader.readAsText(file);
 </script>
 </body>
 </html>
+
 
