@@ -491,10 +491,10 @@ reader.onload = function(e) {
                     .processBulkData(bulkPayload, rawFileContent); // Passing both!
             }
         }
-  } catch (err) {
+ } catch (err) {
             alert("❌ Error: " + err.message);
         }
-    } // This closes generateDynamicTemplate correctly
+    } // This properly closes generateDynamicTemplate
 
     // --- 1. THE UPLOAD ENGINE ---
     function handleFileUpload() {
@@ -509,7 +509,7 @@ reader.onload = function(e) {
 
         reader.onload = function(e) {
             try {
-                const rawContent = e.target.result; // Source for Column P Unique ID
+                const rawContent = e.target.result; // Source for Column P ID
                 const rows = rawContent.split(/\r?\n/).slice(1);
                 let bulkPayload = [];
 
@@ -587,6 +587,7 @@ reader.onload = function(e) {
 </script>
 </body>
 </html>
+
 
 
 
