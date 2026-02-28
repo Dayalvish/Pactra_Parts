@@ -499,62 +499,16 @@ function handleBulkUpload() {
                 }
             }
         } catch (err) {
-            alert("❌ File Reading Error: " + err);
+            alert("❌ Error: " + err.message);
         }
-    };
-    reader.readAsText(file);
-}
-    function generateDynamicTemplate() {
-    try {
-        // 1. Try to find Customer (Checks multiple possible IDs)
-        var c = (document.getElementById('Customer_Name') || 
-                 document.getElementById('customerSelect') || 
-                 document.querySelector('select[name="Customer_Name"]')).value;
+    } // This correctly closes generateDynamicTemplate
 
-        // 2. Try to find Site
-        var s = (document.getElementById('Work_Site') || 
-                 document.getElementById('siteSelect') || 
-                 document.querySelector('select[name="Work_Site"]')).value;
+</script>
 
-        // 3. Try to find Fleet
-        var f = (document.getElementById('Fleet_ID') || 
-                 document.getElementById('fleetSelect') || 
-                 document.querySelector('select[name="Fleet_ID"]')).value;
-
-        if (!c || !s || !f) {
-            alert("⚠️ Please select Customer, Site, and Fleet from the dropdowns first!");
-            return;
-        }
-
-        // 4. Create CSV Data
-        var headers = "Customer_Name,Work_Site,Fleet_ID,Entry_Date,Engine_Hours,Part_Group,Part_Type,Part_Description,Part_Number,Quantity,Unit_Price,Reason_to_Replace";
-        var date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-        
-        // Wrap in quotes to protect against commas in names
-        var row = '"' + c + '","' + s + '","' + f + '",' + date + ",,,,,,,,";
-        var csvContent = headers + "\n" + row;
-
-        // 5. Download Trigger
-        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        var link = document.createElement("a");
-        var url = URL.createObjectURL(blob);
-        
-        link.setAttribute("href", url);
-        link.setAttribute("download", "Template_" + s.replace(/\s+/g, '_') + ".csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
-    } catch (err) {
-        alert("❌ Error: " + err.message);
-    }
-} // This closes your generateDynamicTemplate or handleBulkUpload function
-
-</script> <script>
+<script>
     var isAdmin = false;
 
-    // Secret Unlock: Ctrl + Alt + Click on any text that says "Locked"
+    // Security & Admin Logic
     document.addEventListener('click', function(e) {
         if (e.target.innerText && e.target.innerText.includes("Locked")) {
             if (e.ctrlKey && e.altKey) {
@@ -566,58 +520,55 @@ function handleBulkUpload() {
         }
     });
 
-    // Hard F12 Lock
     window.addEventListener('keydown', function(e) {
         if (isAdmin) return true;
         if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
             e.preventDefault();
-            e.stopImmediatePropagation();
             return false;
         }
     }, true);
 
-    // Right-Click Lock
     window.addEventListener('contextmenu', function(e) {
         if (!isAdmin) e.preventDefault();
     }, true);
-    // 1. REPLACING THE OLD UPLOAD LOGIC
-function handleFileUpload() {
-    const fileInput = document.getElementById('csvFileInput'); // Use your actual ID
-    const file = fileInput.files[0];
-    if (!file) return alert("Please select a file first.");
 
-    const reader = new FileReader();
+    // --- FIXED UPLOAD ENGINE ---
+    function handleFileUpload() {
+        const fileInput = document.getElementById('csvFileInput');
+        const file = fileInput.files[0];
+        if (!file) return alert("Please select a file first.");
 
-    reader.onload = function(e) {
-        const rawContent = e.target.result; // This is the RAW STRING for the unique ID
-        const rows = rawContent.split('\n');
+        const reader = new FileReader();
 
-       // INSIDE YOUR HTML FILE
-function handleFileUpload() {
-    const file = document.getElementById('csvFileInput').files[0];
-    const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const rawContent = e.target.result; 
+                const rows = rawContent.split(/\r?\n/);
 
-    reader.onload = function(e) {
-        const rawContent = e.target.result; // 🚀 THIS IS THE UNIQUE ID SOURCE
-        const rows = rawContent.split('\n');
-
-        // Step 1: Use the FIRST GS URL for validation (if applicable)
-        google.script.run.withSuccessHandler((result) => {
-            if (result.success) {
-                
-                // Step 2: Use the SECOND GS URL to push data + the Unique ID
-                if(confirm(`Upload ${result.payload.length} rows?`)) {
-                    
-                    // We must pass rawContent here to fill Column P
-                    google.script.run
-                        .withSuccessHandler((msg) => alert(msg))
-                        .processBulkData(result.payload, rawContent); 
-                }
+                google.script.run
+                    .withSuccessHandler((result) => {
+                        if (result.success) {
+                            if(confirm(`Verified. Upload ${result.payload.length} records?`)) {
+                                // Sending rawContent to fill the void in Column P
+                                google.script.run
+                                    .withSuccessHandler((msg) => {
+                                        alert(msg);
+                                        if(msg.includes("Success")) fileInput.value = "";
+                                    })
+                                    .processBulkData(result.payload, rawContent); 
+                            }
+                        } else {
+                            alert("⚠️ Validation Error: " + result.message);
+                        }
+                    })
+                    .processPartsUpload(rows);
+            } catch (err) {
+                alert("❌ Processing Error: " + err);
             }
-        }).processPartsUpload(rows);
-    };
-    reader.readAsText(file);
-}
+        };
+        reader.readAsText(file);
+    }
 </script>
 </body>
 </html>
+
