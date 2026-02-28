@@ -122,7 +122,7 @@
                             </tr>
                             <tr class="row-odd">
                                 <td class="label-cell">Price</td>
-                                <td><input type="number" step="any" name="unit_price[]" placeholder="Only Unit Price"></td>
+                                <td><input type="number" step="any" name="unit_price[]" placeholder="0.00"></td>
                             </tr>
                         </table>
                     </div>
@@ -142,7 +142,7 @@
 </form>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbybrxbdpNrjPIS6FpjtzQXrUNSokE2yWwmZ0sBaqKyCmOOLeWQSxCAVCN2i_UGtWTLq/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyIXg6Q5QQSlW13xOtu8I8eSlZnR4wTdOpv3VOsRoZHB-yuWy83421fYJtdmgTTBUSH/exec";
 
     const customerToSites = {
         "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines", "TSL Khandband"],
@@ -423,7 +423,7 @@ function downloadCSVTemplate() {
 
 function handleBulkUpload() {
     // 1. Point to your Google Script
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybrxbdpNrjPIS6FpjtzQXrUNSokE2yWwmZ0sBaqKyCmOOLeWQSxCAVCN2i_UGtWTLq/exec"; 
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyIXg6Q5QQSlW13xOtu8I8eSlZnR4wTdOpv3VOsRoZHB-yuWy83421fYJtdmgTTBUSH/exec"; 
 
     // 2. Grab values using your SPECIFIC HTML IDs (valTech and passInput)
     const techName = document.getElementById('valTech').value.trim();
@@ -440,68 +440,121 @@ function handleBulkUpload() {
     if (!file) { alert("⚠️ Please select a CSV file first!"); return; }
 
     const reader = new FileReader();
-reader.onload = function(e) {
+    reader.onload = function(e) {
+        try {
+            const rows = e.target.result.split(/\r?\n/).slice(1);
+            let bulkPayload = [];
+
+            rows.forEach((row) => {
+                if (!row.trim()) return;
+                const cols = row.split(',');
+                
+                if (cols.length >= 12) {
+                    bulkPayload.push({
+                        // Send these to Code.gs for security validation
+                        Technician_Name: techName,
+                        Unlock_Password: techPass,
+                        
+                        // Map the CSV data
+                        Customer_Name: cols[0].trim(),
+                        Work_Site: cols[1].trim(),
+                        Fleet_ID: cols[2].trim(),
+                        Entry_Date: cols[3].trim(),
+                        Engine_Hours: cols[4].trim(),
+                        Part_Group: cols[5].trim(),
+                        Part_Type: cols[6].trim(),
+                        Part_Description: cols[7].trim(),
+                        Part_Number: cols[8].trim(),
+                        Quantity: cols[9].trim(),
+                        Unit_Price: cols[10].trim(),
+                        Reason_to_Replace: cols[11].trim()
+                    });
+                }
+            });
+
+            if (bulkPayload.length > 0) {
+                if(confirm(`Security Verified for ${techName}. Upload ${bulkPayload.length} records?`)) {
+                    // Show a status on the button if you like
+                    const btn = document.querySelector("button[onclick='handleBulkUpload()']");
+                    const originalText = btn.innerText;
+                    btn.innerText = "⏳ Processing...";
+                    btn.disabled = true;
+
+                    fetch(GOOGLE_SCRIPT_URL, {
+                        method: "POST",
+                        body: JSON.stringify(bulkPayload),
+                        mode: 'no-cors'
+                    })
+                    .then(() => {
+                        alert("✅ Success! Data sent to the cloud.");
+                        fileInput.value = "";
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    })
+                    .catch(err => {
+                        alert("❌ Error: " + err);
+                        btn.innerText = originalText;
+                        btn.disabled = false;
+                    });
+                }
+            }
+        } catch (err) {
+            alert("❌ File Reading Error: " + err);
+        }
+    };
+    reader.readAsText(file);
+}
+    function generateDynamicTemplate() {
     try {
-        const rawFileContent = e.target.result; // 🚀 THIS IS THE KEY FOR COLUMN P
-        const rows = rawFileContent.split(/\r?\n/).slice(1);
-        let bulkPayload = [];
+        // 1. Try to find Customer (Checks multiple possible IDs)
+        var c = (document.getElementById('Customer_Name') || 
+                 document.getElementById('customerSelect') || 
+                 document.querySelector('select[name="Customer_Name"]')).value;
 
-        rows.forEach((row) => {
-            if (!row.trim()) return;
-            const cols = row.split(',');
-            if (cols.length >= 12) {
-                bulkPayload.push({
-                    Technician_Name: techName, // techName from your outer scope
-                    Customer_Name: cols[0].trim(),
-                    Work_Site: cols[1].trim(),
-                    Fleet_ID: cols[2].trim(),
-                    Entry_Date: cols[3].trim(),
-                    Engine_Hours: cols[4].trim(),
-                    Part_Group: cols[5].trim(),
-                    Part_Type: cols[6].trim(),
-                    Part_Description: cols[7].trim(),
-                    Part_Number: cols[8].trim(),
-                    Quantity: cols[9].trim(),
-                    Unit_Price: cols[10].trim(),
-                    Reason_to_Replace: cols[11].trim()
-                });
-            }
-        });
+        // 2. Try to find Site
+        var s = (document.getElementById('Work_Site') || 
+                 document.getElementById('siteSelect') || 
+                 document.querySelector('select[name="Work_Site"]')).value;
 
-        if (bulkPayload.length > 0) {
-            if(confirm(`Security Verified. Upload ${bulkPayload.length} records?`)) {
-                const btn = document.querySelector("button[onclick='handleBulkUpload()']");
-                btn.innerText = "⏳ Checking for Duplicates...";
-                btn.disabled = true;
+        // 3. Try to find Fleet
+        var f = (document.getElementById('Fleet_ID') || 
+                 document.getElementById('fleetSelect') || 
+                 document.querySelector('select[name="Fleet_ID"]')).value;
 
-                // 🚀 WE STOP USING FETCH AND USE GOOGLE.SCRIPT.RUN
-                // This allows the server to send a "STOP" message back to you.
-                google.script.run
-                    .withSuccessHandler((response) => {
-                        alert(response); // This will show "🚫 DUPLICATE BLOCKED" if it exists
-                        btn.innerText = "Upload CSV";
-                        btn.disabled = false;
-                        if(response.includes("Success")) fileInput.value = "";
-                    })
-                    .withFailureHandler((err) => {
-                        alert("❌ Server Error: " + err);
-                        btn.innerText = "Upload CSV";
-                        btn.disabled = false;
-                    })
-                    .processBulkData(bulkPayload, rawFileContent); // Passing both!
-            }
+        if (!c || !s || !f) {
+            alert("⚠️ Please select Customer, Site, and Fleet from the dropdowns first!");
+            return;
         }
- } catch (err) {
-            alert("❌ Error: " + err.message);
-        }
-    } // This closes generateDynamicTemplate properly
 
-</script>
+        // 4. Create CSV Data
+        var headers = "Customer_Name,Work_Site,Fleet_ID,Entry_Date,Engine_Hours,Part_Group,Part_Type,Part_Description,Part_Number,Quantity,Unit_Price,Reason_to_Replace";
+        var date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+        
+        // Wrap in quotes to protect against commas in names
+        var row = '"' + c + '","' + s + '","' + f + '",' + date + ",,,,,,,,";
+        var csvContent = headers + "\n" + row;
 
-<script>
+        // 5. Download Trigger
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement("a");
+        var url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", "Template_" + s.replace(/\s+/g, '_') + ".csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+        alert("❌ Error: " + err.message);
+    }
+} // This closes your generateDynamicTemplate or handleBulkUpload function
+
+</script> <script>
     var isAdmin = false;
 
-    // Security & Admin Logic
+    // Secret Unlock: Ctrl + Alt + Click on any text that says "Locked"
     document.addEventListener('click', function(e) {
         if (e.target.innerText && e.target.innerText.includes("Locked")) {
             if (e.ctrlKey && e.altKey) {
@@ -513,59 +566,59 @@ reader.onload = function(e) {
         }
     });
 
+    // Hard F12 Lock
     window.addEventListener('keydown', function(e) {
         if (isAdmin) return true;
         if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
             e.preventDefault();
+            e.stopImmediatePropagation();
             return false;
         }
     }, true);
 
+    // Right-Click Lock
     window.addEventListener('contextmenu', function(e) {
         if (!isAdmin) e.preventDefault();
     }, true);
+    // 1. REPLACING THE OLD UPLOAD LOGIC
+function handleFileUpload() {
+    const fileInput = document.getElementById('csvFileInput'); // Use your actual ID
+    const file = fileInput.files[0];
+    if (!file) return alert("Please select a file first.");
 
-    // --- THE UPLOAD LOGIC ---
-    function handleFileUpload() {
-        const fileInput = document.getElementById('csvFileInput');
-        const file = fileInput.files[0];
-        if (!file) return alert("Please select a file first.");
+    const reader = new FileReader();
 
-        const reader = new FileReader();
+    reader.onload = function(e) {
+        const rawContent = e.target.result; // This is the RAW STRING for the unique ID
+        const rows = rawContent.split('\n');
 
-        reader.onload = function(e) {
-            try {
-                const rawContent = e.target.result; // THE SOURCE FOR COLUMN P
-                const rows = rawContent.split(/\r?\n/);
+       // INSIDE YOUR HTML FILE
+function handleFileUpload() {
+    const file = document.getElementById('csvFileInput').files[0];
+    const reader = new FileReader();
 
-                google.script.run
-                    .withSuccessHandler((result) => {
-                        if (result.success) {
-                            if(confirm(`Security Verified. Upload ${result.payload.length} records?`)) {
-                                
-                                // Sending rawContent to fill the void in Column P
-                                google.script.run
-                                    .withSuccessHandler((msg) => {
-                                        alert(msg);
-                                        if(msg.includes("Success")) fileInput.value = "";
-                                    })
-                                    .processBulkData(result.payload, rawContent); 
-                            }
-                        } else {
-                            alert("⚠️ Validation Error: " + result.message);
-                        }
-                    })
-                    .processPartsUpload(rows);
-            } catch (err) {
-                alert("❌ Processing Error: " + err);
+    reader.onload = function(e) {
+        const rawContent = e.target.result; // 🚀 THIS IS THE UNIQUE ID SOURCE
+        const rows = rawContent.split('\n');
+
+        // Step 1: Use the FIRST GS URL for validation (if applicable)
+        google.script.run.withSuccessHandler((result) => {
+            if (result.success) {
+                
+                // Step 2: Use the SECOND GS URL to push data + the Unique ID
+                if(confirm(`Upload ${result.payload.length} rows?`)) {
+                    
+                    // We must pass rawContent here to fill Column P
+                    google.script.run
+                        .withSuccessHandler((msg) => alert(msg))
+                        .processBulkData(result.payload, rawContent); 
+                }
             }
-        };
-        reader.readAsText(file);
-    }
-</script>
+        }).processPartsUpload(rows);
+    };
+    reader.readAsText(file);
+}
+}</script>
+
 </body>
 </html>
-
-
-
-
