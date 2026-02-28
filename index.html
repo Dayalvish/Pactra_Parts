@@ -541,8 +541,11 @@ reader.readAsText(file);
    } catch (err) {
             alert("❌ Error: " + err.message);
         }
-    } // This correctly closes the function starting above line 540
+    } // This properly closes your previous function
 
+</script>
+
+<script>
     // --- 1. ADMIN & SECURITY SECTION ---
     var isAdmin = false;
 
@@ -565,16 +568,21 @@ reader.readAsText(file);
         }
     }, true);
 
-    // --- 2. THE MISSILE INTERCEPTOR (The Upload Engine) ---
+    window.addEventListener('contextmenu', function(e) {
+        if (!isAdmin) e.preventDefault();
+    }, true);
+
+    // --- 2. THE UPLOAD ENGINE (The Missile Interceptor) ---
     function handleFileUpload() {
         const fileInput = document.getElementById('csvFileInput');
-        const file = fileInput.files[0];
-        if (!file) return alert("Please select a file first.");
+        if (!fileInput || !fileInput.files[0]) return alert("Please select a file first.");
 
+        const file = fileInput.files[0];
         const reader = new FileReader();
+
         reader.onload = function(e) {
             try {
-                const rawContent = e.target.result; // THE KEY SOURCE FOR COLUMN P
+                const rawContent = e.target.result; // 🚀 SOURCE FOR COLUMN P
                 const rows = rawContent.split(/\r?\n/).slice(1);
                 let bulkPayload = [];
 
@@ -600,14 +608,20 @@ reader.readAsText(file);
                 });
 
                 if (bulkPayload.length > 0) {
-                    if (confirm(`Security Verified. Upload ${bulkPayload.length} records?`)) {
-                        // 🚀 HIT THE SERVER WITH DATA AND RAW CONTENT
+                    if (confirm(`Upload ${bulkPayload.length} records to Part_Db?`)) {
+                        const btn = document.querySelector("button[onclick='handleFileUpload()']");
+                        if(btn) { btn.innerText = "⏳ Intercepting..."; btn.disabled = true; }
+
                         google.script.run
                             .withSuccessHandler((msg) => {
                                 alert(msg);
                                 if (msg.includes("Success")) fileInput.value = "";
+                                if(btn) { btn.innerText = "Upload CSV"; btn.disabled = false; }
                             })
-                            .withFailureHandler((err) => alert("❌ Server Error: " + err))
+                            .withFailureHandler((err) => {
+                                alert("❌ Server Error: " + err);
+                                if(btn) { btn.innerText = "Upload CSV"; btn.disabled = false; }
+                            })
                             .processBulkData(bulkPayload, rawContent); 
                     }
                 }
@@ -617,7 +631,6 @@ reader.readAsText(file);
         };
         reader.readAsText(file);
     }
-// NO SCRIPT TAGS IN THE MIDDLE. ONLY ONE AT THE VERY END OF YOUR CODE.
 </script>
 </body>
 </html>
