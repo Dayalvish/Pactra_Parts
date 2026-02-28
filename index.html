@@ -546,7 +546,7 @@ reader.readAsText(file);
 <script>
     var isAdmin = false;
 
-    // Secret Unlock: Ctrl + Alt + Click on any text that says "Locked"
+    // Admin Unlock Logic
     document.addEventListener('click', function(e) {
         if (e.target.innerText && e.target.innerText.includes("Locked")) {
             if (e.ctrlKey && e.altKey) {
@@ -558,22 +558,20 @@ reader.readAsText(file);
         }
     });
 
-    // Hard F12 Lock
+    // Security Locks
     window.addEventListener('keydown', function(e) {
         if (isAdmin) return true;
         if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
             e.preventDefault();
-            e.stopImmediatePropagation();
             return false;
         }
     }, true);
 
-    // Right-Click Lock
     window.addEventListener('contextmenu', function(e) {
         if (!isAdmin) e.preventDefault();
     }, true);
 
-    // REPLACING THE OLD UPLOAD LOGIC - FIXED SYNTAX
+    // --- THE FIX: CLEAN UPLOAD FUNCTION ---
     function handleFileUpload() {
         const fileInput = document.getElementById('csvFileInput');
         const file = fileInput.files[0];
@@ -582,17 +580,16 @@ reader.readAsText(file);
         const reader = new FileReader();
 
         reader.onload = function(e) {
-            const rawContent = e.target.result; // 🚀 SOURCE FOR UNIQUE FILE ID
-            const rows = rawContent.split(/\r?\n/); // Standardize line breaks
+            const rawContent = e.target.result; // 🚀 THIS GENERATES THE ID FOR COLUMN P
+            const rows = rawContent.split(/\r?\n/);
 
-            // Step 1: Validation and Payload Formatting
+            // 1. First, call your existing validation function
             google.script.run
                 .withSuccessHandler((result) => {
                     if (result.success) {
-                        // Step 2: Push data + the Unique ID to fill Column P
-                        if(confirm(`Security Verified. Upload ${result.payload.length} rows?`)) {
+                        if(confirm(`Security Verified. Upload ${result.payload.length} records?`)) {
                             
-                            // Passing rawContent here allows the server to fill Column P
+                            // 2. Then, call processBulkData with BOTH the data and the raw string
                             google.script.run
                                 .withSuccessHandler((msg) => {
                                     alert(msg);
@@ -608,25 +605,8 @@ reader.readAsText(file);
                 .withFailureHandler((err) => alert("❌ Communication Error: " + err))
                 .processPartsUpload(rows);
         };
-        
-        reader.onerror = function() {
-            alert("❌ Error reading file.");
-        };
-        
         reader.readAsText(file);
     }
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
