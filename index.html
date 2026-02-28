@@ -482,7 +482,7 @@ function handleBulkUpload() {
                         mode: 'no-cors'
                     })
                     .then(() => {
-                        alert("✅ Data sent! If Column P is still empty, we must update the doPost function in Google Apps Script.");
+                        alert("✅ Data sent! Pl Do not Upload Multiple times as it will create Duplicate lines");
                         if(btn) { btn.innerText = originalText; btn.disabled = false; }
                         fileInput.value = "";
                     })
@@ -554,5 +554,6 @@ window.addEventListener('contextmenu', function(e) {
 </script>
 </body>
 </html>
+
 
 
