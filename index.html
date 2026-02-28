@@ -543,7 +543,7 @@ reader.readAsText(file);
     }
 } // This closes your generateDynamicTemplate or handleBulkUpload function
 
-</script> <script>
+<script>
     var isAdmin = false;
 
     // Secret Unlock: Ctrl + Alt + Click on any text that says "Locked"
@@ -572,48 +572,54 @@ reader.readAsText(file);
     window.addEventListener('contextmenu', function(e) {
         if (!isAdmin) e.preventDefault();
     }, true);
-    // 1. REPLACING THE OLD UPLOAD LOGIC
-function handleFileUpload() {
-    const fileInput = document.getElementById('csvFileInput'); // Use your actual ID
-    const file = fileInput.files[0];
-    if (!file) return alert("Please select a file first.");
 
-    const reader = new FileReader();
+    // REPLACING THE OLD UPLOAD LOGIC - FIXED SYNTAX
+    function handleFileUpload() {
+        const fileInput = document.getElementById('csvFileInput');
+        const file = fileInput.files[0];
+        if (!file) return alert("Please select a file first.");
 
-    reader.onload = function(e) {
-        const rawContent = e.target.result; // This is the RAW STRING for the unique ID
-        const rows = rawContent.split('\n');
+        const reader = new FileReader();
 
-       // INSIDE YOUR HTML FILE
-function handleFileUpload() {
-    const file = document.getElementById('csvFileInput').files[0];
-    const reader = new FileReader();
+        reader.onload = function(e) {
+            const rawContent = e.target.result; // 🚀 SOURCE FOR UNIQUE FILE ID
+            const rows = rawContent.split(/\r?\n/); // Standardize line breaks
 
-    reader.onload = function(e) {
-        const rawContent = e.target.result; // 🚀 THIS IS THE UNIQUE ID SOURCE
-        const rows = rawContent.split('\n');
-
-        // Step 1: Use the FIRST GS URL for validation (if applicable)
-        google.script.run.withSuccessHandler((result) => {
-            if (result.success) {
-                
-                // Step 2: Use the SECOND GS URL to push data + the Unique ID
-                if(confirm(`Upload ${result.payload.length} rows?`)) {
-                    
-                    // We must pass rawContent here to fill Column P
-                    google.script.run
-                        .withSuccessHandler((msg) => alert(msg))
-                        .processBulkData(result.payload, rawContent); 
-                }
-            }
-        }).processPartsUpload(rows);
-    };
-    reader.readAsText(file);
-}
-}</script>
+            // Step 1: Validation and Payload Formatting
+            google.script.run
+                .withSuccessHandler((result) => {
+                    if (result.success) {
+                        // Step 2: Push data + the Unique ID to fill Column P
+                        if(confirm(`Security Verified. Upload ${result.payload.length} rows?`)) {
+                            
+                            // Passing rawContent here allows the server to fill Column P
+                            google.script.run
+                                .withSuccessHandler((msg) => {
+                                    alert(msg);
+                                    if(msg.includes("Success")) fileInput.value = "";
+                                })
+                                .withFailureHandler((err) => alert("❌ Server Error: " + err))
+                                .processBulkData(result.payload, rawContent); 
+                        }
+                    } else {
+                        alert("⚠️ Validation Error: " + result.message);
+                    }
+                })
+                .withFailureHandler((err) => alert("❌ Communication Error: " + err))
+                .processPartsUpload(rows);
+        };
+        
+        reader.onerror = function() {
+            alert("❌ Error reading file.");
+        };
+        
+        reader.readAsText(file);
+    }
+</script>
 
 </body>
 </html>
+
 
 
 
