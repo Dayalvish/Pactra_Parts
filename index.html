@@ -501,14 +501,74 @@ function handleBulkUpload() {
         } catch (err) {
             alert("❌ Error: " + err.message);
         }
-    } // This correctly closes generateDynamicTemplate
+    } // Closes generateDynamicTemplate
 
-</script>
+    // --- 1. THE UPLOAD ENGINE ---
+    function handleFileUpload() {
+        const fileInput = document.getElementById('csvFileInput');
+        if (!fileInput || !fileInput.files[0]) {
+            alert("⚠️ Please select a file first.");
+            return;
+        }
 
-<script>
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(e) {
+            try {
+                const rawContent = e.target.result; // Fingerprint for Column P
+                const rows = rawContent.split(/\r?\n/).slice(1);
+                let bulkPayload = [];
+
+                rows.forEach((row) => {
+                    if (!row.trim()) return;
+                    const cols = row.split(',');
+                    if (cols.length >= 12) {
+                        bulkPayload.push({
+                            Customer_Name: cols[0].trim(),
+                            Work_Site: cols[1].trim(),
+                            Fleet_ID: cols[2].trim(),
+                            Entry_Date: cols[3].trim(),
+                            Engine_Hours: cols[4].trim(),
+                            Part_Group: cols[5].trim(),
+                            Part_Type: cols[6].trim(),
+                            Part_Description: cols[7].trim(),
+                            Part_Number: cols[8].trim(),
+                            Quantity: cols[9].trim(),
+                            Unit_Price: cols[10].trim(),
+                            Reason_to_Replace: cols[11].trim()
+                        });
+                    }
+                });
+
+                if (bulkPayload.length > 0) {
+                    if (confirm(`Verified. Upload ${bulkPayload.length} records?`)) {
+                        const btn = document.querySelector("button[onclick='handleFileUpload()']");
+                        if(btn) { btn.innerText = "⏳ Checking Duplicates..."; btn.disabled = true; }
+
+                        google.script.run
+                            .withSuccessHandler((response) => {
+                                alert(response);
+                                if(btn) { btn.innerText = "Upload CSV"; btn.disabled = false; }
+                                if(response.includes("Success")) fileInput.value = "";
+                            })
+                            .withFailureHandler((err) => {
+                                alert("❌ Server Error: " + err);
+                                if(btn) { btn.innerText = "Upload CSV"; btn.disabled = false; }
+                            })
+                            .processBulkData(bulkPayload, rawContent); 
+                    }
+                }
+            } catch (err) {
+                alert("❌ Processing Error: " + err);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- 2. ADMIN & SECURITY SECTION ---
     var isAdmin = false;
 
-    // Security & Admin Logic
     document.addEventListener('click', function(e) {
         if (e.target.innerText && e.target.innerText.includes("Locked")) {
             if (e.ctrlKey && e.altKey) {
@@ -531,44 +591,6 @@ function handleBulkUpload() {
     window.addEventListener('contextmenu', function(e) {
         if (!isAdmin) e.preventDefault();
     }, true);
-
-    // --- FIXED UPLOAD ENGINE ---
-    function handleFileUpload() {
-        const fileInput = document.getElementById('csvFileInput');
-        const file = fileInput.files[0];
-        if (!file) return alert("Please select a file first.");
-
-        const reader = new FileReader();
-
-        reader.onload = function(e) {
-            try {
-                const rawContent = e.target.result; 
-                const rows = rawContent.split(/\r?\n/);
-
-                google.script.run
-                    .withSuccessHandler((result) => {
-                        if (result.success) {
-                            if(confirm(`Verified. Upload ${result.payload.length} records?`)) {
-                                // Sending rawContent to fill the void in Column P
-                                google.script.run
-                                    .withSuccessHandler((msg) => {
-                                        alert(msg);
-                                        if(msg.includes("Success")) fileInput.value = "";
-                                    })
-                                    .processBulkData(result.payload, rawContent); 
-                            }
-                        } else {
-                            alert("⚠️ Validation Error: " + result.message);
-                        }
-                    })
-                    .processPartsUpload(rows);
-            } catch (err) {
-                alert("❌ Processing Error: " + err);
-            }
-        };
-        reader.readAsText(file);
-    }
 </script>
 </body>
 </html>
-
