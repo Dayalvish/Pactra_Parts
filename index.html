@@ -491,14 +491,12 @@ reader.onload = function(e) {
                     .processBulkData(bulkPayload, rawFileContent); // Passing both!
             }
         }
-   } catch (err) {
+  } catch (err) {
             alert("❌ Error: " + err.message);
         }
-    } // Closes generateDynamicTemplate
+    } // This closes generateDynamicTemplate correctly
 
-    // The reader logic below was dangling outside. 
-    // It is now wrapped inside the proper handleFileUpload function.
-
+    // --- 1. THE UPLOAD ENGINE ---
     function handleFileUpload() {
         const fileInput = document.getElementById('csvFileInput');
         if (!fileInput || !fileInput.files[0]) {
@@ -511,7 +509,7 @@ reader.onload = function(e) {
 
         reader.onload = function(e) {
             try {
-                const rawContent = e.target.result; // For Column P Unique ID
+                const rawContent = e.target.result; // Source for Column P Unique ID
                 const rows = rawContent.split(/\r?\n/).slice(1);
                 let bulkPayload = [];
 
@@ -537,12 +535,9 @@ reader.onload = function(e) {
                 });
 
                 if (bulkPayload.length > 0) {
-                    if (confirm(`Verify Data: Upload ${bulkPayload.length} records?`)) {
+                    if (confirm(`Upload ${bulkPayload.length} records?`)) {
                         const btn = document.querySelector("button[onclick='handleFileUpload()']");
-                        if(btn) { 
-                            btn.innerText = "⏳ Checking Duplicates..."; 
-                            btn.disabled = true; 
-                        }
+                        if(btn) { btn.innerText = "⏳ Checking Duplicates..."; btn.disabled = true; }
 
                         google.script.run
                             .withSuccessHandler((response) => {
@@ -563,10 +558,8 @@ reader.onload = function(e) {
         };
         reader.readAsText(file);
     }
-</script>
 
-<script>
-    // --- ADMIN & SECURITY SECTION ---
+    // --- 2. ADMIN & SECURITY SECTION ---
     var isAdmin = false;
 
     document.addEventListener('click', function(e) {
