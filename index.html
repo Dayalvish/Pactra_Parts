@@ -142,7 +142,7 @@
 </form>
 
 <script>
-    const scriptURL = "https://script.google.com/macros/s/AKfycbybrxbdpNrjPIS6FpjtzQXrUNSokE2yWwmZ0sBaqKyCmOOLeWQSxCAVCN2i_UGtWTLq/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzI4glV9IxNnj8PHzBE_JZbxTc6HDEqXX3sDTUjpUUuKec7fhw1yrbexfo8xxAbynsS/exec";
 
     const customerToSites = {
         "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines", "TSL Khandband"],
@@ -423,8 +423,7 @@ function downloadCSVTemplate() {
 
 // --- 1. THE UPLOAD ENGINE (Unified & Balanced) ---
 function handleBulkUpload() {
-    // 1. YOUR ACTUAL URL
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbybrxbdpNrjPIS6FpjtzQXrUNSokE2yWwmZ0sBaqKyCmOOLeWQSxCAVCN2i_UGtWTLq/exec"; 
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzI4glV9IxNnj8PHzBE_JZbxTc6HDEqXX3sDTUjpUUuKec7fhw1yrbexfo8xxAbynsS/exec"; 
 
     const techName = document.getElementById('valTech').value.trim();
     const techPass = document.getElementById('passInput').value.trim();
@@ -441,9 +440,13 @@ function handleBulkUpload() {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            const rawContent = e.target.result; // 🚀 THIS IS THE FINGERPRINT FOR COLUMN P
+            const rawContent = e.target.result; 
             const rows = rawContent.split(/\r?\n/).slice(1);
             let bulkPayload = [];
+
+            // 🚀 GENERATE THE FINGERPRINT HERE
+            // This creates a unique ID based on the file's text and the technician's name
+            const uniqueFileID = btoa(techName + rawContent.substring(0, 100)).substring(0, 24);
 
             rows.forEach((row) => {
                 if (!row.trim()) return;
@@ -464,7 +467,7 @@ function handleBulkUpload() {
                         Quantity: cols[9].trim(),
                         Unit_Price: cols[10].trim(),
                         Reason_to_Replace: cols[11].trim(),
-                        File_ID_Source: rawContent // 🚀 HANDSHAKE FOR THE VOID IN COLUMN P
+                        File_ID: uniqueFileID // 🚀 THE CRITICAL HANDSHAKE
                     });
                 }
             });
@@ -472,10 +475,11 @@ function handleBulkUpload() {
             if (bulkPayload.length > 0) {
                 if(confirm(`Security Verified. Upload ${bulkPayload.length} records?`)) {
                     const btn = document.querySelector("button[onclick='handleBulkUpload()']");
-                    const originalText = "🚀 Upload & Process Bulk Data";
-                    if(btn) { btn.innerText = "⏳ Processing..."; btn.disabled = true; }
+                    if(btn) { 
+                        btn.innerText = "⏳ Processing..."; 
+                        btn.disabled = true; 
+                    }
 
-                    // 🚀 USE FETCH FOR GITHUB COMPATIBILITY
                     fetch(GOOGLE_SCRIPT_URL, {
                         method: "POST",
                         body: JSON.stringify(bulkPayload),
@@ -483,17 +487,23 @@ function handleBulkUpload() {
                     })
                     .then(() => {
                         alert("✅ Data sent! Pl Do not Upload Multiple times as it will create Duplicate lines");
-                        if(btn) { btn.innerText = originalText; btn.disabled = false; }
-                        fileInput.value = "";
+                        if(btn) { 
+                            btn.innerText = "🚀 Upload & Process Bulk Data"; 
+                            btn.disabled = false; 
+                        }
+                        fileInput.value = ""; 
                     })
                     .catch(err => {
-                        alert("❌ Network Error: " + err);
-                        if(btn) { btn.innerText = originalText; btn.disabled = false; }
+                        alert("❌ Error: " + err);
+                        if(btn) { 
+                            btn.innerText = "🚀 Upload & Process Bulk Data"; 
+                            btn.disabled = false; 
+                        }
                     });
                 }
             }
         } catch (err) {
-            alert("❌ Processing Error: " + err.message);
+            alert("❌ File Reading Error: " + err.message);
         }
     };
     reader.readAsText(file);
@@ -554,6 +564,7 @@ window.addEventListener('contextmenu', function(e) {
 </script>
 </body>
 </html>
+
 
 
 
