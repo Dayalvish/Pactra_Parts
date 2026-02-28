@@ -498,12 +498,12 @@ function handleBulkUpload() {
                     });
                 }
             }
-        } catch (err) {
+       } catch (err) {
             alert("❌ Error: " + err.message);
         }
-    } // Closes generateDynamicTemplate
+    } // This is the ONLY closing brace for generateDynamicTemplate.
 
-    // --- 1. THE UPLOAD ENGINE ---
+    // --- 1. THE UPLOAD ENGINE (Handles Column P) ---
     function handleFileUpload() {
         const fileInput = document.getElementById('csvFileInput');
         if (!fileInput || !fileInput.files[0]) {
