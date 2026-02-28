@@ -539,13 +539,10 @@ reader.readAsText(file);
         window.URL.revokeObjectURL(url);
 
    } catch (err) {
-        alert("❌ Error: " + err.message);
-    }
-} // This properly closes your previous function (e.g., generateDynamicTemplate)
+            alert("❌ Error: " + err.message);
+        }
+    } // This correctly closes the function starting above line 540
 
-</script>
-
-<script>
     // --- 1. ADMIN & SECURITY SECTION ---
     var isAdmin = false;
 
@@ -568,24 +565,16 @@ reader.readAsText(file);
         }
     }, true);
 
-    window.addEventListener('contextmenu', function(e) {
-        if (!isAdmin) e.preventDefault();
-    }, true);
-
-    // --- 2. THE UPLOAD ENGINE (The Missile Stopper) ---
+    // --- 2. THE MISSILE INTERCEPTOR (The Upload Engine) ---
     function handleFileUpload() {
         const fileInput = document.getElementById('csvFileInput');
-        if (!fileInput || !fileInput.files[0]) {
-            alert("Please select a file first.");
-            return;
-        }
-
         const file = fileInput.files[0];
-        const reader = new FileReader();
+        if (!file) return alert("Please select a file first.");
 
+        const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const rawContent = e.target.result; // THE FINGERPRINT FOR COLUMN P
+                const rawContent = e.target.result; // THE KEY SOURCE FOR COLUMN P
                 const rows = rawContent.split(/\r?\n/).slice(1);
                 let bulkPayload = [];
 
@@ -611,22 +600,14 @@ reader.readAsText(file);
                 });
 
                 if (bulkPayload.length > 0) {
-                    if (confirm(`Ready to upload ${bulkPayload.length} records?`)) {
-                        
-                        const btn = document.querySelector("button[onclick='handleFileUpload()']");
-                        if(btn) { btn.innerText = "⏳ Checking for Duplicates..."; btn.disabled = true; }
-
-                        // SEND BOTH PAYLOAD AND RAW CONTENT
+                    if (confirm(`Security Verified. Upload ${bulkPayload.length} records?`)) {
+                        // 🚀 HIT THE SERVER WITH DATA AND RAW CONTENT
                         google.script.run
                             .withSuccessHandler((msg) => {
                                 alert(msg);
                                 if (msg.includes("Success")) fileInput.value = "";
-                                if(btn) { btn.innerText = "Upload CSV"; btn.disabled = false; }
                             })
-                            .withFailureHandler((err) => {
-                                alert("❌ Connection Error: " + err);
-                                if(btn) { btn.innerText = "Upload CSV"; btn.disabled = false; }
-                            })
+                            .withFailureHandler((err) => alert("❌ Server Error: " + err))
                             .processBulkData(bulkPayload, rawContent); 
                     }
                 }
@@ -634,11 +615,12 @@ reader.readAsText(file);
                 alert("❌ Processing Error: " + err);
             }
         };
-
         reader.readAsText(file);
     }
+// NO SCRIPT TAGS IN THE MIDDLE. ONLY ONE AT THE VERY END OF YOUR CODE.
 </script>
 </body>
 </html>
+
 
 
