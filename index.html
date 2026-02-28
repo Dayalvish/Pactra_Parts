@@ -491,98 +491,27 @@ reader.onload = function(e) {
                     .processBulkData(bulkPayload, rawFileContent); // Passing both!
             }
         }
-    } catch (err) {
-        alert("❌ File Reading Error: " + err);
-    }
-};
-reader.readAsText(file);
-    function generateDynamicTemplate() {
-    try {
-        // 1. Try to find Customer (Checks multiple possible IDs)
-        var c = (document.getElementById('Customer_Name') || 
-                 document.getElementById('customerSelect') || 
-                 document.querySelector('select[name="Customer_Name"]')).value;
-
-        // 2. Try to find Site
-        var s = (document.getElementById('Work_Site') || 
-                 document.getElementById('siteSelect') || 
-                 document.querySelector('select[name="Work_Site"]')).value;
-
-        // 3. Try to find Fleet
-        var f = (document.getElementById('Fleet_ID') || 
-                 document.getElementById('fleetSelect') || 
-                 document.querySelector('select[name="Fleet_ID"]')).value;
-
-        if (!c || !s || !f) {
-            alert("⚠️ Please select Customer, Site, and Fleet from the dropdowns first!");
-            return;
-        }
-
-        // 4. Create CSV Data
-        var headers = "Customer_Name,Work_Site,Fleet_ID,Entry_Date,Engine_Hours,Part_Group,Part_Type,Part_Description,Part_Number,Quantity,Unit_Price,Reason_to_Replace";
-        var date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-        
-        // Wrap in quotes to protect against commas in names
-        var row = '"' + c + '","' + s + '","' + f + '",' + date + ",,,,,,,,";
-        var csvContent = headers + "\n" + row;
-
-        // 5. Download Trigger
-        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        var link = document.createElement("a");
-        var url = URL.createObjectURL(blob);
-        
-        link.setAttribute("href", url);
-        link.setAttribute("download", "Template_" + s.replace(/\s+/g, '_') + ".csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-
    } catch (err) {
             alert("❌ Error: " + err.message);
         }
-    } // This properly closes your previous function
+    } // Closes generateDynamicTemplate
 
-</script>
+    // The reader logic below was dangling outside. 
+    // It is now wrapped inside the proper handleFileUpload function.
 
-<script>
-    // --- 1. ADMIN & SECURITY SECTION ---
-    var isAdmin = false;
-
-    document.addEventListener('click', function(e) {
-        if (e.target.innerText && e.target.innerText.includes("Locked")) {
-            if (e.ctrlKey && e.altKey) {
-                isAdmin = !isAdmin;
-                e.target.innerText = isAdmin ? "Unlocked - Admin Active" : "Locked - Please Verify";
-                e.target.style.color = isAdmin ? "green" : "red";
-                alert(isAdmin ? "🔓 ADMIN UNLOCKED" : "🔒 ADMIN LOCKED");
-            }
-        }
-    });
-
-    window.addEventListener('keydown', function(e) {
-        if (isAdmin) return true;
-        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
-            e.preventDefault();
-            return false;
-        }
-    }, true);
-
-    window.addEventListener('contextmenu', function(e) {
-        if (!isAdmin) e.preventDefault();
-    }, true);
-
-    // --- 2. THE UPLOAD ENGINE (The Missile Interceptor) ---
     function handleFileUpload() {
         const fileInput = document.getElementById('csvFileInput');
-        if (!fileInput || !fileInput.files[0]) return alert("Please select a file first.");
+        if (!fileInput || !fileInput.files[0]) {
+            alert("⚠️ Please select a file first.");
+            return;
+        }
 
         const file = fileInput.files[0];
         const reader = new FileReader();
 
         reader.onload = function(e) {
             try {
-                const rawContent = e.target.result; // 🚀 SOURCE FOR COLUMN P
+                const rawContent = e.target.result; // For Column P Unique ID
                 const rows = rawContent.split(/\r?\n/).slice(1);
                 let bulkPayload = [];
 
@@ -608,15 +537,18 @@ reader.readAsText(file);
                 });
 
                 if (bulkPayload.length > 0) {
-                    if (confirm(`Upload ${bulkPayload.length} records to Part_Db?`)) {
+                    if (confirm(`Verify Data: Upload ${bulkPayload.length} records?`)) {
                         const btn = document.querySelector("button[onclick='handleFileUpload()']");
-                        if(btn) { btn.innerText = "⏳ Intercepting..."; btn.disabled = true; }
+                        if(btn) { 
+                            btn.innerText = "⏳ Checking Duplicates..."; 
+                            btn.disabled = true; 
+                        }
 
                         google.script.run
-                            .withSuccessHandler((msg) => {
-                                alert(msg);
-                                if (msg.includes("Success")) fileInput.value = "";
+                            .withSuccessHandler((response) => {
+                                alert(response);
                                 if(btn) { btn.innerText = "Upload CSV"; btn.disabled = false; }
+                                if(response.includes("Success")) fileInput.value = "";
                             })
                             .withFailureHandler((err) => {
                                 alert("❌ Server Error: " + err);
@@ -631,6 +563,34 @@ reader.readAsText(file);
         };
         reader.readAsText(file);
     }
+</script>
+
+<script>
+    // --- ADMIN & SECURITY SECTION ---
+    var isAdmin = false;
+
+    document.addEventListener('click', function(e) {
+        if (e.target.innerText && e.target.innerText.includes("Locked")) {
+            if (e.ctrlKey && e.altKey) {
+                isAdmin = !isAdmin;
+                e.target.innerText = isAdmin ? "Unlocked - Admin Active" : "Locked - Please Verify";
+                e.target.style.color = isAdmin ? "green" : "red";
+                alert(isAdmin ? "🔓 ADMIN UNLOCKED" : "🔒 ADMIN LOCKED");
+            }
+        }
+    });
+
+    window.addEventListener('keydown', function(e) {
+        if (isAdmin) return true;
+        if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
+            e.preventDefault();
+            return false;
+        }
+    }, true);
+
+    window.addEventListener('contextmenu', function(e) {
+        if (!isAdmin) e.preventDefault();
+    }, true);
 </script>
 </body>
 </html>
