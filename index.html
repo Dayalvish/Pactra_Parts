@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PACTRA360 | INDUSTRIAL PARTS ENTRY</title>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <style>
         :root {
             --epiroc-grey: #2D2D2D;
@@ -129,17 +130,13 @@
 
 <div class="header-section">
     <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 950px; padding: 0 10px;">
-        
         <img src="Picture1.png" alt="Epiroc Left" style="height: 45px; object-fit: contain;" onerror="this.style.display='none'">
-        
         <div style="text-align: center; flex: 1;">
             <h2 style="margin: 0; color: var(--epiroc-yellow); letter-spacing: 2px; font-size: 20px; text-transform: uppercase;">
                 PACTRA360 PARTS ENTRY PORTAL
             </h2>
         </div>
-        
         <img src="Picture1.png" alt="Epiroc Right" style="height: 45px; object-fit: contain;" onerror="this.style.display='none'">
-        
     </div>
 </div>
 
@@ -187,22 +184,22 @@
             </div>
 
             <div class="bulk-upload-zone">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <b style="font-size: 14px; color: var(--epiroc-grey);">BULK DATA PROCESSING</b>
-        <div id="activityLog" style="font-size: 11px; color: #444; background: #fff; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc;">
-            📅 LAST SYNC: <b id="lastDate">--</b> | 
-            📊 ROWS: <b id="lastRows">0</b>
-        </div>
-    </div>
-    <div style="display: grid; grid-template-columns: 1fr 2.5fr; gap: 12px;">
-        <button type="button" class="btn btn-primary" onclick="generateDynamicTemplate()" style="font-size: 11px;">📥 GET TEMPLATE</button>
-        <div style="display: flex; gap: 8px;">
-            <input type="file" id="csvFileInput" accept=".csv" style="flex: 1; background: white; border: 1px solid #ccc;">
-            <button type="button" class="btn btn-primary" onclick="handleBulkUpload()" id="bulkBtn" style="font-size: 11px;">🚀 UPLOAD CSV</button>
-        </div>
-    </div>
-    <div id="busyWarning" class="busy-warning">⚠️ SERVER PROCESSING... DO NOT RE-CLICK</div>
-</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <b style="font-size: 14px; color: var(--epiroc-grey);">BULK DATA PROCESSING</b>
+                    <div id="activityLog" style="font-size: 11px; color: #444; background: #fff; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc;">
+                        📅 LAST SYNC: <b id="lastDate">--</b> | 
+                        📊 ROWS: <b id="lastRows">0</b>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 2.5fr; gap: 12px;">
+                    <button type="button" class="btn btn-primary" onclick="generateDynamicTemplate()" style="font-size: 11px;">📥 GET TEMPLATE</button>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="file" id="csvFileInput" accept=".csv" style="flex: 1; background: white; border: 1px solid #ccc;">
+                        <button type="button" class="btn btn-primary" onclick="handleBulkUpload()" id="bulkBtn" style="font-size: 11px;">🚀 UPLOAD CSV</button>
+                    </div>
+                </div>
+                <div id="busyWarning" class="busy-warning">⚠️ SERVER PROCESSING... DO NOT RE-CLICK</div>
+            </div>
 
             <div id="partsContainer">
                 <div class="part-block" id="part-row-1">
@@ -212,7 +209,19 @@
                         <div class="input-group"><label>Type *</label><select name="part_type[]" class="type-sel" onchange="updateRowDesc(this)" required></select></div>
                         <div class="input-group"><label>Description *</label><select name="part_desc[]" class="desc-sel" required></select></div>
                         <div class="input-group"><label>Reason *</label><select name="reason[]" class="reason-sel" required></select></div>
-                        <div class="input-group"><label>Part Number</label><input type="text" name="part_no[]" placeholder="5580..."></div>
+                        <div class="input-group">
+                            <label>Part Number</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" name="part_no[]" class="part-input" placeholder="Scan or Type...">
+                                <button type="button" class="btn btn-primary" onclick="openScanner(this)" style="padding: 8px 12px; display: flex; align-items: center; justify-content: center;" title="Scan QR Code">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M15 12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h1.172a3 3 0 0 0 2.12-.879l.83-.828A1 1 0 0 1 6.827 3h2.344a1 1 0 0 1 .707.293l.828.828A3 3 0 0 0 12.828 5H14a1 1 0 0 1 1 1v6zM2 4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1.172a2 2 0 0 1-1.414-.586l-.828-.828A2 2 0 0 0 9.172 2H6.828a2 2 0 0 0-1.414.586l-.828.828A2 2 0 0 1 3.172 4H2z"/>
+                                        <path d="M8 11a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm0 1a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z"/>
+                                        <path d="M3 6.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                         <div class="input-group">
                             <label>Qty & Price</label>
                             <div style="display: flex; gap: 8px;">
@@ -232,9 +241,17 @@
     </form>
 </div>
 
+<div id="qrModal" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; flex-direction: column; justify-content: center; align-items: center;">
+    <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 500px; text-align: center;">
+        <h3 style="margin-top: 0; color: var(--epiroc-grey); font-weight: 900; text-transform: uppercase;">SCAN PART QR CODE</h3>
+        <div id="qr-reader" style="width: 100%; margin-bottom: 15px;"></div>
+        <button type="button" class="btn" onclick="closeScanner()" style="width: 100%; background: #dc3545; color: white; font-weight: bold;">CANCEL SCAN</button>
+    </div>
+</div>
+
 <script>
     // 🔗 CONFIGURATION
-    const scriptURL = "https://script.google.com/macros/s/AKfycby_6Ql_74yfD2O9tIk1fP4goutcOG5nIEY06F0o8UeBgTqQU-ox50TkUeKekZoDOKB0/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzI4glV9IxNnj8PHzBE_JZbxTc6HDEqXX3sDTUjpUUuKec7fhw1yrbexfo8xxAbynsS/exec";
 
     const customerToSites = {
         "TATA STEEL LTD": ["Noamundi Iron Ore Mines", "Khondbond Iron Ore Mines", "TSL West Bokaro Q-SE", "TSL West Bokaro Q-AB", "Joda Iron Ore Mines", "TSL Khandband"],
@@ -255,95 +272,93 @@
         "GANPATI METAL MINING": ["MOIL"]
     };
 
-    // 2. FULL SITE TO FLEET MAPPING (EXACT COLUMN 3 VALUES)
-const siteToFleet = {
-    "Noamundi Iron Ore Mines": ["SRD65_2K005_TSLNIM", "SRD65_2K006_TSLNIM", "SRD65_2K008_TSLNIM", "SRD65_24010_TSLNIM", "SRD65_2K011_TSLNIM", "SRD65_2K012_TSLNIM"],
-    "Joda Iron Ore Mines": ["SRD65_2K009_TSLNIM", "SRD65_2K010_TSLJIM"],
-    "Khondbond Iron Ore Mines": ["SRD65_2K007_TSLNIM", "IDM45_063_TSLKM", "IDM45_064_TSLKM", "ROCL8_083_TSLKIM"], // Fixed hyphen/bracket error here
-    "TSL West Bokaro Q-SE": ["SRD65_DM10_TSLWB", "SRD65_DM14_TSLWB", "SRD65_DM15_TSLWB"],
-    "TSL West Bokaro Q-AB": ["SRD65_2K10_TSLWB", "SRD65_2K11_TSLWB"],
-    "Ambuja Cement Ltd. Rabriyawas": ["FRD50_090_AMBUJA_RBW", "FRD50_659_AMBUJA_RBW"],
-    "Megha - PKG 8B": ["L2SMART_056_MEGHA8B", "L2SMART_031_MEGHA8B", "L2SMART_043_MEGHA8B", "BOOMERE2_198_MEGHA8B", "BOOMERE2_216_MEGHA8B", "10HR_481_MEGHA8B", "10HR_443_MEGHA8B", "10HR_482_MEGHA8B", "UNIGROUTSM2_112_MEGHA8B", "UNIGROUTSM2_111_MEGHA8B", "UNIGROUTSM2_370_MEGHA8B"],
-     "Megha Ratle (J&K)": ["BOOMERL2_002_RATLE", "BOOMERL2D_013_RATLE", "BOOMERE2C_033_RATLE", "BOOMERE2C_371_RATLE", "BOOMERE2C_030_RATLE"],
-    "Max Bilaspur": ["BOOMER2C_175_BILASPUR", "L2SMART_009_BILASPUR", "BOOMERL2D_062_BILASPUR", "BOOMERL2D_151_BILASPUR", "BOOMERL2D_152_BILASPUR", "BOOMERL2D_035_BILASPUR", "BOOMERL2D_038_BILASPUR", "10HR_092_BILASPUR", "10HR_261_BILASPUR", "10HR_409_BILASPUR"],
-    "Navyuga - PKG 3": ["BOOMERL2_035_NEC3", "BOOMERL2_038_NEC3", "10HR _250_NEC3", "10HR _350_NEC3", "10HR _267_NEC3"],
-    "Max Infra - PKG 1": ["10HR_291_MAX1", "10HR_097_MAX1", "10HR_205_MAX1", "UNIGROUTSM2_360_MAX1", "UNIGROUTSM2_363_MAX1","UNIGROUTSM2_368_MAX1","BOOMERL2_005_MAX1"],
-    "SMS Thumlapalli": ["MT2200_17_SMSTMPL", "MT2200_18_SMSTMPL", "MT2200_19_SMSTMPL", "MT2200_20_SMSTMPL", "MT2200_21_SMSTMPL", "MT2200_22_SMSTMPL", "MT2200_23_SMSTMPL", "MT2200_24_SMSTMPL", "MT2200_25_SMSTMPL", "MT2200_26_SMSTMPL", "MT2200_27_SMSTMPL", "MT2200_28_SMSTMPL", "MT2200_29_SMSTMPL", "ST1030_16_SMSTMPL", "ST1030_17_SMSTMPL"],
-    "NMDC Bacheli": ["SRT45_001_BACHELI", "SRT45_003_BACHELI", "SRT45_004_BACHELI"],
-    "NMDC Kirandul": ["SRT45_002_KIRANDUL", "SRT45_005_KIRANDUL"],
-    "Jajang Iron Ore Mines": ["JajangD65I", "JajangD65II"],
-    "Narayanposhi Iron Ore Mines": ["SRT45_341_JSW", "SRT45_344_JSW"],
-    "Nuagaon Iron Ore Mines": ["SRT45_348_JSW"],
-    "Patel Engineering Ltd - Kawar": ["L2D_EM6276_PATEL", "L2D_EM6454_PATEL", "L2D_EM6869_PATEL", "L2D_EM6614_PATEL"],
-    "ACC Wadi": ["FRD50_432_ACCWADI", "SRD50_134_ACCWADI"],
-    "Manikgarh Cement Works": ["SRT40_126_UTCLMANIK"],
-    "Awarpur Cement Works": ["FRD50_376_UTCLAWAR"],
-    "Kukurdih Cement Works": ["SRT45_481_UTCLKUKURDI"],
-    "Kotputli Cement Works": ["SRT40_191_UTCLKOTPUTLI", "SRT40_525_UTCLKOTPUTLI", "SRT40_632_UTCLKOTPUTLI"],
-    "Nathwara Cement Works": ["SRT40_701_UTCLNATH", "SRT40_583_UTCLNATH"],
-    "UTCL Bela": ["IBH10_147_UTCLBELA", "FRD50_311_UTCLBELA"],
-    "UTCL Rawan": ["FRD50_635_UTCLRAWAN"],
-    "UTCL Maihar": ["SRT40_803_UTCLMAIHAR"],
-    "Tadipatri Cement Works": ["SRT45_651_UTCLTADIPATRI"],
-    "Ambuja Darlaghat": ["SRT40_077_AMBUJADARLA"],
-    "DBL Coal - Siarmal": ["D65_DBL_SIARMAL"],
-    "Sushee Infra - SIML Dimapur": ["BOOMERL2_033_SUSHEE", "BOOMERL2_029_SUSHEE", "BOOMERL2_036_SUSHEE", "BOOMERL2_001_SUSHEE"],
-    "UGEN EARTHMOVERS - CDCL": ["BOOMERL2D_023_CDCL", "BOOMERL2D_030_CDCL"],
-    "Lafarge Umiam Mining, Sheila": ["FRD60_337_LAFARGE", "SRT40_526_LAFARGE", "ICM260_071_LAFARGE", "ICM260_076_LAFARGE"],
-    "MOIL": ["SRT40_GANPATI"]
-};
+    const siteToFleet = {
+        "Noamundi Iron Ore Mines": ["SRD65_2K005_TSLNIM", "SRD65_2K006_TSLNIM", "SRD65_2K008_TSLNIM", "SRD65_24010_TSLNIM", "SRD65_2K011_TSLNIM", "SRD65_2K012_TSLNIM"],
+        "Joda Iron Ore Mines": ["SRD65_2K009_TSLNIM", "SRD65_2K010_TSLJIM"],
+        "Khondbond Iron Ore Mines": ["SRD65_2K007_TSLNIM", "IDM45_063_TSLKM", "IDM45_064_TSLKM", "ROCL8_083_TSLKIM"],
+        "TSL West Bokaro Q-SE": ["SRD65_DM10_TSLWB", "SRD65_DM14_TSLWB", "SRD65_DM15_TSLWB"],
+        "TSL West Bokaro Q-AB": ["SRD65_2K10_TSLWB", "SRD65_2K11_TSLWB"],
+        "Ambuja Cement Ltd. Rabriyawas": ["FRD50_090_AMBUJA_RBW", "FRD50_659_AMBUJA_RBW"],
+        "Megha - PKG 8B": ["L2SMART_056_MEGHA8B", "L2SMART_031_MEGHA8B", "L2SMART_043_MEGHA8B", "BOOMERE2_198_MEGHA8B", "BOOMERE2_216_MEGHA8B", "10HR_481_MEGHA8B", "10HR_443_MEGHA8B", "10HR_482_MEGHA8B", "UNIGROUTSM2_112_MEGHA8B", "UNIGROUTSM2_111_MEGHA8B", "UNIGROUTSM2_370_MEGHA8B"],
+         "Megha Ratle (J&K)": ["BOOMERL2_002_RATLE", "BOOMERL2D_013_RATLE", "BOOMERE2C_033_RATLE", "BOOMERE2C_371_RATLE", "BOOMERE2C_030_RATLE"],
+        "Max Bilaspur": ["BOOMER2C_175_BILASPUR", "L2SMART_009_BILASPUR", "BOOMERL2D_062_BILASPUR", "BOOMERL2D_151_BILASPUR", "BOOMERL2D_152_BILASPUR", "BOOMERL2D_035_BILASPUR", "BOOMERL2D_038_BILASPUR", "10HR_092_BILASPUR", "10HR_261_BILASPUR", "10HR_409_BILASPUR"],
+        "Navyuga - PKG 3": ["BOOMERL2_035_NEC3", "BOOMERL2_038_NEC3", "10HR _250_NEC3", "10HR _350_NEC3", "10HR _267_NEC3"],
+        "Max Infra - PKG 1": ["10HR_291_MAX1", "10HR_097_MAX1", "10HR_205_MAX1", "UNIGROUTSM2_360_MAX1", "UNIGROUTSM2_363_MAX1","UNIGROUTSM2_368_MAX1","BOOMERL2_005_MAX1"],
+        "SMS Thumlapalli": ["MT2200_17_SMSTMPL", "MT2200_18_SMSTMPL", "MT2200_19_SMSTMPL", "MT2200_20_SMSTMPL", "MT2200_21_SMSTMPL", "MT2200_22_SMSTMPL", "MT2200_23_SMSTMPL", "MT2200_24_SMSTMPL", "MT2200_25_SMSTMPL", "MT2200_26_SMSTMPL", "MT2200_27_SMSTMPL", "MT2200_28_SMSTMPL", "MT2200_29_SMSTMPL", "ST1030_16_SMSTMPL", "ST1030_17_SMSTMPL"],
+        "NMDC Bacheli": ["SRT45_001_BACHELI", "SRT45_003_BACHELI", "SRT45_004_BACHELI"],
+        "NMDC Kirandul": ["SRT45_002_KIRANDUL", "SRT45_005_KIRANDUL"],
+        "Jajang Iron Ore Mines": ["JajangD65I", "JajangD65II"],
+        "Narayanposhi Iron Ore Mines": ["SRT45_341_JSW", "SRT45_344_JSW"],
+        "Nuagaon Iron Ore Mines": ["SRT45_348_JSW"],
+        "Patel Engineering Ltd - Kawar": ["L2D_EM6276_PATEL", "L2D_EM6454_PATEL", "L2D_EM6869_PATEL", "L2D_EM6614_PATEL"],
+        "ACC Wadi": ["FRD50_432_ACCWADI", "SRD50_134_ACCWADI"],
+        "Manikgarh Cement Works": ["SRT40_126_UTCLMANIK"],
+        "Awarpur Cement Works": ["FRD50_376_UTCLAWAR"],
+        "Kukurdih Cement Works": ["SRT45_481_UTCLKUKURDI"],
+        "Kotputli Cement Works": ["SRT40_191_UTCLKOTPUTLI", "SRT40_525_UTCLKOTPUTLI", "SRT40_632_UTCLKOTPUTLI"],
+        "Nathwara Cement Works": ["SRT40_701_UTCLNATH", "SRT40_583_UTCLNATH"],
+        "UTCL Bela": ["IBH10_147_UTCLBELA", "FRD50_311_UTCLBELA"],
+        "UTCL Rawan": ["FRD50_635_UTCLRAWAN"],
+        "UTCL Maihar": ["SRT40_803_UTCLMAIHAR"],
+        "Tadipatri Cement Works": ["SRT45_651_UTCLTADIPATRI"],
+        "Ambuja Darlaghat": ["SRT40_077_AMBUJADARLA"],
+        "DBL Coal - Siarmal": ["D65_DBL_SIARMAL"],
+        "Sushee Infra - SIML Dimapur": ["BOOMERL2_033_SUSHEE", "BOOMERL2_029_SUSHEE", "BOOMERL2_036_SUSHEE", "BOOMERL2_001_SUSHEE"],
+        "UGEN EARTHMOVERS - CDCL": ["BOOMERL2D_023_CDCL", "BOOMERL2D_030_CDCL"],
+        "Lafarge Umiam Mining, Sheila": ["FRD60_337_LAFARGE", "SRT40_526_LAFARGE", "ICM260_071_LAFARGE", "ICM260_076_LAFARGE"],
+        "MOIL": ["SRT40_GANPATI"]
+    };
 
-        const partsData = {
-    "Lubricant": { 
-        "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "HLP68","Super Flow","Customer Scope"], 
-        "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube","Customer Scope"], 
-        "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40","Customer Scope"],
-        "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100","Customer Scope"],
-        "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90","Customer Scope"],
-        "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"]
-    },
-    "Parts": { 
-        "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], 
-        "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"],
-        "COP-DHR-Transmission": ["Seal Kit","Up-Box","Drop-Box","Up-Box Overhaul Kit","Drop-Box Overhaul Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"],
-        "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"],
-        "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"],
-        "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], // Updated from placeholders
-        "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] 
-    },
-    "RockTool": { 
-        "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], 
-        "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"],
-        "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"],
-        "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"],
-        "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"]
-    },
-    "Hoses": { 
-        "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], 
-        "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"],
-        "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"],
-        "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"],
-        "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"],
-        "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"]
-    },
-    "UD Parts": { 
-    "Boom1": ["Flange Bearing","Bushing","Angle Sensor","Potentio Meter","Cylinder Sealkit","Wire Assly","Protection Coil","DP Checkvalve","Hyd-Hose","Cylinder","Expander Shaft"], 
-    "Boom2": ["Flange Bearing","Bushing","Angle Sensor","Potentio Meter","Cylinder Sealkit","Wire Assly","Protection Coil","DP Checkvalve","Hyd-Hose","Cylinder","Expander Shaft"],
-    "RockDrill1": ["COP-OH Kit Minor","COP-OH Kit Major","Driver","Diaphragm","Diaphragm Return","Cup Seal","Piston","Damper Piston","Damper Seal","Side Bolt","Dome Nut","Flushing Head","Guide Bush","Piston Guide","Stop Ring"],
-    "RockDrill2": ["COP-OH Kit Minor","COP-OH Kit Major","Driver","Diaphragm","Diaphragm Return","Cup Seal","Piston","Damper Piston","Damper Seal","Side Bolt","Dome Nut","Flushing Head","Guide Bush","Piston Guide","Stop Ring"],
-    "Feed1": ["Cradle Plate","Sliding Piece","Slide Bar","Dowel","Pull Rope","Return Rope","Roller Bearing","Profile","Front Bushing","Centre Bushing","Hose Drum","Pulley Wheel","Holder","Wiper","Water Hose","Percusssion HP","Percussion-HT","Rotation-RRL","Rotation-RRR","Damping Hose","Lube-Hose","Drain Hose"],
-    "Feed2": ["Cradle Plate","Sliding Piece","Slide Bar","Dowel","Pull Rope","Return Rope","Roller Bearing","Profile","Front Bushing","Centre Bushing","Hose Drum","Pulley Wheel","Holder","Wiper","Water Hose","Percusssion HP","Percussion-HT","Rotation-RRL","Rotation-RRR","Damping Hose","Lube-Hose","Drain Hose"]
-}
-            
-};
+    const partsData = {
+        "Lubricant": { 
+            "Hydraulic-Oil": ["Epiroc H300", "VG46 Premium", "HLP68","Super Flow","Customer Scope"], 
+            "Compressor-Oil": ["Par Oil M", "Par Oil S", "Par Oil S Extreme","Corena S4 R68","Screw Lube","Customer Scope"], 
+            "Engine_Oil": ["CAT Deo", "HP15W40", "Volvoline 15W40","Customer Scope"],
+            "Lube-Oil": ["RockOil", "Cop-Oil", "Servonium100","Customer Scope"],
+            "Gear-Oil": ["HP-90", "EP-90", "80W140","SAE30","80W90","Customer Scope"],
+            "Other-Lube": ["EP2 Grease", "MP Grease", "Thread Grease","ELC Coolant","Core Wrap","Torqueless","Cop-Grease"]
+        },
+        "Parts": { 
+            "Filter-Kits": ["Service Kit","Engine Oil Filter","Airfilter Inner","Airfilter outer","Air Filter Set","Compr Oil Filter","Hydraulic Filter","Water Separator","Fuel Filter","Oil separator","AC Filter"], 
+            "Wear-Consumables": ["Ropes","Chain Roller","Chain Link","Sliding Pieces","Slide Bar","Key","Hose Assembly","Belt","Common part"],
+            "COP-DHR-Transmission": ["Seal Kit","Up-Box","Drop-Box","Up-Box Overhaul Kit","Drop-Box Overhaul Kit","COP Overhaul Kit Minor","COP Overhaul Kit Major","DHR Overhaul Kit 1000","DHR Overhaul Kit 2000","Rotary Head Overhaul Kit 1000","Rotary Head Overhaul Kit 2000","ARH Repair Kit","Motor","Gearbox Components","Rockdrill Part"],
+            "Machine-Parts": ["RHS Part","OSC Valve Block","Damper","Undercarriage","Boom Part","Feed Part","Seal Kit","Pump","Motor","Cabin Parts","Main Valve Block"],
+            "Consumables": ["Cotton Waste","Print Paper","Anabond","LocTite","Welding Rods","Fastener","Adapter","Adapter Fittings","Rubber Seals","O-Rings","Bearings"],
+            "Electrical and RCS": ["Sensors", "Cables", "Control Module", "Joysticks"], 
+            "Local Purchase": ["Oil","Hose Assly","Adapter","Fastener","Adapter Fittings","Rubber Seals","O-Rings","Bearings","Seal Part","Common Part","Ropes"] 
+        },
+        "RockTool": { 
+            "Hammer": ["PRISMA-DHD-Hammer 2-3-8 API pin","QL-40 Hammer 2-3-8 API pin","PRISMA 4H Hammer 2-3-8 API pin","PRISMA 4S Hammer 2-3-8 API pin","PRISMA 5-DL-Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 2-7-8 API Pin","PRISMA 5.5 Hammer 3-1-2 API Pin","P5.5 Hammer with 3-1-2 Beco Pin","PRISMA 6 Hammer 3-1-2 API pin","QL,60 Hammer 3-1-2 API PIN","QL-60 Hammer 3-1-2 BECO PIN"], 
+            "Buttonbit": ["PRISMA 4H BIT Quarry","PRISMA 4H BIT HF","Semi Retract Bit 115mm","102mm -Local Vendor","PRISMA 5.5 BIT","Power Retract bit","115mm -Local Vendor","SPHERICAL 127mm","QL60 Button Bit 165mm","K5.5 Bit 152mm","K4 Bit 121mm"],
+            "Topsub": ["L8 Mark 2- Fixed Adaptor 6 inch","L8 Mark 2- Float Adaptor 6 inch","Topsub 3-1-2 580mm","Topsub 2-3-8 580mm","Topsub 2-7-8 580mm","Topsub 3-1-2 250mm","Topsub 2-3-8 250mm","Topsub 2-7-8 250mm"],
+            "Drillrod": ["T51 Speed Rod","Drill Pipe 89mm 5000mm","Drill Pipe 89mm 6000mm","Drill Pipe 102mm (5000mm)","Drill Pipe 102mm 6000mm","Drill Pipe 114mm 5000mm","Drill Pipe 114mm 6000mm","Drill Pipe 89mm 4000mm","Drill Pipe 102mm 4000mm","Drill Pipe 114mm Terratec","T51 Local Vendor"],
+            "Shankadapter": ["T51E- L-770","T51- L-770","T51 Local Vendor","T60- L-840 SECOROC"]
+        },
+        "Hoses": { 
+            "Hydraulic Hoses": ["Tram Hose","Travel Hose","Rotation Hose","Suction Hose","Pilot Hose","RHS Hose","BOT Hose","BOOM Hose","Feeder Hose","Cooler Hose","Tank Hose"], 
+            "Compressor Hoses": ["Discharge Hose","Cooler Hose","Air Control Hose"],
+            "Engine Hoses": ["Lube Oil Hose","Turbo Hose","Suction Hose"],
+            "Other Hoses": ["DCT Hose","HECL Hose","Grease Hose"],
+            "Air Hoses": ["DTH1","DTH2","DTH3","DTH4","AP2","Travel Air Hose"],
+            "Fuel Hoses": ["Fuel Hose to Filter","Fuel Hose to Pump","Fuel Hose to tank"]
+        },
+        "UD Parts": { 
+            "Boom1": ["Flange Bearing","Bushing","Angle Sensor","Potentio Meter","Cylinder Sealkit","Wire Assly","Protection Coil","DP Checkvalve","Hyd-Hose","Cylinder","Expander Shaft"], 
+            "Boom2": ["Flange Bearing","Bushing","Angle Sensor","Potentio Meter","Cylinder Sealkit","Wire Assly","Protection Coil","DP Checkvalve","Hyd-Hose","Cylinder","Expander Shaft"],
+            "RockDrill1": ["COP-OH Kit Minor","COP-OH Kit Major","Driver","Diaphragm","Diaphragm Return","Cup Seal","Piston","Damper Piston","Damper Seal","Side Bolt","Dome Nut","Flushing Head","Guide Bush","Piston Guide","Stop Ring"],
+            "RockDrill2": ["COP-OH Kit Minor","COP-OH Kit Major","Driver","Diaphragm","Diaphragm Return","Cup Seal","Piston","Damper Piston","Damper Seal","Side Bolt","Dome Nut","Flushing Head","Guide Bush","Piston Guide","Stop Ring"],
+            "Feed1": ["Cradle Plate","Sliding Piece","Slide Bar","Dowel","Pull Rope","Return Rope","Roller Bearing","Profile","Front Bushing","Centre Bushing","Hose Drum","Pulley Wheel","Holder","Wiper","Water Hose","Percusssion HP","Percussion-HT","Rotation-RRL","Rotation-RRR","Damping Hose","Lube-Hose","Drain Hose"],
+            "Feed2": ["Cradle Plate","Sliding Piece","Slide Bar","Dowel","Pull Rope","Return Rope","Roller Bearing","Profile","Front Bushing","Centre Bushing","Hose Drum","Pulley Wheel","Holder","Wiper","Water Hose","Percusssion HP","Percussion-HT","Rotation-RRL","Rotation-RRR","Damping Hose","Lube-Hose","Drain Hose"]
+        }
+    };
 
-        const groupToReasons = {
-            "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"],
-            "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"],
-            "UD Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement","No Communication","Welding Defect","Missing"],
-            "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Thread Worn","Dropped in Hole","Jam in hole","shank crack"],
-            "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"]
-        };
+    const groupToReasons = {
+        "Lubricant": ["250 Hr SM","500 Hr SM","1000 Hr SM","1500 Hr SM","2000 Hr SM","Top Up","Leakage","Hose Failure","Contamination"],
+        "Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","No Communication","Welding Defect","Missing"],
+        "UD Parts": ["No Function","Damaged","Maintenance","Worn out","Broken","Leakage","Short Circuit","Open Circuit","Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement","No Communication","Welding Defect","Missing"],
+        "RockTool": ["Worn out","Broken","Blunt button","Thread Worn","Thread Worn","Dropped in Hole","Jam in hole","shank crack"],
+        "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"]
+    };
 
     // 🏁 INITIALIZATION
     window.onload = function() {
@@ -353,7 +368,7 @@ const siteToFleet = {
         });
     };
 
-    // 🔒 AUTHENTICATION (STRICT PRODUCTION MODE)
+    // 🔒 AUTHENTICATION
     function verifyCredentials() {
         const user = document.getElementById('valTech').value.trim();
         const pass = document.getElementById('passInput').value.trim();
@@ -506,16 +521,13 @@ const siteToFleet = {
 
             fetch(scriptURL, { method: "POST", body: JSON.stringify(payload), mode: 'no-cors' })
             .then(() => {
-                // --- INTEGRATED UI LOG LOGIC ---
                 const now = new Date();
                 const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
                 const rowCount = payload.length;
 
-                // Update the Dashboard labels
                 document.getElementById('lastDate').innerText = dateStr;
                 document.getElementById('lastRows').innerText = rowCount;
                 
-                // Visual feedback for the log box
                 const log = document.getElementById('activityLog');
                 if(log) {
                     log.style.borderColor = "#28a745";
@@ -536,34 +548,120 @@ const siteToFleet = {
         reader.readAsText(file);
     }
 
-    // ➕ ADD PART LINE (WITH 10-ROW LIMIT)
+    // 📝 FORM SUBMIT (RESTORED SAFELY)
+    document.getElementById('consumptionForm').onsubmit = function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('submitBtn');
+        const techPass = document.getElementById('passInput').value;
+        const rowCount = document.querySelectorAll('.part-block').length;
+
+        btn.innerText = "🚀 SUBMITTING " + rowCount + " RECORDS..."; 
+        btn.disabled = true;
+
+        const formData = new FormData(this);
+        formData.append('Unlock_Password', techPass); 
+
+        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: formData })
+        .then(() => { 
+            alert(`✅ SUCCESS: ${rowCount} records saved to Database.`); 
+            location.reload(); 
+        })
+        .catch(err => {
+            alert("❌ Submission Error: " + err);
+            btn.disabled = false;
+            btn.innerText = "Finalize & Submit All Records";
+        });
+    };
+
+    // ➕ ADD PART LINE (STRICT 10-LINE LIMIT)
     function addPartLine() {
         const container = document.getElementById('partsContainer');
-        // Count existing blocks to enforce the 10-line limit
         const rowId = document.querySelectorAll('.part-block').length + 1;
         
-        if(rowId > 10) {
-            return alert("🚨 Max 10 lines allowed per manual entry.");
-        }
+        if(rowId > 10) return alert("🚨 Max 10 lines allowed per manual entry.");
         
         const clone = document.getElementById('part-row-1').cloneNode(true);
         clone.id = "part-row-" + rowId;
-        
-        // Update the header text
         clone.querySelector('.part-header span').innerText = "PART ENTRY #" + rowId;
         
-        // Reset all inputs in the cloned row
+        // Reset inputs and colors for the new line
         clone.querySelectorAll('select, input').forEach(i => {
             i.value = (i.name === "qty[]" ? 1 : "");
+            i.style.borderColor = "#ddd"; 
+            i.style.backgroundColor = "white"; 
         });
 
         container.appendChild(clone);
     }
-</script>
 
+    // --- 📷 QR SCANNER ENGINE (DIRECT ACCESS MODE) ---
+    let html5QrCode = null;
+    let targetInputBox = null;
+
+    function openScanner(btnElement) {
+        // 1. Identify input box
+        targetInputBox = btnElement.previousElementSibling;
+
+        // 2. Show Modal
+        const modal = document.getElementById('qrModal');
+        modal.style.display = 'flex'; 
+        modal.classList.remove('hidden');
+
+        // 3. Initialize Direct Scanner
+        html5QrCode = new Html5Qrcode("qr-reader");
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+        // 4. Force Start the Rear Camera ("environment")
+        html5QrCode.start(
+            { facingMode: "environment" }, 
+            config, 
+            onScanSuccess, 
+            onScanFailure
+        ).catch(err => {
+            // If it fails, this will tell us EXACTLY why (e.g., hardware lock, permissions)
+            console.error("Camera Error:", err);
+            alert("Camera Error: " + err + "\n\nPlease ensure no other apps are using the camera.");
+            closeScanner();
+        });
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+        if (targetInputBox) {
+            targetInputBox.value = decodedText.trim();
+            
+            targetInputBox.style.borderColor = "#28a745";
+            targetInputBox.style.backgroundColor = "#e8f5e9";
+            setTimeout(() => {
+                targetInputBox.style.borderColor = "#ddd";
+                targetInputBox.style.backgroundColor = "white";
+            }, 1500);
+        }
+        closeScanner();
+    }
+
+    function onScanFailure(error) {
+        // Continues scanning silently frame-by-frame
+    }
+
+    function closeScanner() {
+        // Hide Modal immediately for good UI experience
+        const modal = document.getElementById('qrModal');
+        modal.classList.add('hidden');
+        modal.style.display = 'none';
+
+        // Safely shut down the camera hardware
+        if (html5QrCode) {
+            html5QrCode.stop().then(() => {
+                html5QrCode.clear();
+                html5QrCode = null; // Reset for the next scan
+            }).catch(err => {
+                console.error("Failed to stop scanner", err);
+            });
+        }
+    }
+
+</script>
 </body>
 </html>
-
-
-
-
