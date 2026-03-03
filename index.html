@@ -395,7 +395,11 @@ document.addEventListener('change', checkValidation);
         const formData = new FormData(this);
         formData.append('Unlock_Password', document.getElementById('passInput').value);
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: formData })
-        .then(() => { alert("Success! Records saved."); location.reload(); })
+        .then(() => { 
+            const now = new Date();
+            alert("Success! Record saved at " + now.toLocaleTimeString()); 
+            location.reload(); 
+        })
         .catch(() => { alert("Error saving data."); btn.disabled = false; });
     });
    // --- 1. DOWNLOAD TEMPLATE FUNCTION (12 Data Columns) ---
@@ -589,6 +593,7 @@ window.addEventListener('contextmenu', function(e) {
 </script>
 </body>
 </html>
+
 
 
 
