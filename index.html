@@ -456,79 +456,113 @@ const siteToFleet = {
         link.click();
     }
 
-    // 🚀 UPLOAD ENGINE
+    // 🚀 UPLOAD ENGINE (WITH ROW COUNT & DATE SYNC)
     function handleBulkUpload() {
         const file = document.getElementById('csvFileInput').files[0];
         if (!file) return alert("Please select a file.");
+        
         const btn = document.getElementById('bulkBtn');
         const wrn = document.getElementById('busyWarning');
+        const techPass = document.getElementById('passInput').value;
         
-        btn.disabled = true; wrn.style.display = "block";
+        btn.disabled = true; 
+        wrn.style.display = "block";
 
         const reader = new FileReader();
         reader.onload = function(e) {
-            const rows = e.target.result.split(/\r?\n/).slice(1);
+            const rawContent = e.target.result;
+            const rows = rawContent.split(/\r?\n/).slice(1);
             let payload = [];
+            
             rows.forEach(row => {
+                if (!row.trim()) return;
                 const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 if (cols.length >= 12) {
                     payload.push({
                         Technician_Name: document.getElementById('valTech').value,
-                        Unlock_Password: document.getElementById('passInput').value,
-                        Customer_Name: cols[0].replace(/"/g, ''),
-                        Work_Site: cols[1].replace(/"/g, ''),
-                        Fleet_ID: cols[2].replace(/"/g, ''),
-                        Entry_Date: cols[3],
-                        Engine_Hours: cols[4],
-                        Part_Group: cols[5],
-                        Part_Type: cols[6],
-                        Part_Description: cols[7].replace(/"/g, ''),
-                        Part_Number: cols[8],
-                        Quantity: cols[9],
-                        Unit_Price: cols[10],
-                        Reason_to_Replace: cols[11].replace(/"/g, ''),
+                        Unlock_Password: techPass,
+                        Customer_Name: cols[0].replace(/"/g, '').trim(),
+                        Work_Site: cols[1].replace(/"/g, '').trim(),
+                        Fleet_ID: cols[2].replace(/"/g, '').trim(),
+                        Entry_Date: cols[3].trim(),
+                        Engine_Hours: cols[4].trim(),
+                        Part_Group: cols[5].trim(),
+                        Part_Type: cols[6].trim(),
+                        Part_Description: cols[7].replace(/"/g, '').trim(),
+                        Part_Number: cols[8].trim(),
+                        Quantity: cols[9].trim(),
+                        Unit_Price: cols[10].trim(),
+                        Reason_to_Replace: cols[11].replace(/"/g, '').trim(),
                         File_ID: "BULK_" + Date.now()
                     });
                 }
             });
 
+            if (payload.length === 0) {
+                alert("❌ Error: No valid data found in CSV.");
+                btn.disabled = false; wrn.style.display = "none";
+                return;
+            }
+
             fetch(scriptURL, { method: "POST", body: JSON.stringify(payload), mode: 'no-cors' })
             .then(() => {
-                document.getElementById('lastEntryTime').innerText = "SYNCED: " + new Date().toLocaleTimeString();
-                alert("✅ SUCCESS: Bulk Data Processed.");
+                // --- INTEGRATED UI LOG LOGIC ---
+                const now = new Date();
+                const dateStr = now.toLocaleDateString('en-GB').replace(/\//g, '-');
+                const rowCount = payload.length;
+
+                // Update the Dashboard labels
+                document.getElementById('lastDate').innerText = dateStr;
+                document.getElementById('lastRows').innerText = rowCount;
+                
+                // Visual feedback for the log box
+                const log = document.getElementById('activityLog');
+                if(log) {
+                    log.style.borderColor = "#28a745";
+                    log.style.color = "#155724";
+                }
+
+                alert(`✅ SUCCESS\n\n${rowCount} rows for ${payload[0].Fleet_ID} were synced at ${now.toLocaleTimeString()}.\n\nRecords have been saved to GSheet.`);
+                
+                btn.disabled = false; 
+                wrn.style.display = "none";
+                document.getElementById('csvFileInput').value = "";
+            })
+            .catch(err => {
+                alert("❌ Upload Failed: " + err);
                 btn.disabled = false; wrn.style.display = "none";
             });
         };
         reader.readAsText(file);
     }
 
-    // 📝 FORM SUBMIT
-    document.getElementById('consumptionForm').onsubmit = function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('submitBtn');
-        btn.innerText = "SUBMITTING..."; btn.disabled = true;
-        const formData = new FormData(this);
-        formData.append('Unlock_Password', document.getElementById('passInput').value);
-        fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: formData })
-        .then(() => { 
-            alert("✅ SUCCESS: Records saved to GSheet."); 
-            location.reload(); 
-        });
-    };
-
+    // ➕ ADD PART LINE (WITH 10-ROW LIMIT)
     function addPartLine() {
         const container = document.getElementById('partsContainer');
+        // Count existing blocks to enforce the 10-line limit
         const rowId = document.querySelectorAll('.part-block').length + 1;
-        if(rowId > 10) return alert("Max 10 lines allowed.");
+        
+        if(rowId > 10) {
+            return alert("🚨 Max 10 lines allowed per manual entry.");
+        }
+        
         const clone = document.getElementById('part-row-1').cloneNode(true);
         clone.id = "part-row-" + rowId;
+        
+        // Update the header text
         clone.querySelector('.part-header span').innerText = "PART ENTRY #" + rowId;
-        clone.querySelectorAll('select, input').forEach(i => i.value = (i.name === "qty[]" ? 1 : ""));
+        
+        // Reset all inputs in the cloned row
+        clone.querySelectorAll('select, input').forEach(i => {
+            i.value = (i.name === "qty[]" ? 1 : "");
+        });
+
         container.appendChild(clone);
     }
 </script>
 
 </body>
 </html>
+
 
 
