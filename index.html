@@ -187,19 +187,22 @@
             </div>
 
             <div class="bulk-upload-zone">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                    <b style="font-size: 14px; color: var(--epiroc-grey);">BULK DATA PROCESSING</b>
-                    <span style="font-size: 11px; color: #444;">SYSTEM STATUS: <b id="lastEntryTime" style="color:#007bff;">READY</b></span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 2.5fr; gap: 12px;">
-                    <button type="button" class="btn btn-primary" onclick="generateDynamicTemplate()" style="font-size: 11px;">📥 GET TEMPLATE</button>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="file" id="csvFileInput" accept=".csv" style="flex: 1; background: white; border: 1px solid #ccc;">
-                        <button type="button" class="btn btn-primary" onclick="handleBulkUpload()" id="bulkBtn" style="font-size: 11px;">🚀 UPLOAD CSV</button>
-                    </div>
-                </div>
-                <div id="busyWarning" class="busy-warning">⚠️ SERVER PROCESSING... DO NOT RE-CLICK</div>
-            </div>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <b style="font-size: 14px; color: var(--epiroc-grey);">BULK DATA PROCESSING</b>
+        <div id="activityLog" style="font-size: 11px; color: #444; background: #fff; padding: 4px 8px; border-radius: 4px; border: 1px solid #ccc;">
+            📅 LAST SYNC: <b id="lastDate">--</b> | 
+            📊 ROWS: <b id="lastRows">0</b>
+        </div>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 2.5fr; gap: 12px;">
+        <button type="button" class="btn btn-primary" onclick="generateDynamicTemplate()" style="font-size: 11px;">📥 GET TEMPLATE</button>
+        <div style="display: flex; gap: 8px;">
+            <input type="file" id="csvFileInput" accept=".csv" style="flex: 1; background: white; border: 1px solid #ccc;">
+            <button type="button" class="btn btn-primary" onclick="handleBulkUpload()" id="bulkBtn" style="font-size: 11px;">🚀 UPLOAD CSV</button>
+        </div>
+    </div>
+    <div id="busyWarning" class="busy-warning">⚠️ SERVER PROCESSING... DO NOT RE-CLICK</div>
+</div>
 
             <div id="partsContainer">
                 <div class="part-block" id="part-row-1">
@@ -527,4 +530,5 @@ const siteToFleet = {
 
 </body>
 </html>
+
 
