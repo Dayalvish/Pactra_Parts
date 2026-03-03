@@ -3,149 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PACTRA360 PARTS ENTRY FORM</title>
+    <title>PACTRA360 | INDUSTRIAL PARTS ENTRY</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; padding: 20px; margin: 0; }
-        .header-section { background-color: #f8f9fa; border-bottom: 2px solid #ddd; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .sheet-container { background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 750px; margin: 0 auto; border-radius: 8px; overflow: hidden; }
-        table { border-collapse: collapse; width: 100%; }
-        td { border: 1px solid #dfe3e8; padding: 12px; font-size: 14px; }
+        :root {
+            --epiroc-grey: #2D2D2D;
+            --epiroc-yellow: #FFCC00;
+            --epiroc-bg: #40515E;
+            --success-green: #00FF7F;
+            --error-red: #dc3545;
+        }
+
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: var(--epiroc-bg); padding: 15px; margin: 0; color: #fff; }
         
-        /* Excel Style Alternating Colors */
-        .row-odd .label-cell { background-color: #FFD700 !important; color: #000 !important; font-weight: bold; width: 40%; }
-        .row-even .label-cell { background-color: #555555 !important; color: #ffffff !important; font-weight: bold; width: 40%; }
-        
-        .part-block { border: 2px solid #15222F; margin: 15px; border-radius: 6px; background: #fff; position: relative; }
-        .part-header { background: #15222F; color: #00FF7F; padding: 8px; font-weight: bold; text-align: center; }
-        
-        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
+        .header-section { 
+            background-color: var(--epiroc-grey); 
+            border-bottom: 5px solid var(--epiroc-yellow); 
+            display: flex; justify-content: center; align-items: center; 
+            padding: 15px; margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .form-container { 
+            background: white; 
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3); 
+            max-width: 950px; 
+            margin: 0 auto; 
+            border-radius: 10px; 
+            padding-bottom: 25px;
+            color: #333;
+            overflow: hidden;
+        }
+
+        /* GRID SYSTEM FOR SQUARE LOOK */
+        .section-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .input-group { display: flex; flex-direction: column; }
+        .input-group label { 
+            font-size: 11px; 
+            font-weight: 900; 
+            text-transform: uppercase; 
+            color: var(--epiroc-grey); 
+            margin-bottom: 5px;
+        }
+
+        input, select, textarea { 
+            padding: 10px; 
+            border: 2px solid #ddd; 
+            border-radius: 5px; 
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--epiroc-yellow) !important;
+            box-shadow: 0 0 5px rgba(255, 204, 0, 0.3);
+        }
+
+        .verify-bar {
+            background-color: var(--epiroc-grey);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .part-block {
+            border: 2px solid var(--epiroc-grey);
+            margin: 20px;
+            border-radius: 8px;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .part-header {
+            background: var(--epiroc-grey);
+            color: var(--epiroc-yellow);
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 900;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .part-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .bulk-upload-zone {
+            background: #f1f3f5;
+            margin: 20px;
+            padding: 18px;
+            border-radius: 8px;
+            border: 2px dashed var(--epiroc-grey);
+        }
+
         .hidden { display: none; }
-        button { padding: 10px 25px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; }
-        .btn-submit { background-color: #28a745; color: white; width: 100%; margin-top: 20px; }
-        .btn-add { background-color: #007bff; color: white; width: 100%; margin: 10px 0; }
-        .status-tag { padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
-        .locked { background: #f8d7da; color: #721c24; }
-        .unlocked { background: #d4edda; color: #155724; }
-        .required-star { color: #dc3545; }
+        .btn { 
+            padding: 12px; border: none; border-radius: 5px; cursor: pointer; 
+            font-weight: 900; text-transform: uppercase; transition: 0.3s; 
+        }
+        .btn-primary { background: var(--epiroc-grey); color: var(--epiroc-yellow); border: 1px solid var(--epiroc-yellow); }
+        .btn-success { background: var(--epiroc-grey); color: var(--epiroc-yellow); width: 100%; margin-top: 25px; border-top: 5px solid var(--epiroc-yellow); font-size: 16px; }
+        
+        .status-tag { padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        .locked { background: var(--error-red); color: white; }
+        .unlocked { background: #198754; color: white; }
+        
+        .busy-warning { color: var(--error-red); font-size: 13px; font-weight: bold; display: none; text-align: center; animation: blinker 1.5s linear infinite; margin-top: 10px; }
+        @keyframes blinker { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
 <div class="header-section">
-    <div style="display: flex; align-items: center; gap: 30px;">
-        <img src="pactra new .jpg" alt="Pactra 360" style="height: 55px;" onerror="this.src='Picture1.png'">
-        <h2 style="margin: 0; color: #333; font-family: sans-serif;">PACTRA360 PARTS ENTRY FORM</h2>
-        <img src="Picture1.png" alt="Epiroc Logo" style="height: 55px;">
-    </div>
+    <h2 style="margin: 0; color: var(--epiroc-yellow); letter-spacing: 2px;">PACTRA360 PARTS ENTRY PORTAL</h2>
 </div>
 
-<form id="consumptionForm">
-    <div class="sheet-container">
-        <table>
-            <tr class="row-odd"><td class="label-cell">Customer Name *</td><td><select id="customerSelect" name="Customer_Name" onchange="updateSites(); checkValidation();" required><option value="">-- Select Customer --</option></select></td></tr>
-            <tr class="row-even"><td class="label-cell">Date *</td><td><input type="date" name="Entry_Date" id="valDate" oninput="checkValidation()" required></td></tr>
-            <tr class="row-odd"><td class="label-cell">User Name *</td><td><input type="text" name="Technician_Name" id="valTech" placeholder="e.g. tech_id" required></td></tr>
-            <tr class="row-even"><td class="label-cell" style="background-color: #fff3cd !important; color:#000 !important;">Site Access Password *</td><td><input type="password" id="passInput" required></td></tr>
-            <tr>
-                <td colspan="2" style="text-align: center; padding: 15px;">
-                    <button type="button" id="verifyBtn" onclick="verifyCredentials()" style="background: #007bff; color: white; width: 80%;">Verify & Unlock Form</button>
-                    <div id="loginStatus" style="margin-top: 10px;"><span id="statusLabel" class="status-tag locked">Locked - Please Verify</span></div>
-                </td>
-            </tr>
-
-            <tbody id="protectedContent" class="hidden">
-                <tr class="row-odd"><td class="label-cell">Work Site *</td><td><select id="workSiteSelect" name="Work_Site" onchange="updateFleet(); checkValidation();"><option value="">-- Select Site --</option></select></td></tr>
-                <tr class="row-even"><td class="label-cell">Fleet ID *</td><td><select id="fleetSelect" name="Fleet_ID" onchange="checkValidation()"><option value="">-- Select Fleet --</option></select></td></tr>
-                <tr class="row-odd"><td class="label-cell">Engine Hours *</td><td><input type="number" name="Engine_Hours" id="valHours" oninput="checkValidation()" required></td></tr>
-                <tr class="row-even"><td class="label-cell">Remarks</td><td><textarea name="Remarks" rows="2"></textarea></td></tr>
-                <tr>
-    <td colspan="2">
-       <div class="bulk-section" style="margin-top: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
-    <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">Bulk Upload Tools</h3>
-           <div id="syncStatus" style="font-size: 11px; background: #e9ecef; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-bottom: 10px; border: 1px solid #ccc;">
-    📡 System Status: <span id="syncDot" style="color: #28a745;">● Online</span> | 
-    🕒 Last Entry Sent: <span id="lastEntryTime" style="font-weight: bold;">None</span>
-</div>
-    
-    <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
-        
-        <div style="background: #fff; padding: 10px; border-radius: 5px; border-left: 4px solid #6c757d;">
-            <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #555;"><strong>Step 1:</strong> Select Customer, Site, and Fleet above first, then:</p>
-            <button type="button" onclick="generateDynamicTemplate()" style="width: 100%; background-color: #6c757d; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; font-weight: bold;">
-                📥 Download Pre-filled Template
-            </button>
+<div class="form-container">
+    <form id="consumptionForm">
+        <div class="section-row">
+            <div class="input-group">
+                <label>Customer Name *</label>
+                <select id="customerSelect" name="Customer_Name" onchange="updateSites()" required>
+                    <option value="">-- Select Customer --</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Date *</label>
+                <input type="date" id="valDate" name="Entry_Date" required>
+            </div>
+            <div class="input-group">
+                <label>Technician ID *</label>
+                <input type="text" id="valTech" name="Technician_Name" placeholder="tech_name" required>
+            </div>
         </div>
 
-        <div style="background: #fff; padding: 10px; border-radius: 5px; border-left: 4px solid #007bff;">
-            <p style="margin: 0 0 10px 0; font-size: 0.9em; color: #555;"><strong>Step 2:</strong> Fill the file and upload here:</p>
-            <input type="file" id="csvFileInput" accept=".csv" style="margin-bottom: 12px; width: 100%; font-size: 0.85em;">
-            
-            <button type="button" onclick="handleBulkUpload()" style="width: 100%; background-color: #007bff; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                🚀 Upload & Process Bulk Data
-            </button>
+        <div class="verify-bar">
+            <div class="input-group" style="flex: 2;">
+                <input type="password" id="passInput" placeholder="Enter Site Access Password">
+            </div>
+            <button type="button" class="btn btn-primary" id="verifyBtn" onclick="verifyCredentials()" style="flex: 1;">Authenticate & Unlock</button>
+            <span id="statusLabel" class="status-tag locked">LOCKED</span>
         </div>
-        
-    </div>
-</div>
 
-<tr>
-                <td colspan="2" id="partsContainer">
-                    <div class="part-block" id="part-row-1">
-                        <div class="part-header">PART ENTRY #1</div>
-                        <table style="width:100%; border:none;">
-                            <tr class="row-odd">
-                                <td class="label-cell">Part Group *</td>
-                                <td><select name="part_group[]" class="group-sel" onchange="updateRowCascades(this); checkValidation();" required>
-                                    <option value="">-- Select Group --</option>
-                                    <option value="Lubricant">Lubricant</option>
-                                    <option value="Parts">Parts</option>
-                                    <option value="RockTool">RockTool</option>
-                                    <option value="Hoses">Hoses</option>
-                                    <option value="UD Parts">UD Parts</option>
-                                </select></td>
-                            </tr>
-                            <tr class="row-even">
-                                <td class="label-cell">Part Type *</td>
-                                <td><select name="part_type[]" class="type-sel" onchange="updateRowDesc(this); checkValidation();" required><option value="">-- Select Type --</option></select></td>
-                            </tr>
-                            <tr class="row-odd">
-                                <td class="label-cell">Part Description *</td>
-                                <td><select name="part_desc[]" class="desc-sel" onchange="checkValidation()" required><option value="">-- Select Description --</option></select></td>
-                            </tr>
-                            <tr class="row-even">
-                                <td class="label-cell">Reason for Replacement *</td>
-                                <td><select name="reason[]" class="reason-sel" onchange="checkValidation()" required><option value="">-- Select Reason --</option></select></td>
-                            </tr>
-                            <tr class="row-odd">
-                                <td class="label-cell">Part Number</td>
-                                <td><input type="text" name="part_no[]" placeholder="e.g. 558000XXXX"></td>
-                            </tr>
-                            <tr class="row-even">
-                                <td class="label-cell">Quantity *</td>
-                                <td><input type="number" name="qty[]" value="1" min="1" oninput="checkValidation()" required></td>
-                            </tr>
-                            <tr class="row-odd">
-                                <td class="label-cell">Price</td>
-                                <td><input type="number" step="any" name="unit_price[]" placeholder="Unit Price Only"></td>
-                            </tr>
-                        </table>
+        <div id="protectedContent" class="hidden">
+            <div class="section-row" style="background-color: #fef9e7;">
+                <div class="input-group">
+                    <label>Work Site *</label>
+                    <select id="workSiteSelect" name="Work_Site" onchange="updateFleet()"></select>
+                </div>
+                <div class="input-group">
+                    <label>Fleet ID *</label>
+                    <select id="fleetSelect" name="Fleet_ID"></select>
+                </div>
+                <div class="input-group">
+                    <label>Engine Hours *</label>
+                    <input type="number" id="valHours" name="Engine_Hours" placeholder="Current Reading">
+                </div>
+            </div>
+
+            <div class="bulk-upload-zone">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <b style="font-size: 14px; color: var(--epiroc-grey);">BULK DATA PROCESSING</b>
+                    <span style="font-size: 11px; color: #444;">SYSTEM STATUS: <b id="lastEntryTime" style="color:#007bff;">READY</b></span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 2.5fr; gap: 12px;">
+                    <button type="button" class="btn btn-primary" onclick="generateDynamicTemplate()" style="font-size: 11px;">📥 GET TEMPLATE</button>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="file" id="csvFileInput" accept=".csv" style="flex: 1; background: white; border: 1px solid #ccc;">
+                        <button type="button" class="btn btn-primary" onclick="handleBulkUpload()" id="bulkBtn" style="font-size: 11px;">🚀 UPLOAD CSV</button>
                     </div>
-                </td></tr>
-                
-                <tr><td colspan="2" style="text-align: center;">
-                    <button type="button" class="btn-add" onclick="addPartLine()">+ Add Another Part Line (Max 10)</button>
-                </td></tr>
-            </tbody>
-        </table>
+                </div>
+                <div id="busyWarning" class="busy-warning">⚠️ SERVER PROCESSING... DO NOT RE-CLICK</div>
+            </div>
 
-        <div id="formButtons" class="hidden" style="padding: 20px;">
-            <button type="submit" id="submitBtn" class="btn-submit" disabled>Submit All Records to Part_Db</button>
-            <button type="button" onclick="location.reload()" style="background:#dc3545; color:white; width:100%; margin-top:10px;">Sign Out / Clear Form</button>
+            <div id="partsContainer">
+                <div class="part-block" id="part-row-1">
+                    <div class="part-header"><span>PART ENTRY #1</span></div>
+                    <div class="part-grid">
+                        <div class="input-group"><label>Group *</label><select name="part_group[]" class="group-sel" onchange="updateRowCascades(this)" required><option value="">-- Select --</option><option value="Lubricant">Lubricant</option><option value="Parts">Parts</option><option value="RockTool">RockTool</option><option value="Hoses">Hoses</option><option value="UD Parts">UD Parts</option></select></div>
+                        <div class="input-group"><label>Type *</label><select name="part_type[]" class="type-sel" onchange="updateRowDesc(this)" required></select></div>
+                        <div class="input-group"><label>Description *</label><select name="part_desc[]" class="desc-sel" required></select></div>
+                        <div class="input-group"><label>Reason *</label><select name="reason[]" class="reason-sel" required></select></div>
+                        <div class="input-group"><label>Part Number</label><input type="text" name="part_no[]" placeholder="5580..."></div>
+                        <div class="input-group">
+                            <label>Qty & Price</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="number" name="qty[]" value="1" style="width: 35%;">
+                                <input type="number" step="any" name="unit_price[]" placeholder="INR Unit Price" style="width: 65%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 0 20px;">
+                <button type="button" class="btn" style="width: 100%; border: 2px dashed var(--epiroc-grey); color: var(--epiroc-grey); background: none;" onclick="addPartLine()">+ Add Another Part Entry</button>
+                <button type="submit" id="submitBtn" class="btn btn-success">Finalize & Submit All Records</button>
+            </div>
         </div>
-    </div>
-</form>
+    </form>
+</div>
 
 <script>
+    // 🔗 CONFIGURATION
     const scriptURL = "https://script.google.com/macros/s/AKfycbzI4glV9IxNnj8PHzBE_JZbxTc6HDEqXX3sDTUjpUUuKec7fhw1yrbexfo8xxAbynsS/exec";
 
     const customerToSites = {
@@ -257,14 +330,67 @@ const siteToFleet = {
             "Hoses": ["Hose Burst", "Fitting Leak", "External Rubbing-Damage", "End-of-Life Replacement"]
         };
 
-    let partCount = 1;
-
+    // 🏁 INITIALIZATION
     window.onload = function() {
         const custSelect = document.getElementById('customerSelect');
         Object.keys(customerToSites).sort().forEach(c => {
-            let opt = document.createElement('option'); opt.value = opt.text = c; custSelect.add(opt);
+            let opt = document.createElement('option'); opt.value = c; opt.text = c; custSelect.add(opt);
         });
     };
+
+    // 🔒 AUTHENTICATION (STRICT PRODUCTION MODE)
+    function verifyCredentials() {
+        const user = document.getElementById('valTech').value.trim();
+        const pass = document.getElementById('passInput').value.trim();
+        if(!user || !pass) return alert("Please enter Technician ID and Password.");
+        
+        const btn = document.getElementById('verifyBtn');
+        btn.innerText = "AUTHENTICATING...";
+        btn.disabled = true;
+
+        fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
+        .then(r => r.text())
+        .then(text => {
+            if (text.startsWith("success")) {
+                document.getElementById('protectedContent').classList.remove('hidden');
+                document.getElementById('statusLabel').innerText = "✅ UNLOCKED";
+                document.getElementById('statusLabel').className = "status-tag unlocked";
+                btn.style.display = "none";
+                document.getElementById('passInput').readOnly = true;
+                document.getElementById('valTech').readOnly = true;
+            } else { 
+                alert("Auth Failed: Incorrect Password."); 
+                btn.innerText = "Authenticate & Unlock";
+                btn.disabled = false;
+            }
+        }).catch(() => {
+            alert("Network Error: Could not reach GSheet Server.");
+            btn.disabled = false;
+        });
+    }
+
+    // 📊 CASCADES
+    function updateSites() {
+        const customer = document.getElementById('customerSelect').value;
+        const siteSelect = document.getElementById('workSiteSelect');
+        siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
+        if (customerToSites[customer]) {
+            customerToSites[customer].forEach(s => {
+                let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
+            });
+        }
+    }
+
+    function updateFleet() {
+        const site = document.getElementById('workSiteSelect').value;
+        const fleetSelect = document.getElementById('fleetSelect');
+        fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
+        if (siteToFleet[site]) {
+            siteToFleet[site].forEach(f => {
+                let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
+            });
+        }
+    }
 
     function updateRowCascades(el) {
         const block = el.closest('.part-block');
@@ -275,12 +401,12 @@ const siteToFleet = {
         reasonSel.innerHTML = '<option value="">-- Select Reason --</option>';
         if (partsData[group]) {
             Object.keys(partsData[group]).forEach(t => {
-                let opt = document.createElement('option'); opt.value = opt.text = t; typeSel.add(opt);
+                let opt = document.createElement('option'); opt.value = t; opt.text = t; typeSel.add(opt);
             });
         }
         if (groupToReasons[group]) {
             groupToReasons[group].forEach(r => {
-                let opt = document.createElement('option'); opt.value = opt.text = r; reasonSel.add(opt);
+                let opt = document.createElement('option'); opt.value = r; opt.text = r; reasonSel.add(opt);
             });
         }
     }
@@ -293,312 +419,99 @@ const siteToFleet = {
         descSel.innerHTML = '<option value="">-- Select Description --</option>';
         if (partsData[group] && partsData[group][type]) {
             partsData[group][type].forEach(d => {
-                let opt = document.createElement('option'); opt.value = opt.text = d; descSel.add(opt);
+                let opt = document.createElement('option'); opt.value = d; opt.text = d; descSel.add(opt);
             });
         }
     }
 
-    function addPartLine() {
-        if (partCount >= 10) return alert("Limit of 10 parts reached.");
-        partCount++;
-        const container = document.getElementById('partsContainer');
-        const clone = document.getElementById('part-row-1').cloneNode(true);
-        clone.id = "part-row-" + partCount;
-        clone.querySelector('.part-header').innerText = "PART ENTRY #" + partCount;
-        clone.querySelectorAll('select, input').forEach(i => i.value = (i.name === "qty[]" ? 1 : ""));
+    // 📥 TEMPLATE ENGINE
+    function generateDynamicTemplate() {
+        const c = document.getElementById('customerSelect').value;
+        const s = document.getElementById('workSiteSelect').value;
+        const f = document.getElementById('fleetSelect').value;
+        if (!c || !s || !f) return alert("Select Core Info (Customer/Site/Fleet) first!");
         
-        const removeBtn = document.createElement('button');
-        removeBtn.innerText = "Remove Line";
-        removeBtn.style = "background:#dc3545; color:white; margin:10px; font-size:12px; padding: 5px 10px;";
-        removeBtn.onclick = function() { clone.remove(); partCount--; checkValidation(); };
-        clone.appendChild(removeBtn);
-        container.appendChild(clone);
-        checkValidation();
+        const headers = "Customer_Name,Work_Site,Fleet_ID,Entry_Date,Engine_Hours,Part_Group,Part_Type,Part_Description,Part_Number,Quantity,Unit_Price,Reason_to_Replace";
+        const date = new Date().toISOString().split('T')[0];
+        const row = `"${c}","${s}","${f}",${date},,,,,,,,`;
+        const blob = new Blob(["\uFEFF" + headers + "\n" + row], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `Template_${s.replace(/\s+/g, '_')}.csv`;
+        link.click();
     }
 
-    function verifyCredentials() {
-        const user = document.getElementById('valTech').value.trim();
-        const pass = document.getElementById('passInput').value.trim();
-        if(!user || !pass) return alert("Enter credentials.");
-        document.getElementById('verifyBtn').innerText = "Verifying...";
-        fetch(scriptURL + "?action=check&u=" + encodeURIComponent(user) + "&p=" + encodeURIComponent(pass))
-        .then(r => r.text())
-        .then(text => {
-            if (text.startsWith("success")) {
-                document.getElementById('protectedContent').classList.remove('hidden');
-                document.getElementById('formButtons').classList.remove('hidden');
-                document.getElementById('statusLabel').innerText = "✅ Unlocked: " + (text.split(":")[1] || "Site");
-                document.getElementById('statusLabel').className = "status-tag unlocked";
-                document.getElementById('verifyBtn').style.display = "none";
-                document.getElementById('valTech').readOnly = true;
-                document.getElementById('passInput').readOnly = true;
-            } else { alert("Login Failed."); document.getElementById('verifyBtn').innerText = "Verify & Unlock Form"; }
-        });
-    }
+    // 🚀 UPLOAD ENGINE
+    function handleBulkUpload() {
+        const file = document.getElementById('csvFileInput').files[0];
+        if (!file) return alert("Please select a file.");
+        const btn = document.getElementById('bulkBtn');
+        const wrn = document.getElementById('busyWarning');
+        
+        btn.disabled = true; wrn.style.display = "block";
 
-    function checkValidation() {
-    // 1. Define the Core IDs as they appear in your HTML
-    const coreFields = ['Customer_Name', 'Work_Site', 'Fleet_ID', 'Entry_Date', 'Engine_Hours', 'Technician_Name', 'Unlock_Password'];
-    
-    // 2. Check if any core field is empty
-    let isInvalid = coreFields.some(id => {
-        const el = document.getElementById(id);
-        return el ? !el.value.trim() : false;
-    });
-
-    // 3. Check Part Rows: Ensure at least the first part row is filled
-    // or check all visible part rows
-    const partGroups = document.querySelectorAll('select[name="part_group[]"]');
-    partGroups.forEach((sel, index) => {
-        // We only strictly validate rows that have been "started"
-        if (index === 0 && !sel.value) isInvalid = true; 
-    });
-
-    // 4. Update Button State
-    const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
-        submitBtn.disabled = isInvalid;
-        // Optional: Change opacity so user sees it is disabled
-        submitBtn.style.opacity = isInvalid ? "0.5" : "1";
-    }
-}
-
-// 5. ATTACH LISTENERS: Ensure this runs whenever a user types or selects
-document.addEventListener('input', checkValidation);
-document.addEventListener('change', checkValidation);
-
-    function updateSites() {
-        const customer = document.getElementById('customerSelect').value;
-        const siteSelect = document.getElementById('workSiteSelect');
-        siteSelect.innerHTML = '<option value="">-- Select Site --</option>';
-        if (customerToSites[customer]) {
-            customerToSites[customer].forEach(s => {
-                let opt = document.createElement('option'); opt.value = opt.text = s; siteSelect.add(opt);
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const rows = e.target.result.split(/\r?\n/).slice(1);
+            let payload = [];
+            rows.forEach(row => {
+                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                if (cols.length >= 12) {
+                    payload.push({
+                        Technician_Name: document.getElementById('valTech').value,
+                        Unlock_Password: document.getElementById('passInput').value,
+                        Customer_Name: cols[0].replace(/"/g, ''),
+                        Work_Site: cols[1].replace(/"/g, ''),
+                        Fleet_ID: cols[2].replace(/"/g, ''),
+                        Entry_Date: cols[3],
+                        Engine_Hours: cols[4],
+                        Part_Group: cols[5],
+                        Part_Type: cols[6],
+                        Part_Description: cols[7].replace(/"/g, ''),
+                        Part_Number: cols[8],
+                        Quantity: cols[9],
+                        Unit_Price: cols[10],
+                        Reason_to_Replace: cols[11].replace(/"/g, ''),
+                        File_ID: "BULK_" + Date.now()
+                    });
+                }
             });
-        }
-        updateFleet();
+
+            fetch(scriptURL, { method: "POST", body: JSON.stringify(payload), mode: 'no-cors' })
+            .then(() => {
+                document.getElementById('lastEntryTime').innerText = "SYNCED: " + new Date().toLocaleTimeString();
+                alert("✅ SUCCESS: Bulk Data Processed.");
+                btn.disabled = false; wrn.style.display = "none";
+            });
+        };
+        reader.readAsText(file);
     }
 
-    function updateFleet() {
-        const site = document.getElementById('workSiteSelect').value;
-        const fleetSelect = document.getElementById('fleetSelect');
-        fleetSelect.innerHTML = '<option value="">-- Select Fleet --</option>';
-        if (siteToFleet[site]) { siteToFleet[site].forEach(f => {
-            let opt = document.createElement('option'); opt.value = opt.text = f; fleetSelect.add(opt);
-        }); }
-    }
-
-    document.getElementById('consumptionForm').addEventListener('submit', function(e) {
+    // 📝 FORM SUBMIT
+    document.getElementById('consumptionForm').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('submitBtn');
-        btn.innerText = "Processing..."; btn.disabled = true;
+        btn.innerText = "SUBMITTING..."; btn.disabled = true;
         const formData = new FormData(this);
         formData.append('Unlock_Password', document.getElementById('passInput').value);
         fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: formData })
         .then(() => { 
-            const now = new Date();
-            alert("Success! Record saved at " + now.toLocaleTimeString()); 
+            alert("✅ SUCCESS: Records saved to GSheet."); 
             location.reload(); 
-        })
-        .catch(() => { alert("Error saving data."); btn.disabled = false; });
-    });
-   // --- 1. DOWNLOAD TEMPLATE FUNCTION (12 Data Columns) ---
-function downloadCSVTemplate() {
-    // These 12 headers map to Columns B through M in your Google Sheet
-    const headers = [
-        "Customer_Name", "Work_Site", "Fleet_ID", 
-        "Entry_Date", "Engine_Hours", 
-        "Part_Group", "Part_Type", "Part_Description", 
-        "Part_Number", "Quantity", "Unit_Price", "Reason_to_Replace"
-    ];
-    
-    const sample = [
-        "TATA STEEL LTD", "Noamundi Iron Ore Mines", "SRD65_24005_TSLNIM", 
-        "2026-02-14", "4500", 
-        "Maintenance", "Filter", "Oil Filter", 
-        "EF-100", "2", "550.50", "Routine Service"
-    ];
-    
-    const csvContent = [headers, sample].map(e => e.join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.setAttribute("download", "PACTRA360_Bulk_Template.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
-
-// --- 1. THE UPLOAD ENGINE (Unified, Fast & Detailed Summary) ---
-function handleBulkUpload() {
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzI4glV9IxNnj8PHzBE_JZbxTc6HDEqXX3sDTUjpUUuKec7fhw1yrbexfo8xxAbynsS/exec"; 
-
-    const techName = document.getElementById('valTech').value.trim();
-    const techPass = document.getElementById('passInput').value.trim();
-
-    if (!techName || !techPass) {
-        alert("⚠️ Please enter User Name and Password first!");
-        return;
-    }
-
-    const fileInput = document.getElementById('csvFileInput');
-    const file = fileInput.files[0];
-    if (!file) { alert("⚠️ Please select a CSV file first!"); return; }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const rawContent = e.target.result; 
-            const rows = rawContent.split(/\r?\n/).slice(1);
-            let bulkPayload = [];
-
-            // 🚀 DYNAMIC SESSION ID (Ensures lightning-fast uploads without duplicate blocking)
-            const sessionID = "SITE_" + techName.substring(0,3) + "_" + Date.now();
-
-            rows.forEach((row) => {
-                if (!row.trim()) return;
-                
-                // Smart split to ignore commas inside text quotes
-                const cols = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                
-                if (cols.length >= 12) {
-                    bulkPayload.push({
-                        Technician_Name: techName,
-                        Unlock_Password: techPass,
-                        Customer_Name: cols[0].replace(/"/g, '').trim(),
-                        Work_Site: cols[1].replace(/"/g, '').trim(),
-                        Fleet_ID: cols[2].replace(/"/g, '').trim(),
-                        Entry_Date: cols[3].trim(),
-                        Engine_Hours: cols[4].trim(),
-                        Part_Group: cols[5].trim(),
-                        Part_Type: cols[6].trim(),
-                        Part_Description: cols[7].replace(/"/g, '').trim(),
-                        Part_Number: cols[8].trim(),
-                        Quantity: cols[9].trim(),
-                        Unit_Price: cols[10].trim(),
-                        Reason_to_Replace: cols[11].replace(/"/g, '').trim(),
-                        File_ID: sessionID 
-                    });
-                }
-            });
-
-            if (bulkPayload.length > 0) {
-                if(confirm(`Security Verified. Upload ${bulkPayload.length} records for processing?`)) {
-                    const btn = document.querySelector("button[onclick='handleBulkUpload()']");
-                    if(btn) { 
-                        btn.innerText = "⏳ Processing Bulk..."; 
-                        btn.disabled = true; 
-                    }
-
-                    // SENDING DATA TO DATABASE
-                    fetch(GOOGLE_SCRIPT_URL, {
-                        method: "POST",
-                        body: JSON.stringify(bulkPayload),
-                        mode: 'no-cors'
-                    })
-                    .then(() => {
-                        // 🚀 NEW: Update the Timestamp
-                        const now = new Date();
-                        const timeStr = now.toLocaleTimeString();
-                        document.getElementById('lastEntryTime').innerText = timeStr;
-                        document.getElementById('lastEntryTime').style.color = "#007bff";
-
-                        // THE SUCCESS SUMMARY
-                        const totalLines = bulkPayload.length;
-                        const fleetID = bulkPayload[0].Fleet_ID; 
-                        
-                        alert(`✅ UPLOAD COMPLETE\n\n` +
-                              `------------------------------\n` +
-                              `Machine: ${fleetID}\n` +
-                              `Records Processed: ${totalLines}\n` +
-                              `Time Recorded: ${timeStr}\n` + // Added time here
-                              `Session ID: ${sessionID}\n` +
-                              `------------------------------\n` +
-                              `Success! Data sent to server. Please do not re-upload.`);
-
-                        if(btn) { 
-                            btn.innerText = "🚀 Upload & Process Bulk Data"; 
-                            btn.disabled = false; 
-                        }
-                        fileInput.value = ""; 
-                    })
-                    .catch(err => {
-                        alert("❌ System Error: " + err);
-                        if(btn) { 
-                            btn.innerText = "🚀 Upload & Process Bulk Data"; 
-                            btn.disabled = false; 
-                        }
-                    });
-                }
-            }
-        } catch (err) {
-            alert("❌ File Structure Error: " + err.message);
-        }
+        });
     };
-    reader.readAsText(file);
-}
-    function generateDynamicTemplate() {
-    try {
-        var c = (document.getElementById('customerSelect')).value;
-        var s = (document.getElementById('workSiteSelect')).value;
-        var f = (document.getElementById('fleetSelect')).value;
 
-        if (!c || !s || !f) {
-            alert("⚠️ Please select Customer, Site, and Fleet from the dropdowns first!");
-            return;
-        }
-
-        var headers = "Customer_Name,Work_Site,Fleet_ID,Entry_Date,Engine_Hours,Part_Group,Part_Type,Part_Description,Part_Number,Quantity,Unit_Price,Reason_to_Replace";
-        var date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
-        var row = '"' + c + '","' + s + '","' + f + '",' + date + ",,,,,,,,";
-        var csvContent = headers + "\n" + row;
-
-        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        var link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute("download", "Template_" + s.replace(/\s+/g, '_') + ".csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } catch (err) {
-        alert("❌ Error: " + err.message);
+    function addPartLine() {
+        const container = document.getElementById('partsContainer');
+        const rowId = document.querySelectorAll('.part-block').length + 1;
+        if(rowId > 10) return alert("Max 10 lines allowed.");
+        const clone = document.getElementById('part-row-1').cloneNode(true);
+        clone.id = "part-row-" + rowId;
+        clone.querySelector('.part-header span').innerText = "PART ENTRY #" + rowId;
+        clone.querySelectorAll('select, input').forEach(i => i.value = (i.name === "qty[]" ? 1 : ""));
+        container.appendChild(clone);
     }
-}
-
-// --- 2. ADMIN & SECURITY SECTION ---
-var isAdmin = false;
-
-document.addEventListener('click', function(e) {
-    if (e.target.innerText && e.target.innerText.includes("Locked")) {
-        if (e.ctrlKey && e.altKey) {
-            isAdmin = !isAdmin;
-            e.target.innerText = isAdmin ? "Unlocked - Admin Active" : "Locked - Please Verify";
-            e.target.style.color = isAdmin ? "green" : "red";
-            alert(isAdmin ? "🔓 ADMIN UNLOCKED" : "🔒 ADMIN LOCKED");
-        }
-    }
-});
-
-window.addEventListener('keydown', function(e) {
-    if (isAdmin) return true;
-    if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && e.keyCode === 73) || (e.ctrlKey && e.keyCode === 85)) {
-        e.preventDefault();
-        return false;
-    }
-}, true);
-
-window.addEventListener('contextmenu', function(e) {
-    if (!isAdmin) e.preventDefault();
-}, true);
 </script>
+
 </body>
 </html>
-
-
-
-
-
-
-
-
-
