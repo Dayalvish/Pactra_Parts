@@ -62,6 +62,10 @@
     <td colspan="2">
        <div class="bulk-section" style="margin-top: 25px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #f9f9f9;">
     <h3 style="margin-top: 0; color: #333; border-bottom: 2px solid #007bff; padding-bottom: 5px;">Bulk Upload Tools</h3>
+           <div id="syncStatus" style="font-size: 11px; background: #e9ecef; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-bottom: 10px; border: 1px solid #ccc;">
+    📡 System Status: <span id="syncDot" style="color: #28a745;">● Online</span> | 
+    🕒 Last Entry Sent: <span id="lastEntryTime" style="font-weight: bold;">None</span>
+</div>
     
     <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 15px;">
         
@@ -84,8 +88,8 @@
     </div>
 </div>
 
-<tr><td colspan="2" id="partsContainer">
-                <tr><td colspan="2" id="partsContainer">
+<tr>
+                <td colspan="2" id="partsContainer">
                     <div class="part-block" id="part-row-1">
                         <div class="part-header">PART ENTRY #1</div>
                         <table style="width:100%; border:none;">
@@ -489,7 +493,13 @@ function handleBulkUpload() {
                         mode: 'no-cors'
                     })
                     .then(() => {
-                        // 🚀 THE NEW SUCCESS SUMMARY
+                        // 🚀 NEW: Update the Timestamp
+                        const now = new Date();
+                        const timeStr = now.toLocaleTimeString();
+                        document.getElementById('lastEntryTime').innerText = timeStr;
+                        document.getElementById('lastEntryTime').style.color = "#007bff";
+
+                        // THE SUCCESS SUMMARY
                         const totalLines = bulkPayload.length;
                         const fleetID = bulkPayload[0].Fleet_ID; 
                         
@@ -497,9 +507,10 @@ function handleBulkUpload() {
                               `------------------------------\n` +
                               `Machine: ${fleetID}\n` +
                               `Records Processed: ${totalLines}\n` +
+                              `Time Recorded: ${timeStr}\n` + // Added time here
                               `Session ID: ${sessionID}\n` +
                               `------------------------------\n` +
-                              `The central dashboard grid is now updating. Please do not re-upload.`);
+                              `Success! Data sent to server. Please do not re-upload.`);
 
                         if(btn) { 
                             btn.innerText = "🚀 Upload & Process Bulk Data"; 
@@ -578,6 +589,7 @@ window.addEventListener('contextmenu', function(e) {
 </script>
 </body>
 </html>
+
 
 
 
